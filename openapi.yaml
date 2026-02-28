@@ -1,0 +1,2154 @@
+openapi: 3.1.0
+info:
+  title: Donezo API
+  description: |
+    RESTful API for Donezo, a Things 3-inspired task management application.
+
+    All endpoints require authentication via Laravel Sanctum. Include a Bearer
+    token in the `Authorization` header or use cookie-based session auth with
+    the `X-XSRF-TOKEN` header.
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost/api/v1
+    description: Local development (Sail)
+
+security:
+  - bearerAuth: []
+  - cookieAuth: []
+
+tags:
+  - name: Tasks
+    description: Task CRUD, completion, and reordering
+  - name: Projects
+    description: Project management
+  - name: Sections
+    description: Top-level organizational areas
+  - name: Tags
+    description: Cross-cutting labels for tasks
+  - name: Checklist Items
+    description: Subtasks within a task
+  - name: Reminders
+    description: Time-based reminders on tasks
+  - name: Headings
+    description: Subdivisions within a project
+  - name: Groups
+    description: Shared workspaces with member management
+  - name: Search
+    description: Unified search across entities
+  - name: Calendar
+    description: Google Calendar integration
+  - name: Push Subscriptions
+    description: Web Push notification subscriptions
+
+paths:
+  # ── Tasks ────────────────────────────────────────────────────────────
+  /tasks:
+    get:
+      operationId: listTasks
+      tags: [Tasks]
+      summary: List tasks with filters
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/TaskStatus"
+        - name: project_id
+          in: query
+          schema:
+            type: integer
+        - name: section_id
+          in: query
+          schema:
+            type: integer
+        - name: heading_id
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          description: Full-text search on title and description (PostgreSQL ilike)
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: Filter by tag ID
+          schema:
+            type: integer
+        - name: completed
+          in: query
+          description: When true, return completed tasks instead of active ones
+          schema:
+            type: boolean
+            default: false
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Paginated list of tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Task"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+    post:
+      operationId: createTask
+      tags: [Tasks]
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTask"
+      responses:
+        "201":
+          description: Task created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /tasks/{taskId}:
+    parameters:
+      - $ref: "#/components/parameters/taskId"
+    get:
+      operationId: getTask
+      tags: [Tasks]
+      summary: Get a single task
+      responses:
+        "200":
+          description: Task details
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: updateTask
+      tags: [Tasks]
+      summary: Update a task (partial update supported)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTask"
+      responses:
+        "200":
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteTask
+      tags: [Tasks]
+      summary: Soft-delete a task
+      responses:
+        "204":
+          description: Task deleted
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /tasks/{taskId}/complete:
+    parameters:
+      - $ref: "#/components/parameters/taskId"
+    post:
+      operationId: completeTask
+      tags: [Tasks]
+      summary: Mark a task as complete
+      responses:
+        "200":
+          description: Task completed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /tasks/{taskId}/uncomplete:
+    parameters:
+      - $ref: "#/components/parameters/taskId"
+    post:
+      operationId: uncompleteTask
+      tags: [Tasks]
+      summary: Unmark a task as complete (resets to inbox)
+      responses:
+        "200":
+          description: Task uncompleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /tasks/reorder:
+    post:
+      operationId: reorderTasks
+      tags: [Tasks]
+      summary: Batch reorder tasks by position
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tasks]
+              properties:
+                tasks:
+                  type: array
+                  items:
+                    type: object
+                    required: [id, position]
+                    properties:
+                      id:
+                        type: integer
+                      position:
+                        type: integer
+                        minimum: 0
+      responses:
+        "200":
+          description: Tasks reordered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  # ── Projects ─────────────────────────────────────────────────────────
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [Projects]
+      summary: List all projects for the authenticated user
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+    post:
+      operationId: createProject
+      tags: [Projects]
+      summary: Create a new project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProject"
+      responses:
+        "201":
+          description: Project created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /projects/{projectId}:
+    parameters:
+      - $ref: "#/components/parameters/projectId"
+    get:
+      operationId: getProject
+      tags: [Projects]
+      summary: Get a single project
+      responses:
+        "200":
+          description: Project details
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: updateProject
+      tags: [Projects]
+      summary: Update a project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProject"
+      responses:
+        "200":
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteProject
+      tags: [Projects]
+      summary: Soft-delete a project
+      responses:
+        "204":
+          description: Project deleted
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  # ── Sections ─────────────────────────────────────────────────────────
+  /sections:
+    get:
+      operationId: listSections
+      tags: [Sections]
+      summary: List all sections for the authenticated user
+      responses:
+        "200":
+          description: List of sections
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Section"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+    post:
+      operationId: createSection
+      tags: [Sections]
+      summary: Create a new section
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSection"
+      responses:
+        "201":
+          description: Section created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Section"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /sections/{sectionId}:
+    parameters:
+      - $ref: "#/components/parameters/sectionId"
+    get:
+      operationId: getSection
+      tags: [Sections]
+      summary: Get a single section
+      responses:
+        "200":
+          description: Section details
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Section"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: updateSection
+      tags: [Sections]
+      summary: Update a section
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSection"
+      responses:
+        "200":
+          description: Section updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Section"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteSection
+      tags: [Sections]
+      summary: Soft-delete a section
+      responses:
+        "204":
+          description: Section deleted
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  # ── Tags ─────────────────────────────────────────────────────────────
+  /tags:
+    get:
+      operationId: listTags
+      tags: [Tags]
+      summary: List all tags for the authenticated user
+      responses:
+        "200":
+          description: List of tags
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Tag"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+    post:
+      operationId: createTag
+      tags: [Tags]
+      summary: Create a new tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTag"
+      responses:
+        "201":
+          description: Tag created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Tag"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /tags/{tagId}:
+    parameters:
+      - $ref: "#/components/parameters/tagId"
+    get:
+      operationId: getTag
+      tags: [Tags]
+      summary: Get a single tag
+      responses:
+        "200":
+          description: Tag details
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Tag"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: updateTag
+      tags: [Tags]
+      summary: Update a tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTag"
+      responses:
+        "200":
+          description: Tag updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Tag"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteTag
+      tags: [Tags]
+      summary: Delete a tag (detaches from all tasks)
+      responses:
+        "204":
+          description: Tag deleted
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  # ── Checklist Items ──────────────────────────────────────────────────
+  /tasks/{taskId}/checklist-items:
+    parameters:
+      - $ref: "#/components/parameters/taskId"
+    get:
+      operationId: listChecklistItems
+      tags: [Checklist Items]
+      summary: List checklist items for a task
+      responses:
+        "200":
+          description: List of checklist items
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ChecklistItem"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      operationId: createChecklistItem
+      tags: [Checklist Items]
+      summary: Create a checklist item for a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                  maxLength: 500
+      responses:
+        "201":
+          description: Checklist item created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ChecklistItem"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /checklist-items/{checklistItemId}:
+    parameters:
+      - $ref: "#/components/parameters/checklistItemId"
+    get:
+      operationId: getChecklistItem
+      tags: [Checklist Items]
+      summary: Get a single checklist item
+      responses:
+        "200":
+          description: Checklist item details
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ChecklistItem"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: updateChecklistItem
+      tags: [Checklist Items]
+      summary: Update a checklist item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 500
+                is_completed:
+                  type: boolean
+                position:
+                  type: integer
+                  minimum: 0
+      responses:
+        "200":
+          description: Checklist item updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ChecklistItem"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteChecklistItem
+      tags: [Checklist Items]
+      summary: Delete a checklist item
+      responses:
+        "204":
+          description: Checklist item deleted
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /checklist-items/{checklistItemId}/toggle:
+    parameters:
+      - $ref: "#/components/parameters/checklistItemId"
+    post:
+      operationId: toggleChecklistItem
+      tags: [Checklist Items]
+      summary: Toggle the completion state of a checklist item
+      responses:
+        "200":
+          description: Checklist item toggled
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ChecklistItem"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  # ── Reminders ────────────────────────────────────────────────────────
+  /tasks/{taskId}/reminders:
+    parameters:
+      - $ref: "#/components/parameters/taskId"
+    get:
+      operationId: listReminders
+      tags: [Reminders]
+      summary: List reminders for a task
+      responses:
+        "200":
+          description: List of reminders
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Reminder"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      operationId: createReminder
+      tags: [Reminders]
+      summary: Create a reminder for a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [remind_at]
+              properties:
+                remind_at:
+                  type: string
+                  format: date-time
+                  description: Must be a future date/time
+      responses:
+        "201":
+          description: Reminder created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Reminder"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /reminders/{reminderId}:
+    parameters:
+      - $ref: "#/components/parameters/reminderId"
+    get:
+      operationId: getReminder
+      tags: [Reminders]
+      summary: Get a single reminder
+      responses:
+        "200":
+          description: Reminder details
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Reminder"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: updateReminder
+      tags: [Reminders]
+      summary: Update a reminder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [remind_at]
+              properties:
+                remind_at:
+                  type: string
+                  format: date-time
+                  description: Must be a future date/time
+      responses:
+        "200":
+          description: Reminder updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Reminder"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteReminder
+      tags: [Reminders]
+      summary: Delete a reminder
+      responses:
+        "204":
+          description: Reminder deleted
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  # ── Headings ─────────────────────────────────────────────────────────
+  /projects/{projectId}/headings:
+    parameters:
+      - $ref: "#/components/parameters/projectId"
+    get:
+      operationId: listHeadings
+      tags: [Headings]
+      summary: List headings for a project
+      responses:
+        "200":
+          description: List of headings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Heading"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      operationId: createHeading
+      tags: [Headings]
+      summary: Create a heading for a project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+      responses:
+        "201":
+          description: Heading created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Heading"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /headings/{headingId}:
+    parameters:
+      - $ref: "#/components/parameters/headingId"
+    get:
+      operationId: getHeading
+      tags: [Headings]
+      summary: Get a single heading
+      responses:
+        "200":
+          description: Heading details
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Heading"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: updateHeading
+      tags: [Headings]
+      summary: Update a heading
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                position:
+                  type: integer
+                  minimum: 0
+      responses:
+        "200":
+          description: Heading updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Heading"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteHeading
+      tags: [Headings]
+      summary: Delete a heading (unassigns tasks first)
+      responses:
+        "204":
+          description: Heading deleted
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /headings/reorder:
+    post:
+      operationId: reorderHeadings
+      tags: [Headings]
+      summary: Batch reorder headings by position
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [headings]
+              properties:
+                headings:
+                  type: array
+                  items:
+                    type: object
+                    required: [id, position]
+                    properties:
+                      id:
+                        type: integer
+                      position:
+                        type: integer
+                        minimum: 0
+      responses:
+        "200":
+          description: Headings reordered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  # ── Groups ───────────────────────────────────────────────────────────
+  /groups:
+    get:
+      operationId: listGroups
+      tags: [Groups]
+      summary: List groups the user owns or belongs to
+      responses:
+        "200":
+          description: List of groups
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Group"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+    post:
+      operationId: createGroup
+      tags: [Groups]
+      summary: Create a new group
+      description: The creator is automatically added as a member with the admin role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGroup"
+      responses:
+        "201":
+          description: Group created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Group"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /groups/{groupId}:
+    parameters:
+      - $ref: "#/components/parameters/groupId"
+    get:
+      operationId: getGroup
+      tags: [Groups]
+      summary: Get a single group with members
+      description: Accessible to group owner and members.
+      responses:
+        "200":
+          description: Group details with member list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, members]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Group"
+                  members:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: updateGroup
+      tags: [Groups]
+      summary: Update a group (owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGroup"
+      responses:
+        "200":
+          description: Group updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Group"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteGroup
+      tags: [Groups]
+      summary: Soft-delete a group (owner only)
+      responses:
+        "204":
+          description: Group deleted
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /groups/{groupId}/members:
+    parameters:
+      - $ref: "#/components/parameters/groupId"
+    post:
+      operationId: addGroupMember
+      tags: [Groups]
+      summary: Add a member to a group (owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: integer
+                  description: ID of the user to add
+                role:
+                  type: string
+                  enum: [admin, member]
+                  default: member
+      responses:
+        "200":
+          description: Member added
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Group"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          description: User is already a member or validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /groups/{groupId}/members/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/groupId"
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      operationId: removeGroupMember
+      tags: [Groups]
+      summary: Remove a member from a group (owner only, cannot remove owner)
+      responses:
+        "200":
+          description: Member removed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Group"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          description: Cannot remove the group owner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /groups/{groupId}/tasks:
+    parameters:
+      - $ref: "#/components/parameters/groupId"
+    post:
+      operationId: shareTasksWithGroup
+      tags: [Groups]
+      summary: Share tasks with a group (member or owner)
+      description: Only tasks owned by the requesting user are shared. Uses syncWithoutDetaching.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [task_ids]
+              properties:
+                task_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        "200":
+          description: Tasks shared
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Task"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  # ── Search ───────────────────────────────────────────────────────────
+  /search:
+    get:
+      operationId: search
+      tags: [Search]
+      summary: Search across tasks, projects, sections, and tags
+      description: |
+        Uses PostgreSQL `ilike` for case-insensitive matching. Excludes
+        cancelled tasks and archived projects.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query (1-255 characters)
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
+        - name: limit
+          in: query
+          description: Maximum results per entity type
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Search results grouped by entity type
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tasks, projects, sections, tags]
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Task"
+                  projects:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Project"
+                  sections:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Section"
+                  tags:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Tag"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  # ── Calendar ─────────────────────────────────────────────────────────
+  /calendar/status:
+    get:
+      operationId: calendarStatus
+      tags: [Calendar]
+      summary: Get Google Calendar connection status
+      responses:
+        "200":
+          description: Calendar connection status
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Not connected
+                    required: [connected, has_calendar_scope, enabled]
+                    properties:
+                      connected:
+                        type: boolean
+                        const: false
+                      has_calendar_scope:
+                        type: boolean
+                        const: false
+                      enabled:
+                        type: boolean
+                  - type: object
+                    description: Connected
+                    required: [connected, has_calendar_scope, token_expired, enabled]
+                    properties:
+                      connected:
+                        type: boolean
+                        const: true
+                      has_calendar_scope:
+                        type: boolean
+                      token_expired:
+                        type: boolean
+                      enabled:
+                        type: boolean
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+
+  /calendar/disconnect:
+    post:
+      operationId: calendarDisconnect
+      tags: [Calendar]
+      summary: Disconnect Google Calendar
+      description: |
+        Removes the calendar scope from the social account and clears all
+        `google_calendar_event_id` values from the user's tasks.
+      responses:
+        "200":
+          description: Calendar disconnected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+
+  /calendar/sync:
+    post:
+      operationId: calendarSync
+      tags: [Calendar]
+      summary: Sync all active tasks to Google Calendar
+      description: |
+        Queues a `SyncTaskToCalendar` job for each active task that has
+        a `scheduled_at` or `deadline_at` date.
+      responses:
+        "200":
+          description: Sync queued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message, count]
+                properties:
+                  message:
+                    type: string
+                  count:
+                    type: integer
+                    description: Number of tasks queued for sync
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          description: Google Calendar is not connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ── Push Subscriptions ───────────────────────────────────────────────
+  /push-subscriptions:
+    post:
+      operationId: storePushSubscription
+      tags: [Push Subscriptions]
+      summary: Store or update a push subscription
+      description: Uses `updateOrCreate` keyed on the endpoint URL.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePushSubscription"
+      responses:
+        "201":
+          description: Subscription stored
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [id, endpoint]
+                    properties:
+                      id:
+                        type: integer
+                      endpoint:
+                        type: string
+                        format: uri
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deletePushSubscription
+      tags: [Push Subscriptions]
+      summary: Remove a push subscription by endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [endpoint]
+              properties:
+                endpoint:
+                  type: string
+      responses:
+        "204":
+          description: Subscription removed
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /push-subscriptions/vapid-key:
+    get:
+      operationId: getVapidKey
+      tags: [Push Subscriptions]
+      summary: Get the VAPID public key for Web Push
+      responses:
+        "200":
+          description: VAPID public key
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [public_key]
+                properties:
+                  public_key:
+                    type: string
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+
+# ════════════════════════════════════════════════════════════════════════
+# Components
+# ════════════════════════════════════════════════════════════════════════
+components:
+  # ── Security Schemes ─────────────────────────────────────────────────
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Laravel Sanctum API token
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: laravel_session
+      description: Session cookie (used with X-XSRF-TOKEN header for SPA auth)
+
+  # ── Path Parameters ──────────────────────────────────────────────────
+  parameters:
+    taskId:
+      name: taskId
+      in: path
+      required: true
+      schema:
+        type: integer
+    projectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+    sectionId:
+      name: sectionId
+      in: path
+      required: true
+      schema:
+        type: integer
+    tagId:
+      name: tagId
+      in: path
+      required: true
+      schema:
+        type: integer
+    checklistItemId:
+      name: checklistItemId
+      in: path
+      required: true
+      schema:
+        type: integer
+    reminderId:
+      name: reminderId
+      in: path
+      required: true
+      schema:
+        type: integer
+    headingId:
+      name: headingId
+      in: path
+      required: true
+      schema:
+        type: integer
+    groupId:
+      name: groupId
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  # ── Shared Responses ─────────────────────────────────────────────────
+  responses:
+    Unauthenticated:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [message]
+            properties:
+              message:
+                type: string
+                example: Unauthenticated.
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [message]
+            properties:
+              message:
+                type: string
+                example: This action is unauthorized.
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [message, errors]
+            properties:
+              message:
+                type: string
+                example: The given data was invalid.
+              errors:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+
+  # ── Schemas ──────────────────────────────────────────────────────────
+  schemas:
+    # ─── Enums ───────────────────────────────────────────────
+    TaskStatus:
+      type: string
+      enum: [inbox, today, upcoming, anytime, someday, completed, cancelled]
+
+    ProjectStatus:
+      type: string
+      enum: [active, completed, archived]
+
+    RepeatFrequency:
+      type: string
+      enum: [daily, weekly, monthly, yearly]
+
+    GroupRole:
+      type: string
+      enum: [admin, member]
+
+    # ─── Domain Objects ──────────────────────────────────────
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - status
+        - is_evening
+        - position
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        is_evening:
+          type: boolean
+        scheduled_at:
+          type: string
+          format: date-time
+          nullable: true
+        deadline_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        cancelled_at:
+          type: string
+          format: date-time
+          nullable: true
+        repeat_rule:
+          $ref: "#/components/schemas/RepeatRule"
+        position:
+          type: integer
+        project_id:
+          type: integer
+          nullable: true
+        section_id:
+          type: integer
+          nullable: true
+        heading_id:
+          type: integer
+          nullable: true
+        google_calendar_event_id:
+          type: string
+          nullable: true
+        creator:
+          $ref: "#/components/schemas/User"
+        assignee:
+          $ref: "#/components/schemas/User"
+        checklist_items:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/ChecklistItem"
+        reminders:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/Reminder"
+        tags:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/Tag"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Project:
+      type: object
+      required:
+        - id
+        - name
+        - status
+        - position
+        - task_count
+        - completed_task_count
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        status:
+          $ref: "#/components/schemas/ProjectStatus"
+        position:
+          type: integer
+        section_id:
+          type: integer
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        headings:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/Heading"
+        task_count:
+          type: integer
+        completed_task_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Section:
+      type: object
+      required: [id, name, position, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        position:
+          type: integer
+        projects:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/Project"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Tag:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        color:
+          type: string
+          nullable: true
+          description: Hex color code (e.g. "#ff5733")
+          maxLength: 7
+
+    ChecklistItem:
+      type: object
+      required: [id, title, is_completed, position]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        is_completed:
+          type: boolean
+        position:
+          type: integer
+
+    Reminder:
+      type: object
+      required: [id, remind_at, is_sent]
+      properties:
+        id:
+          type: integer
+        remind_at:
+          type: string
+          format: date-time
+        is_sent:
+          type: boolean
+
+    Heading:
+      type: object
+      required: [id, name, position, task_count]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        position:
+          type: integer
+        archived_at:
+          type: string
+          format: date-time
+          nullable: true
+        task_count:
+          type: integer
+
+    Group:
+      type: object
+      required: [id, name, owner, member_count]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        owner:
+          $ref: "#/components/schemas/User"
+        member_count:
+          type: integer
+
+    User:
+      type: object
+      required: [id, name, email, timezone]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        avatar:
+          type: string
+          nullable: true
+          format: uri
+        timezone:
+          type: string
+          example: America/New_York
+        email_verified_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    RepeatRule:
+      type: object
+      nullable: true
+      required: [frequency]
+      properties:
+        frequency:
+          $ref: "#/components/schemas/RepeatFrequency"
+        interval:
+          type: integer
+          minimum: 1
+          default: 1
+        days_of_week:
+          type: array
+          nullable: true
+          items:
+            type: string
+        end_date:
+          type: string
+          format: date
+          nullable: true
+
+    # ─── Request Bodies ──────────────────────────────────────
+    CreateTask:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          maxLength: 500
+        description:
+          type: string
+          nullable: true
+          maxLength: 10000
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        is_evening:
+          type: boolean
+          default: false
+        scheduled_at:
+          type: string
+          format: date
+          nullable: true
+          description: "Format: YYYY-MM-DD"
+        deadline_at:
+          type: string
+          format: date
+          nullable: true
+          description: "Format: YYYY-MM-DD"
+        repeat_rule:
+          $ref: "#/components/schemas/RepeatRule"
+        project_id:
+          type: integer
+          nullable: true
+        section_id:
+          type: integer
+          nullable: true
+        heading_id:
+          type: integer
+          nullable: true
+        assigned_to:
+          type: integer
+          nullable: true
+        tags:
+          type: array
+          nullable: true
+          items:
+            type: integer
+          description: Array of tag IDs
+        checklist_items:
+          type: array
+          nullable: true
+          items:
+            type: object
+            required: [title]
+            properties:
+              title:
+                type: string
+                maxLength: 500
+        reminders:
+          type: array
+          nullable: true
+          items:
+            type: object
+            required: [remind_at]
+            properties:
+              remind_at:
+                type: string
+                format: date-time
+
+    UpdateTask:
+      type: object
+      description: All fields are optional. Only provided fields are updated.
+      properties:
+        title:
+          type: string
+          maxLength: 500
+        description:
+          type: string
+          nullable: true
+          maxLength: 10000
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        is_evening:
+          type: boolean
+        scheduled_at:
+          type: string
+          format: date
+          nullable: true
+          description: "Format: YYYY-MM-DD"
+        deadline_at:
+          type: string
+          format: date
+          nullable: true
+          description: "Format: YYYY-MM-DD"
+        repeat_rule:
+          $ref: "#/components/schemas/RepeatRule"
+        project_id:
+          type: integer
+          nullable: true
+        section_id:
+          type: integer
+          nullable: true
+        heading_id:
+          type: integer
+          nullable: true
+        assigned_to:
+          type: integer
+          nullable: true
+        tags:
+          type: array
+          nullable: true
+          items:
+            type: integer
+          description: Array of tag IDs (replaces existing tags)
+
+    CreateProject:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          maxLength: 5000
+        section_id:
+          type: integer
+          nullable: true
+
+    UpdateProject:
+      type: object
+      description: All fields are optional.
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          maxLength: 5000
+        section_id:
+          type: integer
+          nullable: true
+        status:
+          $ref: "#/components/schemas/ProjectStatus"
+        position:
+          type: integer
+          minimum: 0
+
+    CreateSection:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+
+    UpdateSection:
+      type: object
+      description: All fields are optional.
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        position:
+          type: integer
+          minimum: 0
+
+    CreateTag:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        color:
+          type: string
+          nullable: true
+          maxLength: 7
+          description: Hex color code (e.g. "#ff5733")
+
+    UpdateTag:
+      type: object
+      description: All fields are optional.
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        color:
+          type: string
+          nullable: true
+          maxLength: 7
+
+    CreateGroup:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          maxLength: 1000
+
+    UpdateGroup:
+      type: object
+      description: All fields are optional.
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          maxLength: 1000
+
+    CreatePushSubscription:
+      type: object
+      required: [endpoint, keys]
+      properties:
+        endpoint:
+          type: string
+          format: uri
+        keys:
+          type: object
+          required: [p256dh, auth]
+          properties:
+            p256dh:
+              type: string
+            auth:
+              type: string
+        content_encoding:
+          type: string
+          enum: [aesgcm, aes128gcm]
+          default: aesgcm
+
+    # ─── Utility Schemas ─────────────────────────────────────
+    PaginationMeta:
+      type: object
+      required: [current_page, last_page, per_page, total]
+      properties:
+        current_page:
+          type: integer
+        last_page:
+          type: integer
+        per_page:
+          type: integer
+        total:
+          type: integer
+
+    MessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string

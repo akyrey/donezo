@@ -180,6 +180,8 @@ npx tsc --noEmit
 
 All API endpoints are under `/api/v1/` and require Sanctum authentication.
 
+The full API specification is available as an [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) document at [`openapi.yaml`](openapi.yaml).
+
 ### Resources
 
 | Endpoint                                  | Methods                    | Description            |
