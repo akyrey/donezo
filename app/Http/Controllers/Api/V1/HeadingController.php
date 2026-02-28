@@ -20,7 +20,7 @@ class HeadingController extends Controller
 
         $headings = $project->headings()
             ->orderBy('position')
-            ->withCount('tasks')
+            ->withCount('tasks as task_count')
             ->get();
 
         return response()->json([
@@ -46,7 +46,7 @@ class HeadingController extends Controller
             'position' => $maxPosition + 1,
         ]);
 
-        $heading->loadCount('tasks');
+        $heading->loadCount('tasks as task_count');
 
         return response()->json([
             'data' => HeadingData::from($heading),
@@ -60,7 +60,7 @@ class HeadingController extends Controller
     {
         abort_unless($heading->project->user_id === $request->user()->id, 403);
 
-        $heading->loadCount('tasks');
+        $heading->loadCount('tasks as task_count');
 
         return response()->json([
             'data' => HeadingData::from($heading),
@@ -80,7 +80,7 @@ class HeadingController extends Controller
         ]);
 
         $heading->update($validated);
-        $heading->loadCount('tasks');
+        $heading->loadCount('tasks as task_count');
 
         return response()->json([
             'data' => HeadingData::from($heading),

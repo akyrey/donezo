@@ -22,7 +22,7 @@ class SectionController extends Controller
 
         $section->load([
             'projects' => fn ($q) => $q->orderBy('position')->withCount([
-                'tasks',
+                'tasks as task_count',
                 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at'),
             ]),
         ]);

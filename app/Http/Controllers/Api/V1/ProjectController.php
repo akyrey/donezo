@@ -19,8 +19,8 @@ class ProjectController extends Controller
     {
         $projects = $request->user()
             ->projects()
-            ->withCount(['tasks', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')])
-            ->with(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks')])
+            ->withCount(['tasks as task_count', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')])
+            ->with(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count')])
             ->orderBy('position')
             ->get();
 
@@ -44,8 +44,8 @@ class ProjectController extends Controller
             'position' => $maxPosition + 1,
         ]);
 
-        $project->loadCount(['tasks', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')]);
-        $project->load(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks')]);
+        $project->loadCount(['tasks as task_count', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')]);
+        $project->load(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count')]);
 
         return response()->json([
             'data' => ProjectData::from($project),
@@ -59,8 +59,8 @@ class ProjectController extends Controller
     {
         abort_unless($project->user_id === $request->user()->id, 403);
 
-        $project->loadCount(['tasks', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')]);
-        $project->load(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks')]);
+        $project->loadCount(['tasks as task_count', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')]);
+        $project->load(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count')]);
 
         return response()->json([
             'data' => ProjectData::from($project),
@@ -90,8 +90,8 @@ class ProjectController extends Controller
 
         $project->update($validated);
 
-        $project->loadCount(['tasks', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')]);
-        $project->load(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks')]);
+        $project->loadCount(['tasks as task_count', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')]);
+        $project->load(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count')]);
 
         return response()->json([
             'data' => ProjectData::from($project),

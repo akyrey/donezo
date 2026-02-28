@@ -5,32 +5,15 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
-import type { Task } from '@/types';
-
-interface PaginationLink {
-    url: string | null;
-    label: string;
-    active: boolean;
-}
+import type { Paginated, Task } from '@/types';
 
 interface LogbookProps {
-    tasks: {
-        data: Task[];
-        links: PaginationLink[];
-        meta: {
-            current_page: number;
-            last_page: number;
-            per_page: number;
-            total: number;
-            from: number | null;
-            to: number | null;
-        };
-    };
+    tasks: Paginated<Task>;
 }
 
 export default function Logbook({ tasks }: LogbookProps) {
-    const prevLink = tasks.links?.find((l) => l.label.includes('Previous'));
-    const nextLink = tasks.links?.find((l) => l.label.includes('Next'));
+    const prevLink = tasks.links.prev;
+    const nextLink = tasks.links.next;
 
     return (
         <AuthenticatedLayout>
@@ -42,7 +25,7 @@ export default function Logbook({ tasks }: LogbookProps) {
                         <BookOpen className="h-6 w-6 text-success" />
                         Logbook
                     </h1>
-                    {tasks.meta?.total > 0 && (
+                    {tasks.meta.total > 0 && (
                         <p className="mt-1 text-sm text-text-secondary">
                             {tasks.meta.total} completed{' '}
                             {tasks.meta.total === 1 ? 'task' : 'tasks'}
@@ -50,7 +33,7 @@ export default function Logbook({ tasks }: LogbookProps) {
                     )}
                 </div>
 
-                {tasks.data?.length > 0 ? (
+                {tasks.data.length > 0 ? (
                     <>
                         <ul className="divide-y divide-border-light">
                             {tasks.data.map((task) => (
@@ -92,11 +75,11 @@ export default function Logbook({ tasks }: LogbookProps) {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    disabled={!prevLink?.url}
-                                    asChild={!!prevLink?.url}
+                                    disabled={!prevLink}
+                                    asChild={!!prevLink}
                                 >
-                                    {prevLink?.url ? (
-                                        <Link href={prevLink.url}>
+                                    {prevLink ? (
+                                        <Link href={prevLink}>
                                             <ChevronLeft className="h-4 w-4" />
                                             Previous
                                         </Link>
@@ -116,11 +99,11 @@ export default function Logbook({ tasks }: LogbookProps) {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    disabled={!nextLink?.url}
-                                    asChild={!!nextLink?.url}
+                                    disabled={!nextLink}
+                                    asChild={!!nextLink}
                                 >
-                                    {nextLink?.url ? (
-                                        <Link href={nextLink.url}>
+                                    {nextLink ? (
+                                        <Link href={nextLink}>
                                             Next
                                             <ChevronRight className="h-4 w-4" />
                                         </Link>

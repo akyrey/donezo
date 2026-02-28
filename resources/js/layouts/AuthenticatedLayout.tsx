@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import {
     Inbox,
@@ -15,8 +15,10 @@ import {
     ChevronRight,
     FolderOpen,
     LayoutList,
+    Search,
+    Users,
 } from 'lucide-react';
-import type { PageProps, Project, Section } from '@/types';
+import type { PageProps, Project, Section, Group } from '@/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { ScrollArea } from '@/components/ui/ScrollArea';
@@ -28,6 +30,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
+import { CommandPalette } from '@/components/CommandPalette';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
@@ -62,12 +65,14 @@ function SidebarContent({
     currentUrl,
     projects,
     sections,
+    groups,
     user,
     onNavigate,
 }: {
     currentUrl: string;
     projects: Project[];
     sections: Section[];
+    groups: Group[];
     user: PageProps['auth']['user'];
     onNavigate?: () => void;
 }) {
@@ -194,6 +199,55 @@ function SidebarContent({
                         )}
                     </div>
                 </div>
+
+                <Separator className="my-2" />
+
+                {/* Groups */}
+                <div className="py-2">
+                    <div className="flex items-center justify-between px-3 py-1.5">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+                            Groups
+                        </span>
+                        <Link href="/groups" onClick={onNavigate}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-5 w-5 text-text-tertiary hover:text-text"
+                            >
+                                <Plus className="h-3.5 w-3.5" />
+                            </Button>
+                        </Link>
+                    </div>
+                    <div className="space-y-0.5">
+                        {groups.map((group) => {
+                            const groupUrl = `/groups/${group.id}`;
+                            const active = isActive(groupUrl, currentUrl);
+                            return (
+                                <Link
+                                    key={group.id}
+                                    href={groupUrl}
+                                    onClick={onNavigate}
+                                    className={cn(
+                                        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                                        active
+                                            ? 'bg-sidebar-active text-primary'
+                                            : 'text-text-secondary hover:bg-sidebar-hover hover:text-text',
+                                    )}
+                                >
+                                    <Users className="h-4 w-4 text-text-tertiary" />
+                                    <span className="truncate">
+                                        {group.name}
+                                    </span>
+                                </Link>
+                            );
+                        })}
+                        {groups.length === 0 && (
+                            <p className="px-3 py-2 text-xs text-text-tertiary">
+                                No groups yet
+                            </p>
+                        )}
+                    </div>
+                </div>
             </ScrollArea>
 
             {/* User menu */}
@@ -251,22 +305,37 @@ export default function AuthenticatedLayout({
     children,
     title,
 }: AuthenticatedLayoutProps) {
-    const { auth, projects = [], sections = [] } = usePage<
+    const { auth, projects = [], sections = [], groups = [] } = usePage<
         PageProps<{
             projects: Project[];
             sections: Section[];
+            groups: Group[];
         }>
     >().props;
 
     const currentUrl = usePage().url;
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+    // Global Cmd+K / Ctrl+K shortcut
+    useEffect(() => {
+        function handleKeyDown(e: KeyboardEvent) {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setCommandPaletteOpen((prev) => !prev);
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     return (
         <div className="flex h-screen bg-bg-secondary">
             {/* Mobile overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+                    className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-200 lg:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
@@ -274,7 +343,7 @@ export default function AuthenticatedLayout({
             {/* Sidebar - mobile drawer */}
             <aside
                 className={cn(
-                    'fixed inset-y-0 left-0 z-50 w-64 transform border-r border-border bg-sidebar transition-transform duration-200 ease-in-out lg:static lg:translate-x-0',
+                    'fixed inset-y-0 left-0 z-50 w-64 transform border-r border-border bg-sidebar transition-transform duration-250 ease-in-out lg:static lg:translate-x-0',
                     sidebarOpen ? 'translate-x-0' : '-translate-x-full',
                 )}
             >
@@ -294,6 +363,7 @@ export default function AuthenticatedLayout({
                     currentUrl={currentUrl}
                     projects={projects}
                     sections={sections}
+                    groups={groups}
                     user={auth.user}
                     onNavigate={() => setSidebarOpen(false)}
                 />
@@ -318,6 +388,24 @@ export default function AuthenticatedLayout({
                             {title}
                         </h1>
                     )}
+
+                    {/* Spacer */}
+                    <div className="flex-1" />
+
+                    {/* Quick Find button */}
+                    <Button
+                        variant="ghost"
+                        className="gap-2 text-text-secondary"
+                        onClick={() => setCommandPaletteOpen(true)}
+                    >
+                        <Search className="h-4 w-4" />
+                        <span className="hidden text-sm sm:inline">
+                            Quick Find
+                        </span>
+                        <kbd className="hidden rounded border border-border bg-bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-text-tertiary sm:inline-block">
+                            {navigator.platform?.includes('Mac') ? '\u2318' : 'Ctrl+'}K
+                        </kbd>
+                    </Button>
                 </header>
 
                 {/* Content area */}
@@ -327,6 +415,12 @@ export default function AuthenticatedLayout({
                     </div>
                 </div>
             </main>
+
+            {/* Command Palette */}
+            <CommandPalette
+                open={commandPaletteOpen}
+                onOpenChange={setCommandPaletteOpen}
+            />
         </div>
     );
 }

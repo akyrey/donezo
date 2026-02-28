@@ -100,6 +100,12 @@ export type Group = {
     member_count: number;
 };
 
+export type GroupMember = User & {
+    pivot?: {
+        role: 'admin' | 'member';
+    };
+};
+
 export type PaginationLinks = {
     first: string | null;
     last: string | null;
@@ -131,4 +137,5 @@ export type PageProps<
         };
         projects: Project[];
         sections: Section[];
+        groups: Group[];
     };

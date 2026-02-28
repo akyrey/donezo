@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Data\GroupData;
 use App\Data\ProjectData;
 use App\Data\SectionData;
 use App\Data\UserData;
@@ -47,7 +48,7 @@ class HandleInertiaRequests extends Middleware
                     $request->user()
                         ->projects()
                         ->where('status', 'active')
-                        ->withCount(['tasks', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')])
+                        ->withCount(['tasks as task_count', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')])
                         ->orderBy('position')
                         ->get()
                 )
@@ -58,6 +59,24 @@ class HandleInertiaRequests extends Middleware
                         ->sections()
                         ->orderBy('position')
                         ->get()
+                )
+                : [],
+            'groups' => fn () => $request->user()
+                ? GroupData::collect(
+                    $request->user()
+                        ->groups()
+                        ->with('owner')
+                    ->withCount('members as member_count')
+                    ->get()
+                    ->merge(
+                        $request->user()
+                            ->ownedGroups()
+                            ->with('owner')
+                            ->withCount('members as member_count')
+                                ->get()
+                        )
+                        ->unique('id')
+                        ->values()
                 )
                 : [],
             'flash' => [

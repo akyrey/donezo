@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Web\AnytimeController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\GroupController;
 use App\Http\Controllers\Web\InboxController;
 use App\Http\Controllers\Web\LogbookController;
 use App\Http\Controllers\Web\ProjectController;
@@ -47,6 +48,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('projects', ProjectController::class)->only(['index', 'show']);
     Route::get('/sections/{section}', [SectionController::class, 'show'])->name('sections.show');
+
+    Route::resource('groups', GroupController::class)->only(['index', 'show']);
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');

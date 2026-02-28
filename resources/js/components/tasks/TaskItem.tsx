@@ -22,6 +22,7 @@ interface TaskItemProps {
 
 export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps) {
     const [isHovered, setIsHovered] = useState(false);
+    const [isCompleting, setIsCompleting] = useState(false);
 
     const completeMutation = useCompleteTaskMutation();
     const deleteMutation = useDeleteTaskMutation();
@@ -30,10 +31,21 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
 
     function handleComplete(e: React.MouseEvent) {
         e.stopPropagation();
-        completeMutation.mutate({
-            id: task.id,
-            completed: !isCompleted,
-        });
+        if (!isCompleted) {
+            // Animate out, then fire mutation
+            setIsCompleting(true);
+            setTimeout(() => {
+                completeMutation.mutate({
+                    id: task.id,
+                    completed: true,
+                });
+            }, 350);
+        } else {
+            completeMutation.mutate({
+                id: task.id,
+                completed: false,
+            });
+        }
     }
 
     function handleDelete(e: React.MouseEvent) {
@@ -47,7 +59,9 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
                 'group flex items-start gap-3 rounded-lg px-3 py-2.5 transition-all duration-150',
                 'hover:bg-bg-secondary',
                 'cursor-pointer',
+                'animate-task-slide-in',
                 isCompleted && 'opacity-50',
+                isCompleting && 'animate-task-complete',
             )}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -130,6 +144,21 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
                         <span className="text-text-tertiary">
                             {task.checklist_items.filter((i) => i.is_completed).length}
                             /{task.checklist_items.length}
+                        </span>
+                    )}
+
+                    {/* Assignee avatar */}
+                    {task.assignee && (
+                        <span
+                            className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[9px] font-medium text-primary"
+                            title={`Assigned to ${task.assignee.name}`}
+                        >
+                            {task.assignee.name
+                                .split(' ')
+                                .map((n) => n[0])
+                                .join('')
+                                .toUpperCase()
+                                .slice(0, 2)}
                         </span>
                     )}
                 </div>

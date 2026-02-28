@@ -5,12 +5,18 @@ use App\Http\Controllers\Api\V1\GroupController;
 use App\Http\Controllers\Api\V1\HeadingController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ReminderController;
+use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SectionController;
 use App\Http\Controllers\Api\V1\TagController;
 use App\Http\Controllers\Api\V1\TaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->prefix('v1')->name('api.v1.')->group(function () {
+    // ──────────────────────────────────────────────
+    // Search
+    // ──────────────────────────────────────────────
+    Route::get('search', SearchController::class)->name('search');
+
     // ──────────────────────────────────────────────
     // Tasks
     // ──────────────────────────────────────────────

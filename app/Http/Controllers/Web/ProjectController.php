@@ -20,7 +20,7 @@ class ProjectController extends Controller
     {
         $projects = $request->user()
             ->projects()
-            ->withCount(['tasks', 'tasks as completed_task_count' => function ($query) {
+            ->withCount(['tasks as task_count', 'tasks as completed_task_count' => function ($query) {
                 $query->whereNotNull('completed_at');
             }])
             ->with('headings')
@@ -39,8 +39,9 @@ class ProjectController extends Controller
     {
         abort_unless($project->user_id === $request->user()->id, 403);
 
+        $project->loadCount(['tasks as task_count', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')]);
         $project->load([
-            'headings' => fn ($q) => $q->orderBy('position')->withCount('tasks'),
+            'headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count'),
         ]);
 
         $tasks = $project->tasks()

@@ -1,0 +1,206 @@
+import axios from 'axios';
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+} from '@tanstack/react-query';
+import type { Group, User } from '@/types';
+
+// ──────────────────────────────────────────────
+// Types
+// ──────────────────────────────────────────────
+
+export interface GroupCreateData {
+    name: string;
+    description?: string;
+}
+
+export interface GroupUpdateData {
+    name?: string;
+    description?: string;
+}
+
+interface GroupsResponse {
+    data: Group[];
+}
+
+interface GroupDetailResponse {
+    data: Group;
+    members: User[];
+}
+
+// ──────────────────────────────────────────────
+// Keys
+// ──────────────────────────────────────────────
+
+const GROUPS_KEY = ['groups'];
+
+function groupDetailKey(id: number) {
+    return [...GROUPS_KEY, id];
+}
+
+// ──────────────────────────────────────────────
+// Queries
+// ──────────────────────────────────────────────
+
+async function fetchGroups(): Promise<GroupsResponse> {
+    const { data } = await axios.get<GroupsResponse>('/api/v1/groups');
+    return data;
+}
+
+async function fetchGroup(id: number): Promise<GroupDetailResponse> {
+    const { data } = await axios.get<GroupDetailResponse>(
+        `/api/v1/groups/${id}`,
+    );
+    return data;
+}
+
+export function useGroupsQuery() {
+    return useQuery<GroupsResponse>({
+        queryKey: GROUPS_KEY,
+        queryFn: fetchGroups,
+    });
+}
+
+export function useGroupQuery(id: number) {
+    return useQuery<GroupDetailResponse>({
+        queryKey: groupDetailKey(id),
+        queryFn: () => fetchGroup(id),
+        enabled: id > 0,
+    });
+}
+
+// ──────────────────────────────────────────────
+// Mutations
+// ──────────────────────────────────────────────
+
+export function useCreateGroupMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (data: GroupCreateData) => {
+            const response = await axios.post<{ data: Group }>(
+                '/api/v1/groups',
+                data,
+            );
+            return response.data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: GROUPS_KEY });
+        },
+    });
+}
+
+export function useUpdateGroupMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            id,
+            ...data
+        }: GroupUpdateData & { id: number }) => {
+            const response = await axios.put<{ data: Group }>(
+                `/api/v1/groups/${id}`,
+                data,
+            );
+            return response.data.data;
+        },
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: GROUPS_KEY });
+            queryClient.invalidateQueries({
+                queryKey: groupDetailKey(variables.id),
+            });
+        },
+    });
+}
+
+export function useDeleteGroupMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id: number) => {
+            await axios.delete(`/api/v1/groups/${id}`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: GROUPS_KEY });
+        },
+    });
+}
+
+export function useAddMemberMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            groupId,
+            userId,
+            role = 'member',
+        }: {
+            groupId: number;
+            userId: number;
+            role?: 'admin' | 'member';
+        }) => {
+            const response = await axios.post<{ data: Group }>(
+                `/api/v1/groups/${groupId}/members`,
+                { user_id: userId, role },
+            );
+            return response.data.data;
+        },
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: GROUPS_KEY });
+            queryClient.invalidateQueries({
+                queryKey: groupDetailKey(variables.groupId),
+            });
+        },
+    });
+}
+
+export function useRemoveMemberMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            groupId,
+            userId,
+        }: {
+            groupId: number;
+            userId: number;
+        }) => {
+            const response = await axios.delete<{ data: Group }>(
+                `/api/v1/groups/${groupId}/members/${userId}`,
+            );
+            return response.data.data;
+        },
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: GROUPS_KEY });
+            queryClient.invalidateQueries({
+                queryKey: groupDetailKey(variables.groupId),
+            });
+        },
+    });
+}
+
+export function useShareTasksMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            groupId,
+            taskIds,
+        }: {
+            groupId: number;
+            taskIds: number[];
+        }) => {
+            const response = await axios.post(
+                `/api/v1/groups/${groupId}/tasks`,
+                { task_ids: taskIds },
+            );
+            return response.data;
+        },
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: groupDetailKey(variables.groupId),
+            });
+        },
+    });
+}

@@ -21,13 +21,13 @@ class GroupController extends Controller
         $groups = $request->user()
             ->groups()
             ->with('owner')
-            ->withCount('members')
+            ->withCount('members as member_count')
             ->get()
             ->merge(
                 $request->user()
                     ->ownedGroups()
                     ->with('owner')
-                    ->withCount('members')
+                    ->withCount('members as member_count')
                     ->get()
             )
             ->unique('id')
@@ -58,7 +58,7 @@ class GroupController extends Controller
         $group->members()->attach($request->user()->id, ['role' => 'admin']);
 
         $group->load('owner');
-        $group->loadCount('members');
+        $group->loadCount('members as member_count');
 
         return response()->json([
             'data' => GroupData::from($group),
@@ -73,7 +73,7 @@ class GroupController extends Controller
         $this->authorizeGroupAccess($request, $group);
 
         $group->load(['owner', 'members']);
-        $group->loadCount('members');
+        $group->loadCount('members as member_count');
 
         return response()->json([
             'data' => GroupData::from($group),
@@ -96,7 +96,7 @@ class GroupController extends Controller
         $group->update($validated);
 
         $group->load('owner');
-        $group->loadCount('members');
+        $group->loadCount('members as member_count');
 
         return response()->json([
             'data' => GroupData::from($group),
@@ -138,7 +138,7 @@ class GroupController extends Controller
         ]);
 
         $group->load('owner');
-        $group->loadCount('members');
+        $group->loadCount('members as member_count');
 
         return response()->json([
             'data' => GroupData::from($group),
@@ -159,7 +159,7 @@ class GroupController extends Controller
         $group->members()->detach($user->id);
 
         $group->load('owner');
-        $group->loadCount('members');
+        $group->loadCount('members as member_count');
 
         return response()->json([
             'data' => GroupData::from($group),
