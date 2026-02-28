@@ -36,7 +36,7 @@ class ReminderController extends Controller
             'remind_at' => ['required', 'date', 'after:now'],
         ]);
 
-        $reminder = $task->reminders()->create($validated);
+        $reminder = $task->reminders()->create(array_merge($validated, ['is_sent' => false]));
 
         return response()->json([
             'data' => ReminderData::from($reminder),

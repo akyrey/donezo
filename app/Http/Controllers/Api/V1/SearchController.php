@@ -24,12 +24,13 @@ class SearchController extends Controller
         $query = $request->string('q');
         $user = $request->user();
         $limit = $request->integer('limit', 10);
+        $likeOperator = $this->likeOperator();
 
         // Search tasks
         $tasks = $user->tasks()
-            ->where(function ($q) use ($query) {
-                $q->where('title', 'ilike', "%{$query}%")
-                    ->orWhere('description', 'ilike', "%{$query}%");
+            ->where(function ($q) use ($query, $likeOperator) {
+                $q->where('title', $likeOperator, "%{$query}%")
+                    ->orWhere('description', $likeOperator, "%{$query}%");
             })
             ->whereNull('cancelled_at')
             ->orderByRaw("CASE WHEN completed_at IS NULL THEN 0 ELSE 1 END")
@@ -40,9 +41,9 @@ class SearchController extends Controller
 
         // Search projects
         $projects = $user->projects()
-            ->where(function ($q) use ($query) {
-                $q->where('name', 'ilike', "%{$query}%")
-                    ->orWhere('description', 'ilike', "%{$query}%");
+            ->where(function ($q) use ($query, $likeOperator) {
+                $q->where('name', $likeOperator, "%{$query}%")
+                    ->orWhere('description', $likeOperator, "%{$query}%");
             })
             ->where('status', '!=', 'archived')
             ->withCount(['tasks as task_count', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')])
@@ -52,14 +53,14 @@ class SearchController extends Controller
 
         // Search sections
         $sections = $user->sections()
-            ->where('name', 'ilike', "%{$query}%")
+            ->where('name', $likeOperator, "%{$query}%")
             ->orderBy('updated_at', 'desc')
             ->limit($limit)
             ->get();
 
         // Search tags
         $tags = $user->tags()
-            ->where('name', 'ilike', "%{$query}%")
+            ->where('name', $likeOperator, "%{$query}%")
             ->orderBy('name')
             ->limit($limit)
             ->get();
@@ -70,5 +71,17 @@ class SearchController extends Controller
             'sections' => SectionData::collect($sections),
             'tags' => TagData::collect($tags),
         ]);
+    }
+
+    /**
+     * Get the appropriate LIKE operator for the database driver.
+     * PostgreSQL supports case-insensitive ILIKE; SQLite's LIKE is already case-insensitive.
+     */
+    private function likeOperator(): string
+    {
+        $driver = config('database.default');
+        $connection = config("database.connections.{$driver}.driver", $driver);
+
+        return $connection === 'pgsql' ? 'ilike' : 'like';
     }
 }

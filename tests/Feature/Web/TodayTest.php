@@ -29,7 +29,7 @@ it('shows today tasks', function () {
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('Today')
-        ->has('tasks', 2)
+        ->has('morning_tasks', 2)
     );
 });
 
@@ -43,8 +43,8 @@ it('separates evening tasks', function () {
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('Today')
-        ->has('tasks', 1)
-        ->has('eveningTasks', 1)
+        ->has('morning_tasks', 1)
+        ->has('evening_tasks', 1)
     );
 });
 
@@ -57,6 +57,6 @@ it('does not show completed tasks', function () {
 
     $response->assertInertia(fn ($page) => $page
         ->component('Today')
-        ->has('tasks', 1)
+        ->has('morning_tasks', 1)
     );
 });

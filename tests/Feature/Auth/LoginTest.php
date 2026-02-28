@@ -36,8 +36,8 @@ it('cannot authenticate with invalid credentials', function () {
 it('can logout', function () {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->post('/logout');
+    $response = $this->actingAs($user, 'web')->post('/logout');
 
-    $this->assertGuest();
+    $this->assertGuest('web');
     $response->assertRedirect(route('login'));
 });

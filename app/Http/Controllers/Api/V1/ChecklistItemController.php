@@ -41,6 +41,7 @@ class ChecklistItemController extends Controller
         $item = $task->checklistItems()->create([
             'title' => $validated['title'],
             'position' => $maxPosition + 1,
+            'is_completed' => false,
         ]);
 
         return response()->json([

@@ -32,6 +32,7 @@ it('has correct fillable attributes', function () {
         'position',
         'created_by',
         'assigned_to',
+        'google_calendar_event_id',
     ]);
 });
 
