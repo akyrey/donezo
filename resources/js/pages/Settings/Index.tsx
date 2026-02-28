@@ -27,7 +27,7 @@ import {
 import { useNotifications } from '@/hooks/useNotifications';
 
 interface SettingsProps {
-    user: User;
+    auth: { user: User; };
     calendarStatus: CalendarStatus;
     hasGoogleAccount: boolean;
     hasPushSubscriptions: boolean;
@@ -560,7 +560,7 @@ function DangerZone() {
 }
 
 export default function SettingsIndex({
-    user,
+    auth: { user },
     calendarStatus,
     hasGoogleAccount,
     hasPushSubscriptions,
