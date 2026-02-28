@@ -1,0 +1,110 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Data\ChecklistItemData;
+use App\Http\Controllers\Controller;
+use App\Models\ChecklistItem;
+use App\Models\Task;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class ChecklistItemController extends Controller
+{
+    /**
+     * List checklist items for a task.
+     */
+    public function index(Request $request, Task $task): JsonResponse
+    {
+        abort_unless($task->user_id === $request->user()->id, 403);
+
+        $items = $task->checklistItems()->orderBy('position')->get();
+
+        return response()->json([
+            'data' => ChecklistItemData::collect($items),
+        ]);
+    }
+
+    /**
+     * Create a checklist item for a task.
+     */
+    public function store(Request $request, Task $task): JsonResponse
+    {
+        abort_unless($task->user_id === $request->user()->id, 403);
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:500'],
+        ]);
+
+        $maxPosition = $task->checklistItems()->max('position') ?? -1;
+
+        $item = $task->checklistItems()->create([
+            'title' => $validated['title'],
+            'position' => $maxPosition + 1,
+        ]);
+
+        return response()->json([
+            'data' => ChecklistItemData::from($item),
+        ], 201);
+    }
+
+    /**
+     * Get a single checklist item.
+     */
+    public function show(Request $request, ChecklistItem $checklistItem): JsonResponse
+    {
+        abort_unless($checklistItem->task->user_id === $request->user()->id, 403);
+
+        return response()->json([
+            'data' => ChecklistItemData::from($checklistItem),
+        ]);
+    }
+
+    /**
+     * Update a checklist item.
+     */
+    public function update(Request $request, ChecklistItem $checklistItem): JsonResponse
+    {
+        abort_unless($checklistItem->task->user_id === $request->user()->id, 403);
+
+        $validated = $request->validate([
+            'title' => ['sometimes', 'string', 'max:500'],
+            'is_completed' => ['sometimes', 'boolean'],
+            'position' => ['sometimes', 'integer', 'min:0'],
+        ]);
+
+        $checklistItem->update($validated);
+
+        return response()->json([
+            'data' => ChecklistItemData::from($checklistItem),
+        ]);
+    }
+
+    /**
+     * Delete a checklist item.
+     */
+    public function destroy(Request $request, ChecklistItem $checklistItem): JsonResponse
+    {
+        abort_unless($checklistItem->task->user_id === $request->user()->id, 403);
+
+        $checklistItem->delete();
+
+        return response()->json(null, 204);
+    }
+
+    /**
+     * Toggle a checklist item's completed state.
+     */
+    public function toggle(Request $request, ChecklistItem $checklistItem): JsonResponse
+    {
+        abort_unless($checklistItem->task->user_id === $request->user()->id, 403);
+
+        $checklistItem->update([
+            'is_completed' => ! $checklistItem->is_completed,
+        ]);
+
+        return response()->json([
+            'data' => ChecklistItemData::from($checklistItem),
+        ]);
+    }
+}
