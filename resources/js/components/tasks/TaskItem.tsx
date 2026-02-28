@@ -26,11 +26,13 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
     const completeMutation = useCompleteTaskMutation();
     const deleteMutation = useDeleteTaskMutation();
 
+    const isCompleted = task.status === 'completed';
+
     function handleComplete(e: React.MouseEvent) {
         e.stopPropagation();
         completeMutation.mutate({
             id: task.id,
-            is_completed: !task.is_completed,
+            completed: !isCompleted,
         });
     }
 
@@ -45,7 +47,7 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
                 'group flex items-start gap-3 rounded-lg px-3 py-2.5 transition-all duration-150',
                 'hover:bg-bg-secondary',
                 'cursor-pointer',
-                task.is_completed && 'opacity-50',
+                isCompleted && 'opacity-50',
             )}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -62,7 +64,7 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
             {/* Checkbox */}
             <div className="mt-0.5" onClick={handleComplete}>
                 <Checkbox
-                    checked={task.is_completed}
+                    checked={isCompleted}
                     className="cursor-pointer"
                 />
             </div>
@@ -72,7 +74,7 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
                 <div
                     className={cn(
                         'text-sm font-medium text-text',
-                        task.is_completed && 'line-through text-text-tertiary',
+                        isCompleted && 'line-through text-text-tertiary',
                     )}
                 >
                     <MarkdownContent content={task.title} inline />
@@ -80,10 +82,17 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
 
                 {/* Metadata row */}
                 <div className="mt-1 flex items-center gap-2 text-xs text-text-tertiary">
-                    {task.due_date && (
+                    {task.scheduled_at && (
                         <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {format(new Date(task.due_date), 'MMM d')}
+                            {format(new Date(task.scheduled_at), 'MMM d')}
+                        </span>
+                    )}
+
+                    {task.deadline_at && (
+                        <span className="flex items-center gap-1 text-warning">
+                            <Calendar className="h-3 w-3" />
+                            Due {format(new Date(task.deadline_at), 'MMM d')}
                         </span>
                     )}
 
@@ -127,7 +136,7 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
             </div>
 
             {/* Quick actions - shown on hover */}
-            {isHovered && !task.is_completed && (
+            {isHovered && !isCompleted && (
                 <TooltipProvider delayDuration={300}>
                     <div className="flex items-center gap-0.5">
                         <Tooltip>

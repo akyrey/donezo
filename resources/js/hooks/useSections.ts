@@ -9,8 +9,7 @@ import type { Section } from '@/types';
 const SECTIONS_KEY = ['sections'];
 
 export interface SectionCreateData {
-    project_id: number;
-    title: string;
+    name: string;
 }
 
 export interface SectionUpdateData extends Partial<SectionCreateData> {
@@ -21,17 +20,15 @@ interface SectionsResponse {
     data: Section[];
 }
 
-export function useSectionsQuery(projectId?: number) {
+export function useSectionsQuery() {
     return useQuery<SectionsResponse>({
-        queryKey: [...SECTIONS_KEY, projectId],
+        queryKey: SECTIONS_KEY,
         queryFn: async () => {
-            const params = projectId ? `?project_id=${projectId}` : '';
             const { data } = await axios.get<SectionsResponse>(
-                `/api/v1/sections${params}`,
+                '/api/v1/sections',
             );
             return data;
         },
-        enabled: projectId !== undefined,
     });
 }
 

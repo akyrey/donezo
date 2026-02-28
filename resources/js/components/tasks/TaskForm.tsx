@@ -34,7 +34,6 @@ interface ChecklistEntry {
 interface ReminderEntry {
     id?: number;
     remind_at: string;
-    type: string;
 }
 
 export function TaskForm({
@@ -53,9 +52,9 @@ export function TaskForm({
     const isInline = !!context;
 
     const [title, setTitle] = useState(task?.title ?? '');
-    const [notes, setNotes] = useState(task?.notes ?? '');
-    const [dueDate, setDueDate] = useState(task?.due_date ?? '');
-    const [dueTime, setDueTime] = useState(task?.due_time ?? '');
+    const [description, setDescription] = useState(task?.description ?? '');
+    const [scheduledAt, setScheduledAt] = useState(task?.scheduled_at ? task.scheduled_at.substring(0, 10) : '');
+    const [deadlineAt, setDeadlineAt] = useState(task?.deadline_at ? task.deadline_at.substring(0, 10) : '');
     const [isEvening, setIsEvening] = useState(task?.is_evening ?? false);
     const [projectId, setProjectId] = useState<number | undefined>(
         task?.project_id ?? projectIdProp ?? defaultProjectId,
@@ -78,7 +77,6 @@ export function TaskForm({
         task?.reminders?.map((r) => ({
             id: r.id,
             remind_at: r.remind_at,
-            type: r.type,
         })) ?? [],
     );
     const [newChecklistTitle, setNewChecklistTitle] = useState('');
@@ -89,26 +87,37 @@ export function TaskForm({
 
     const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
+    // Determine default status based on context
+    function getDefaultStatus(): TaskCreateData['status'] {
+        switch (context) {
+            case 'today': return 'today';
+            case 'upcoming': return 'upcoming';
+            case 'anytime': return 'anytime';
+            case 'someday': return 'someday';
+            default: return 'inbox';
+        }
+    }
+
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (!title.trim()) return;
 
         const data: TaskCreateData = {
             title: title.trim(),
-            notes: notes.trim() || undefined,
-            due_date: dueDate || undefined,
-            due_time: dueTime || undefined,
+            description: description.trim() || undefined,
+            status: getDefaultStatus(),
+            scheduled_at: scheduledAt || undefined,
+            deadline_at: deadlineAt || undefined,
             is_evening: isEvening,
             project_id: projectId,
             section_id: sectionId,
-            tag_ids: selectedTagIds.length > 0 ? selectedTagIds : undefined,
+            tags: selectedTagIds.length > 0 ? selectedTagIds : undefined,
             checklist_items: checklistItems.map((item, idx) => ({
                 title: item.title,
                 position: idx,
             })),
             reminders: reminders.map((r) => ({
                 remind_at: r.remind_at,
-                type: r.type,
             })),
         };
 
@@ -121,9 +130,9 @@ export function TaskForm({
             createMutation.mutate(data, {
                 onSuccess: () => {
                     setTitle('');
-                    setNotes('');
-                    setDueDate('');
-                    setDueTime('');
+                    setDescription('');
+                    setScheduledAt('');
+                    setDeadlineAt('');
                     setIsEvening(false);
                     setChecklistItems([]);
                     setReminders([]);
@@ -155,7 +164,7 @@ export function TaskForm({
         if (!newReminderAt) return;
         setReminders((prev) => [
             ...prev,
-            { remind_at: newReminderAt, type: 'notification' },
+            { remind_at: newReminderAt },
         ]);
         setNewReminderAt('');
     }
@@ -172,10 +181,6 @@ export function TaskForm({
         );
     }
 
-    const filteredSections = sections.filter(
-        (s) => s.project_id === projectId,
-    );
-
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             {/* Title */}
@@ -187,13 +192,13 @@ export function TaskForm({
                 className="border-none px-0 text-base font-medium shadow-none focus-visible:ring-0"
             />
 
-            {/* Notes - only in full form mode */}
+            {/* Description - only in full form mode */}
             {!isInline && (
                 <>
                     <textarea
                         placeholder="Add notes..."
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                         rows={3}
                         className={cn(
                             'w-full resize-none rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-secondary',
@@ -208,15 +213,15 @@ export function TaskForm({
                     <div className="grid grid-cols-2 gap-3">
                         <Input
                             type="date"
-                            label="Due date"
-                            value={dueDate}
-                            onChange={(e) => setDueDate(e.target.value)}
+                            label="Scheduled date"
+                            value={scheduledAt}
+                            onChange={(e) => setScheduledAt(e.target.value)}
                         />
                         <Input
-                            type="time"
-                            label="Due time"
-                            value={dueTime}
-                            onChange={(e) => setDueTime(e.target.value)}
+                            type="date"
+                            label="Deadline"
+                            value={deadlineAt}
+                            onChange={(e) => setDeadlineAt(e.target.value)}
                         />
                     </div>
 
@@ -250,7 +255,7 @@ export function TaskForm({
                                 <option value="">No project</option>
                                 {projects.map((project) => (
                                     <option key={project.id} value={project.id}>
-                                        {project.title}
+                                        {project.name}
                                     </option>
                                 ))}
                             </select>
@@ -268,12 +273,11 @@ export function TaskForm({
                                     )
                                 }
                                 className="h-9 rounded-lg border border-border bg-bg px-3 text-sm text-text"
-                                disabled={!projectId}
                             >
                                 <option value="">No section</option>
-                                {filteredSections.map((section) => (
+                                {sections.map((section) => (
                                     <option key={section.id} value={section.id}>
-                                        {section.title}
+                                        {section.name}
                                     </option>
                                 ))}
                             </select>

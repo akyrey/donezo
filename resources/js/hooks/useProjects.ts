@@ -9,15 +9,13 @@ import type { Project } from '@/types';
 const PROJECTS_KEY = ['projects'];
 
 export interface ProjectCreateData {
-    title: string;
+    name: string;
     description?: string;
-    color?: string;
-    icon?: string;
-    group_id?: number;
+    section_id?: number;
 }
 
 export interface ProjectUpdateData extends Partial<ProjectCreateData> {
-    is_archived?: boolean;
+    status?: 'active' | 'completed' | 'archived';
     position?: number;
 }
 

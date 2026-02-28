@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Data\HeadingData;
 use App\Data\ProjectData;
 use App\Data\TaskData;
 use App\Http\Controllers\Controller;
@@ -49,13 +50,10 @@ class ProjectController extends Controller
             ->with(['tags', 'checklistItems', 'reminders'])
             ->get();
 
-        $tasksByHeading = $tasks->groupBy(fn ($task) => $task->heading_id ?? 0)
-            ->map(fn ($group) => TaskData::collect($group->values()));
-
         return Inertia::render('Projects/Show', [
             'project' => ProjectData::from($project),
-            'tasksByHeading' => $tasksByHeading,
-            'completedCount' => $project->tasks()->whereNotNull('completed_at')->count(),
+            'tasks' => TaskData::collect($tasks),
+            'headings' => HeadingData::collect($project->headings),
         ]);
     }
 }

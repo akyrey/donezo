@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Data\ProjectData;
+use App\Data\SectionData;
 use App\Data\TaskData;
 use App\Http\Controllers\Controller;
 use App\Models\Section;
@@ -33,8 +35,8 @@ class SectionController extends Controller
             ->get();
 
         return Inertia::render('Sections/Show', [
-            'section' => $section->only('id', 'name', 'position'),
-            'projects' => $section->projects,
+            'section' => SectionData::from($section),
+            'projects' => ProjectData::collect($section->projects),
             'tasks' => TaskData::collect($tasks),
         ]);
     }

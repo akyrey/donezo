@@ -29,17 +29,19 @@ export function TaskDetail({
 }: TaskDetailProps) {
     const completeMutation = useCompleteTaskMutation();
 
+    const isCompleted = task.status === 'completed';
+
     return (
         <div className={cn('space-y-5', className)}>
             {/* Header */}
             <div className="flex items-start gap-3">
                 <div className="mt-1">
                     <Checkbox
-                        checked={task.is_completed}
+                        checked={isCompleted}
                         onCheckedChange={() =>
                             completeMutation.mutate({
                                 id: task.id,
-                                is_completed: !task.is_completed,
+                                completed: !isCompleted,
                             })
                         }
                     />
@@ -48,7 +50,7 @@ export function TaskDetail({
                     <h2
                         className={cn(
                             'text-lg font-semibold text-text',
-                            task.is_completed &&
+                            isCompleted &&
                                 'line-through text-text-tertiary',
                         )}
                     >
@@ -57,12 +59,12 @@ export function TaskDetail({
                 </div>
             </div>
 
-            {/* Notes */}
-            {task.notes && (
+            {/* Description */}
+            {task.description && (
                 <>
                     <Separator />
                     <div className="pl-8">
-                        <MarkdownContent content={task.notes} />
+                        <MarkdownContent content={task.description} />
                     </div>
                 </>
             )}
@@ -70,19 +72,21 @@ export function TaskDetail({
             {/* Metadata */}
             <Separator />
             <div className="space-y-3 pl-8">
-                {task.due_date && (
+                {task.scheduled_at && (
                     <div className="flex items-center gap-2 text-sm text-text-secondary">
                         <Calendar className="h-4 w-4 text-text-tertiary" />
                         <span>
-                            {format(new Date(task.due_date), 'EEEE, MMMM d, yyyy')}
+                            {format(new Date(task.scheduled_at), 'EEEE, MMMM d, yyyy')}
                         </span>
                     </div>
                 )}
 
-                {task.due_time && (
+                {task.deadline_at && (
                     <div className="flex items-center gap-2 text-sm text-text-secondary">
-                        <Clock className="h-4 w-4 text-text-tertiary" />
-                        <span>{task.due_time}</span>
+                        <Clock className="h-4 w-4 text-warning" />
+                        <span>
+                            Due {format(new Date(task.deadline_at), 'EEEE, MMMM d, yyyy')}
+                        </span>
                     </div>
                 )}
 
@@ -128,7 +132,7 @@ export function TaskDetail({
                                 <Badge
                                     key={tag.id}
                                     variant="secondary"
-                                    color={tag.color}
+                                    color={tag.color ?? undefined}
                                 >
                                     {tag.name}
                                 </Badge>

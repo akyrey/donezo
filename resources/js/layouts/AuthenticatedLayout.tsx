@@ -150,14 +150,9 @@ function SidebarContent({
                                             : 'text-text-secondary hover:bg-sidebar-hover hover:text-text',
                                     )}
                                 >
-                                    <FolderOpen
-                                        className="h-4 w-4"
-                                        style={{
-                                            color: project.color || undefined,
-                                        }}
-                                    />
+                                    <FolderOpen className="h-4 w-4 text-text-tertiary" />
                                     <span className="truncate">
-                                        {project.title}
+                                        {project.name}
                                     </span>
                                     <ChevronRight className="ml-auto h-3.5 w-3.5 text-text-tertiary opacity-0 transition-opacity group-hover:opacity-100" />
                                 </Link>
@@ -188,7 +183,7 @@ function SidebarContent({
                             >
                                 <LayoutList className="h-4 w-4 text-text-tertiary" />
                                 <span className="truncate">
-                                    {section.title}
+                                    {section.name}
                                 </span>
                             </div>
                         ))}

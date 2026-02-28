@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Data\ProjectData;
+use App\Data\SectionData;
 use App\Data\UserData;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -40,6 +42,24 @@ class HandleInertiaRequests extends Middleware
                     ? UserData::from($request->user())
                     : null,
             ],
+            'projects' => fn () => $request->user()
+                ? ProjectData::collect(
+                    $request->user()
+                        ->projects()
+                        ->where('status', 'active')
+                        ->withCount(['tasks', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')])
+                        ->orderBy('position')
+                        ->get()
+                )
+                : [],
+            'sections' => fn () => $request->user()
+                ? SectionData::collect(
+                    $request->user()
+                        ->sections()
+                        ->orderBy('position')
+                        ->get()
+                )
+                : [],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

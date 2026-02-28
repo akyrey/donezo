@@ -42,7 +42,7 @@ class UpcomingController extends Controller
         })->map(fn ($group) => TaskData::collect($group->values()));
 
         return Inertia::render('Upcoming', [
-            'tasksByDate' => $grouped,
+            'grouped_tasks' => $grouped,
         ]);
     }
 }

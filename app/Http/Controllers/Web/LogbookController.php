@@ -15,7 +15,7 @@ class LogbookController extends Controller
      */
     public function index(Request $request): Response
     {
-        $tasks = $request->user()
+        $paginated = $request->user()
             ->tasks()
             ->where(function ($query) {
                 $query->whereNotNull('completed_at')
@@ -27,12 +27,22 @@ class LogbookController extends Controller
             ->paginate(50);
 
         return Inertia::render('Logbook', [
-            'tasks' => TaskData::collect($tasks->items()),
-            'pagination' => [
-                'current_page' => $tasks->currentPage(),
-                'last_page' => $tasks->lastPage(),
-                'per_page' => $tasks->perPage(),
-                'total' => $tasks->total(),
+            'tasks' => [
+                'data' => TaskData::collect($paginated->items()),
+                'links' => [
+                    'first' => $paginated->url(1),
+                    'last' => $paginated->url($paginated->lastPage()),
+                    'prev' => $paginated->previousPageUrl(),
+                    'next' => $paginated->nextPageUrl(),
+                ],
+                'meta' => [
+                    'current_page' => $paginated->currentPage(),
+                    'from' => $paginated->firstItem(),
+                    'last_page' => $paginated->lastPage(),
+                    'per_page' => $paginated->perPage(),
+                    'to' => $paginated->lastItem(),
+                    'total' => $paginated->total(),
+                ],
             ],
         ]);
     }

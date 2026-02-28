@@ -5,7 +5,6 @@ import * as Dialog from '@radix-ui/react-dialog';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { cn } from '@/lib/utils';
 import type { Project } from '@/types';
 
 interface ProjectsIndexProps {
@@ -13,9 +12,8 @@ interface ProjectsIndexProps {
 }
 
 function ProjectCard({ project }: { project: Project }) {
-    const totalTasks = project.tasks?.length ?? 0;
-    const completedTasks =
-        project.tasks?.filter((t) => t.is_completed).length ?? 0;
+    const totalTasks = project.task_count ?? 0;
+    const completedTasks = project.completed_task_count ?? 0;
     const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
     // SVG pie chart
@@ -29,24 +27,8 @@ function ProjectCard({ project }: { project: Project }) {
             className="group flex flex-col rounded-xl border border-border bg-bg p-5 transition-all hover:border-primary/30 hover:shadow-sm"
         >
             <div className="mb-3 flex items-start justify-between">
-                <div
-                    className={cn(
-                        'flex h-10 w-10 items-center justify-center rounded-xl text-lg',
-                        project.color
-                            ? `bg-[${project.color}]/10`
-                            : 'bg-primary/10',
-                    )}
-                >
-                    {project.icon || (
-                        <FolderKanban
-                            className={cn(
-                                'h-5 w-5',
-                                project.color
-                                    ? `text-[${project.color}]`
-                                    : 'text-primary',
-                            )}
-                        />
-                    )}
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-lg">
+                    <FolderKanban className="h-5 w-5 text-primary" />
                 </div>
 
                 {totalTasks > 0 && (
@@ -83,7 +65,7 @@ function ProjectCard({ project }: { project: Project }) {
             </div>
 
             <h3 className="font-medium text-text group-hover:text-primary">
-                {project.title}
+                {project.name}
             </h3>
 
             {project.description && (
@@ -107,7 +89,7 @@ function CreateProjectDialog({
     onOpenChange: (open: boolean) => void;
 }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        title: '',
+        name: '',
         description: '',
     });
 
@@ -136,9 +118,9 @@ function CreateProjectDialog({
                     <form onSubmit={submit} className="mt-6 space-y-4">
                         <Input
                             label="Project name"
-                            value={data.title}
-                            onChange={(e) => setData('title', e.target.value)}
-                            error={errors.title}
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            error={errors.name}
                             placeholder="e.g., Home Renovation"
                             autoFocus
                         />

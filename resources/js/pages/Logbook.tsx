@@ -67,7 +67,7 @@ export default function Logbook({ tasks }: LogbookProps) {
                                         <p
                                             className={cn(
                                                 'text-sm text-text-tertiary',
-                                                task.is_completed &&
+                                                task.status === 'completed' &&
                                                     'line-through',
                                             )}
                                         >

@@ -20,32 +20,30 @@ export interface TaskFilters {
     project_id?: number;
     section_id?: number;
     heading_id?: number;
-    tag_id?: number;
-    is_completed?: boolean;
-    due_before?: string;
-    due_after?: string;
-    due_date?: string;
+    tag?: number;
+    completed?: boolean;
     is_evening?: boolean;
     search?: string;
-    view?: 'inbox' | 'today' | 'upcoming' | 'anytime' | 'someday' | 'logbook';
+    per_page?: number;
 }
 
 export interface TaskCreateData {
     title: string;
-    notes?: string;
-    due_date?: string;
-    due_time?: string;
+    description?: string;
+    status?: 'inbox' | 'today' | 'upcoming' | 'anytime' | 'someday';
     is_evening?: boolean;
+    scheduled_at?: string;
+    deadline_at?: string;
     project_id?: number;
     section_id?: number;
     heading_id?: number;
-    tag_ids?: number[];
-    checklist_items?: { title: string; position: number }[];
-    reminders?: { remind_at: string; type?: string }[];
+    assigned_to?: number;
+    tags?: number[];
+    checklist_items?: { title: string; position?: number }[];
+    reminders?: { remind_at: string }[];
 }
 
 export interface TaskUpdateData extends Partial<TaskCreateData> {
-    is_completed?: boolean;
     position?: number;
 }
 
@@ -54,6 +52,7 @@ interface TasksResponse {
     meta?: {
         current_page: number;
         last_page: number;
+        per_page: number;
         total: number;
     };
 }
@@ -138,15 +137,15 @@ export function useCompleteTaskMutation() {
     return useMutation({
         mutationFn: async ({
             id,
-            is_completed,
+            completed,
         }: {
             id: number;
-            is_completed: boolean;
+            completed: boolean;
         }) => {
-            const response = await axios.post<{ data: Task }>(
-                `/api/v1/tasks/${id}/complete`,
-                { is_completed },
-            );
+            const endpoint = completed
+                ? `/api/v1/tasks/${id}/complete`
+                : `/api/v1/tasks/${id}/uncomplete`;
+            const response = await axios.post<{ data: Task }>(endpoint);
             return response.data.data;
         },
         onSuccess: () => {

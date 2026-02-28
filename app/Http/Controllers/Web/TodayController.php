@@ -31,9 +31,9 @@ class TodayController extends Controller
             ->get();
 
         return Inertia::render('Today', [
-            'tasks' => TaskData::collect($tasks->where('is_evening', false)->values()),
-            'eveningTasks' => TaskData::collect($tasks->where('is_evening', true)->values()),
-            'overdueTasks' => TaskData::collect(
+            'morning_tasks' => TaskData::collect($tasks->where('is_evening', false)->values()),
+            'evening_tasks' => TaskData::collect($tasks->where('is_evening', true)->values()),
+            'overdue_tasks' => TaskData::collect(
                 $request->user()
                     ->tasks()
                     ->overdue()

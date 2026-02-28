@@ -28,7 +28,7 @@ function AddHeadingDialog({
     onOpenChange: (open: boolean) => void;
 }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        title: '',
+        name: '',
     });
 
     const submit: SubmitEventHandler = (e) => {
@@ -55,10 +55,10 @@ function AddHeadingDialog({
 
                     <form onSubmit={submit} className="mt-6 space-y-4">
                         <Input
-                            label="Heading title"
-                            value={data.title}
-                            onChange={(e) => setData('title', e.target.value)}
-                            error={errors.title}
+                            label="Heading name"
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            error={errors.name}
                             placeholder="e.g., Phase 1"
                             autoFocus
                         />
@@ -88,7 +88,7 @@ export default function ProjectShow({
     const [headingDialogOpen, setHeadingDialogOpen] = useState(false);
 
     const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.is_completed).length;
+    const completedTasks = tasks.filter((t) => t.status === 'completed').length;
     const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
     // Group tasks by heading
@@ -103,20 +103,18 @@ export default function ProjectShow({
 
     return (
         <AuthenticatedLayout>
-            <Head title={project.title} />
+            <Head title={project.name} />
 
             <div className="mx-auto max-w-2xl px-4 py-8">
                 {/* Project header */}
                 <div className="mb-8">
                     <div className="mb-4 flex items-start gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                            {project.icon || (
-                                <FolderKanban className="h-5 w-5 text-primary" />
-                            )}
+                            <FolderKanban className="h-5 w-5 text-primary" />
                         </div>
                         <div className="flex-1">
                             <h1 className="text-2xl font-semibold text-text">
-                                {project.title}
+                                {project.name}
                             </h1>
                         </div>
                     </div>
@@ -172,7 +170,7 @@ export default function ProjectShow({
                                     <Collapsible.Trigger asChild>
                                         <button className="mb-3 flex w-full items-center gap-2 text-left">
                                             <h2 className="text-sm font-semibold uppercase tracking-wide text-text-secondary">
-                                                {heading.title}
+                                                {heading.name}
                                             </h2>
                                             {headingTasks.length > 0 && (
                                                 <span className="rounded-full bg-bg-secondary px-2 py-0.5 text-xs text-text-tertiary">

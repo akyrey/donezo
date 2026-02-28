@@ -2,18 +2,17 @@ import { Head, Link } from '@inertiajs/react';
 import { LayoutGrid, FolderKanban } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
-import { cn } from '@/lib/utils';
-import type { Section, Project } from '@/types';
+import type { Section, Project, Task } from '@/types';
 
 interface SectionShowProps {
     section: Section;
     projects: Project[];
+    tasks: Task[];
 }
 
 function ProjectCard({ project }: { project: Project }) {
-    const totalTasks = project.tasks?.length ?? 0;
-    const completedTasks =
-        project.tasks?.filter((t) => t.is_completed).length ?? 0;
+    const totalTasks = project.task_count ?? 0;
+    const completedTasks = project.completed_task_count ?? 0;
 
     return (
         <Link
@@ -21,27 +20,11 @@ function ProjectCard({ project }: { project: Project }) {
             className="group flex flex-col rounded-xl border border-border bg-bg p-5 transition-all hover:border-primary/30 hover:shadow-sm"
         >
             <div className="mb-3 flex items-center gap-3">
-                <div
-                    className={cn(
-                        'flex h-9 w-9 items-center justify-center rounded-lg',
-                        project.color
-                            ? `bg-[${project.color}]/10`
-                            : 'bg-primary/10',
-                    )}
-                >
-                    {project.icon || (
-                        <FolderKanban
-                            className={cn(
-                                'h-4 w-4',
-                                project.color
-                                    ? `text-[${project.color}]`
-                                    : 'text-primary',
-                            )}
-                        />
-                    )}
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                    <FolderKanban className="h-4 w-4 text-primary" />
                 </div>
                 <h3 className="font-medium text-text group-hover:text-primary">
-                    {project.title}
+                    {project.name}
                 </h3>
             </div>
 
@@ -58,18 +41,16 @@ function ProjectCard({ project }: { project: Project }) {
     );
 }
 
-export default function SectionShow({ section, projects }: SectionShowProps) {
-    const sectionTasks = section.tasks ?? [];
-
+export default function SectionShow({ section, projects, tasks }: SectionShowProps) {
     return (
         <AuthenticatedLayout>
-            <Head title={section.title} />
+            <Head title={section.name} />
 
             <div className="mx-auto max-w-3xl px-4 py-8">
                 <div className="mb-8">
                     <h1 className="flex items-center gap-3 text-2xl font-semibold text-text">
                         <LayoutGrid className="h-6 w-6 text-text-secondary" />
-                        {section.title}
+                        {section.name}
                     </h1>
                 </div>
 
@@ -91,17 +72,17 @@ export default function SectionShow({ section, projects }: SectionShowProps) {
                 )}
 
                 {/* Tasks directly in this section */}
-                {sectionTasks.length > 0 && (
+                {tasks.length > 0 && (
                     <section>
                         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-text-secondary">
                             Tasks
                         </h2>
-                        <TaskList tasks={sectionTasks} />
+                        <TaskList tasks={tasks} />
                     </section>
                 )}
 
                 {/* Empty state */}
-                {projects.length === 0 && sectionTasks.length === 0 && (
+                {projects.length === 0 && tasks.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
                         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-bg-secondary">
                             <LayoutGrid className="h-8 w-8 text-text-tertiary" />
