@@ -93,4 +93,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(SocialAccount::class);
     }
+
+    /** @return HasMany<PushSubscription, $this> */
+    public function pushSubscriptions(): HasMany
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
+    /**
+     * Get the user's Google social account with calendar access.
+     */
+    public function googleCalendarAccount(): ?SocialAccount
+    {
+        return $this->socialAccounts()
+            ->where('provider', 'google')
+            ->first()
+            ?->hasCalendarAccess() ? $this->socialAccounts()->where('provider', 'google')->first() : null;
+    }
 }

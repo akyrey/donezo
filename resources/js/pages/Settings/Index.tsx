@@ -1,15 +1,36 @@
 import { type SubmitEventHandler } from 'react';
 import { Head, useForm } from '@inertiajs/react';
-import { Settings as SettingsIcon, Trash2, Shield, User as UserIcon, Globe, Link as LinkIcon } from 'lucide-react';
+import {
+    Settings as SettingsIcon,
+    Trash2,
+    Shield,
+    User as UserIcon,
+    Globe,
+    Link as LinkIcon,
+    Calendar as CalendarIcon,
+    Bell,
+    RefreshCw,
+    Unlink,
+    Loader2,
+} from 'lucide-react';
 import * as Separator from '@radix-ui/react-separator';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import type { User } from '@/types';
+import { Badge } from '@/components/ui/Badge';
+import type { User, CalendarStatus } from '@/types';
+import {
+    useDisconnectCalendarMutation,
+    useSyncCalendarMutation,
+} from '@/hooks/useCalendar';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface SettingsProps {
     user: User;
+    calendarStatus: CalendarStatus;
+    hasGoogleAccount: boolean;
+    hasPushSubscriptions: boolean;
 }
 
 function ProfileSection({ user }: { user: User }) {
@@ -280,6 +301,191 @@ function ConnectedAccountsSection() {
     );
 }
 
+function CalendarSection({ calendarStatus }: { calendarStatus: CalendarStatus }) {
+    const disconnectMutation = useDisconnectCalendarMutation();
+    const syncMutation = useSyncCalendarMutation();
+
+    const isCalendarConnected = calendarStatus.connected && calendarStatus.has_calendar_scope;
+
+    return (
+        <section>
+            <div className="mb-4 flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5 text-text-secondary" />
+                <h2 className="text-lg font-semibold text-text">
+                    Google Calendar
+                </h2>
+            </div>
+
+            <div className="max-w-md space-y-4">
+                {!calendarStatus.enabled ? (
+                    <div className="rounded-lg border border-border p-4">
+                        <p className="text-sm text-text-secondary">
+                            Google Calendar integration is not enabled on this
+                            server. Contact your administrator to enable it.
+                        </p>
+                    </div>
+                ) : isCalendarConnected ? (
+                    <>
+                        <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                            <div className="flex items-center gap-3">
+                                <CalendarIcon className="h-5 w-5 text-success" />
+                                <div>
+                                    <span className="text-sm font-medium text-text">
+                                        Connected
+                                    </span>
+                                    {calendarStatus.token_expired && (
+                                        <Badge
+                                            variant="outline"
+                                            className="ml-2 border-warning text-warning"
+                                        >
+                                            Token expired
+                                        </Badge>
+                                    )}
+                                    <p className="text-xs text-text-tertiary">
+                                        Tasks with dates will sync to your Google Calendar
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => syncMutation.mutate()}
+                                    disabled={syncMutation.isPending}
+                                >
+                                    {syncMutation.isPending ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <RefreshCw className="h-4 w-4" />
+                                    )}
+                                    Sync
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => disconnectMutation.mutate()}
+                                    disabled={disconnectMutation.isPending}
+                                    className="text-danger hover:text-danger"
+                                >
+                                    <Unlink className="h-4 w-4" />
+                                    Disconnect
+                                </Button>
+                            </div>
+                        </div>
+                        {syncMutation.isSuccess && (
+                            <p className="text-sm text-success">
+                                Queued {syncMutation.data?.count ?? 0} tasks for sync.
+                            </p>
+                        )}
+                    </>
+                ) : (
+                    <div className="rounded-lg border border-border p-4">
+                        <p className="mb-3 text-sm text-text-secondary">
+                            Connect your Google Calendar to automatically sync
+                            tasks with dates as calendar events.
+                        </p>
+                        <Button variant="outline" size="sm" asChild>
+                            <a href="/auth/google/calendar/redirect">
+                                <CalendarIcon className="h-4 w-4" />
+                                Connect Google Calendar
+                            </a>
+                        </Button>
+                    </div>
+                )}
+            </div>
+        </section>
+    );
+}
+
+function NotificationsSection() {
+    const {
+        permission,
+        isSupported,
+        isSubscribed,
+        isLoading,
+        subscribe,
+        unsubscribe,
+    } = useNotifications();
+
+    return (
+        <section>
+            <div className="mb-4 flex items-center gap-2">
+                <Bell className="h-5 w-5 text-text-secondary" />
+                <h2 className="text-lg font-semibold text-text">
+                    Push Notifications
+                </h2>
+            </div>
+
+            <div className="max-w-md space-y-4">
+                {!isSupported ? (
+                    <div className="rounded-lg border border-border p-4">
+                        <p className="text-sm text-text-secondary">
+                            Push notifications are not supported in this
+                            browser. Try using a modern browser like Chrome,
+                            Firefox, or Edge.
+                        </p>
+                    </div>
+                ) : permission === 'denied' ? (
+                    <div className="rounded-lg border border-danger/30 p-4">
+                        <p className="text-sm text-text-secondary">
+                            Notification permissions have been blocked. Please
+                            enable notifications in your browser settings to
+                            receive task reminders.
+                        </p>
+                    </div>
+                ) : isSubscribed ? (
+                    <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                        <div className="flex items-center gap-3">
+                            <Bell className="h-5 w-5 text-success" />
+                            <div>
+                                <span className="text-sm font-medium text-text">
+                                    Notifications enabled
+                                </span>
+                                <p className="text-xs text-text-tertiary">
+                                    You will receive push notifications for task
+                                    reminders
+                                </p>
+                            </div>
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={unsubscribe}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                'Disable'
+                            )}
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="rounded-lg border border-border p-4">
+                        <p className="mb-3 text-sm text-text-secondary">
+                            Enable push notifications to receive reminders for
+                            your tasks, even when the app is closed.
+                        </p>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={subscribe}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <Bell className="h-4 w-4" />
+                            )}
+                            Enable Notifications
+                        </Button>
+                    </div>
+                )}
+            </div>
+        </section>
+    );
+}
+
 function DangerZone() {
     const { delete: destroy, processing } = useForm({});
 
@@ -353,7 +559,12 @@ function DangerZone() {
     );
 }
 
-export default function SettingsIndex({ user }: SettingsProps) {
+export default function SettingsIndex({
+    user,
+    calendarStatus,
+    hasGoogleAccount,
+    hasPushSubscriptions,
+}: SettingsProps) {
     return (
         <AuthenticatedLayout>
             <Head title="Settings" />
@@ -380,6 +591,14 @@ export default function SettingsIndex({ user }: SettingsProps) {
                     <Separator.Root className="h-px bg-border" />
 
                     <ConnectedAccountsSection />
+
+                    <Separator.Root className="h-px bg-border" />
+
+                    <CalendarSection calendarStatus={calendarStatus} />
+
+                    <Separator.Root className="h-px bg-border" />
+
+                    <NotificationsSection />
 
                     <Separator.Root className="h-px bg-border" />
 

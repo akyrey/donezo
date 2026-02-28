@@ -32,15 +32,29 @@ class SocialAuthController extends Controller
 
         $socialUser = Socialite::driver($provider)->user();
 
+        // Extract token metadata
+        $tokenData = [
+            'provider_token' => $socialUser->token,
+            'provider_refresh_token' => $socialUser->refreshToken,
+            'token_expires_at' => isset($socialUser->expiresIn)
+                ? now()->addSeconds($socialUser->expiresIn)
+                : null,
+            'scopes' => isset($socialUser->approvedScopes)
+                ? explode(' ', $socialUser->approvedScopes)
+                : [],
+        ];
+
         $socialAccount = SocialAccount::where('provider', $provider)
             ->where('provider_id', $socialUser->getId())
             ->first();
 
         if ($socialAccount) {
-            $socialAccount->update([
-                'provider_token' => $socialUser->token,
-                'provider_refresh_token' => $socialUser->refreshToken,
-            ]);
+            // Preserve existing refresh token if the new one is null
+            if (! $tokenData['provider_refresh_token']) {
+                unset($tokenData['provider_refresh_token']);
+            }
+
+            $socialAccount->update($tokenData);
 
             Auth::login($socialAccount->user);
 
@@ -60,12 +74,10 @@ class SocialAuthController extends Controller
             ]);
         }
 
-        $user->socialAccounts()->create([
+        $user->socialAccounts()->create(array_merge([
             'provider' => $provider,
             'provider_id' => $socialUser->getId(),
-            'provider_token' => $socialUser->token,
-            'provider_refresh_token' => $socialUser->refreshToken,
-        ]);
+        ], $tokenData));
 
         Auth::login($user);
 

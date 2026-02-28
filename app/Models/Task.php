@@ -37,6 +37,7 @@ class Task extends Model
         'position',
         'created_by',
         'assigned_to',
+        'google_calendar_event_id',
     ];
 
     /**

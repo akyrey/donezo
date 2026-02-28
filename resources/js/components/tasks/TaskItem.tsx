@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { Calendar, Folder, Trash2, ArrowRight, Sun } from 'lucide-react';
+import { Calendar, CalendarCheck, Folder, Trash2, ArrowRight, Sun } from 'lucide-react';
 import type { Task } from '@/types';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/Checkbox';
@@ -145,6 +145,19 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
                             {task.checklist_items.filter((i) => i.is_completed).length}
                             /{task.checklist_items.length}
                         </span>
+                    )}
+
+                    {task.google_calendar_event_id && (
+                        <TooltipProvider delayDuration={300}>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <span className="flex items-center gap-1 text-primary/70">
+                                        <CalendarCheck className="h-3 w-3" />
+                                    </span>
+                                </TooltipTrigger>
+                                <TooltipContent>Synced to Google Calendar</TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     )}
 
                     {/* Assignee avatar */}

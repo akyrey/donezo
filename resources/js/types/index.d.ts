@@ -58,6 +58,7 @@ export type Task = {
     project_id?: number | null;
     section_id?: number | null;
     heading_id?: number | null;
+    google_calendar_event_id?: string | null;
     creator?: User | null;
     assignee?: User | null;
     checklist_items?: ChecklistItem[];
@@ -104,6 +105,13 @@ export type GroupMember = User & {
     pivot?: {
         role: 'admin' | 'member';
     };
+};
+
+export type CalendarStatus = {
+    connected: boolean;
+    has_calendar_scope: boolean;
+    token_expired?: boolean;
+    enabled: boolean;
 };
 
 export type PaginationLinks = {

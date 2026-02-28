@@ -24,6 +24,7 @@ class TaskData extends Data
         public readonly ?int $project_id,
         public readonly ?int $section_id,
         public readonly ?int $heading_id,
+        public readonly ?string $google_calendar_event_id,
         public readonly ?UserData $creator,
         public readonly ?UserData $assignee,
         /** @var DataCollection<int, ChecklistItemData>|null */

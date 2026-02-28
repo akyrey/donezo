@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "27c7448a0fd650c571c8a47ec85e342d",
+    "content-hash": "fb9c508ad9b4fa79d0949587b34b0385",
     "packages": [
         {
             "name": "brick/math",
@@ -689,6 +689,181 @@
                 }
             ],
             "time": "2025-12-03T09:33:47+00:00"
+        },
+        {
+            "name": "google/apiclient",
+            "version": "v2.19.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/googleapis/google-api-php-client.git",
+                "reference": "b18fa8aed7b2b2dd4bcce74e2c7d267e16007ea9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client/zipball/b18fa8aed7b2b2dd4bcce74e2c7d267e16007ea9",
+                "reference": "b18fa8aed7b2b2dd4bcce74e2c7d267e16007ea9",
+                "shasum": ""
+            },
+            "require": {
+                "firebase/php-jwt": "^6.0||^7.0",
+                "google/apiclient-services": "~0.350",
+                "google/auth": "^1.37",
+                "guzzlehttp/guzzle": "^7.4.5",
+                "guzzlehttp/psr7": "^2.6",
+                "monolog/monolog": "^2.9||^3.0",
+                "php": "^8.1",
+                "phpseclib/phpseclib": "^3.0.36"
+            },
+            "require-dev": {
+                "cache/filesystem-adapter": "^1.1",
+                "composer/composer": "^1.10.23",
+                "phpcompatibility/php-compatibility": "^9.2",
+                "phpspec/prophecy-phpunit": "^2.1",
+                "phpunit/phpunit": "^9.6",
+                "squizlabs/php_codesniffer": "^3.8",
+                "symfony/css-selector": "~2.1",
+                "symfony/dom-crawler": "~2.1"
+            },
+            "suggest": {
+                "cache/filesystem-adapter": "For caching certs and tokens (using Google\\Client::setCache)"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "2.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/aliases.php"
+                ],
+                "psr-4": {
+                    "Google\\": "src/"
+                },
+                "classmap": [
+                    "src/aliases.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Client library for Google APIs",
+            "homepage": "http://developers.google.com/api-client-library/php",
+            "keywords": [
+                "google"
+            ],
+            "support": {
+                "issues": "https://github.com/googleapis/google-api-php-client/issues",
+                "source": "https://github.com/googleapis/google-api-php-client/tree/v2.19.0"
+            },
+            "time": "2026-01-09T19:59:47+00:00"
+        },
+        {
+            "name": "google/apiclient-services",
+            "version": "v0.434.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/googleapis/google-api-php-client-services.git",
+                "reference": "65550d5fd5c468badd75db9ec73c2c187470a00d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/65550d5fd5c468badd75db9ec73c2c187470a00d",
+                "reference": "65550d5fd5c468badd75db9ec73c2c187470a00d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.6"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "autoload.php"
+                ],
+                "psr-4": {
+                    "Google\\Service\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Client library for Google APIs",
+            "homepage": "http://developers.google.com/api-client-library/php",
+            "keywords": [
+                "google"
+            ],
+            "support": {
+                "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.434.0"
+            },
+            "time": "2026-02-18T01:00:35+00:00"
+        },
+        {
+            "name": "google/auth",
+            "version": "v1.50.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/googleapis/google-auth-library-php.git",
+                "reference": "e1c26a718198e16d8a3c69b1cae136b73f959b0f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/e1c26a718198e16d8a3c69b1cae136b73f959b0f",
+                "reference": "e1c26a718198e16d8a3c69b1cae136b73f959b0f",
+                "shasum": ""
+            },
+            "require": {
+                "firebase/php-jwt": "^6.0||^7.0",
+                "guzzlehttp/guzzle": "^7.4.5",
+                "guzzlehttp/psr7": "^2.4.5",
+                "php": "^8.1",
+                "psr/cache": "^2.0||^3.0",
+                "psr/http-message": "^1.1||^2.0",
+                "psr/log": "^3.0"
+            },
+            "require-dev": {
+                "guzzlehttp/promises": "^2.0",
+                "kelvinmo/simplejwt": "^1.1.0",
+                "phpseclib/phpseclib": "^3.0.35",
+                "phpspec/prophecy-phpunit": "^2.1",
+                "phpunit/phpunit": "^9.6",
+                "sebastian/comparator": ">=1.2.3",
+                "squizlabs/php_codesniffer": "^4.0",
+                "symfony/filesystem": "^6.3||^7.3",
+                "symfony/process": "^6.0||^7.0",
+                "webmozart/assert": "^1.11||^2.0"
+            },
+            "suggest": {
+                "phpseclib/phpseclib": "May be used in place of OpenSSL for signing strings or for token management. Please require version ^2."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Google\\Auth\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Google Auth Library for PHP",
+            "homepage": "https://github.com/google/google-auth-library-php",
+            "keywords": [
+                "Authentication",
+                "google",
+                "oauth2"
+            ],
+            "support": {
+                "docs": "https://cloud.google.com/php/docs/reference/auth/latest",
+                "issues": "https://github.com/googleapis/google-auth-library-php/issues",
+                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.50.0"
+            },
+            "time": "2026-01-08T21:33:57+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -2590,6 +2765,73 @@
             "time": "2026-01-15T06:54:53+00:00"
         },
         {
+            "name": "minishlink/web-push",
+            "version": "v10.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/web-push-libs/web-push-php.git",
+                "reference": "08463189d3501cbd78a8625c87ab6680a7397aad"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/web-push-libs/web-push-php/zipball/08463189d3501cbd78a8625c87ab6680a7397aad",
+                "reference": "08463189d3501cbd78a8625c87ab6680a7397aad",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "ext-openssl": "*",
+                "guzzlehttp/guzzle": "^7.9.2",
+                "php": ">=8.2",
+                "spomky-labs/base64url": "^2.0.4",
+                "web-token/jwt-library": "^3.4.9|^4.0.6"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^v3.91.3",
+                "phpstan/phpstan": "^2.1.33",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^11.5.46|^12.5.2",
+                "symfony/polyfill-iconv": "^1.33"
+            },
+            "suggest": {
+                "ext-bcmath": "Optional for performance.",
+                "ext-gmp": "Optional for performance."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Minishlink\\WebPush\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Louis Lagrange",
+                    "email": "lagrange.louis@gmail.com",
+                    "homepage": "https://github.com/Minishlink"
+                }
+            ],
+            "description": "Web Push library for PHP",
+            "homepage": "https://github.com/web-push-libs/web-push-php",
+            "keywords": [
+                "Push API",
+                "WebPush",
+                "notifications",
+                "push",
+                "web"
+            ],
+            "support": {
+                "issues": "https://github.com/web-push-libs/web-push-php/issues",
+                "source": "https://github.com/web-push-libs/web-push-php/tree/v10.0.1"
+            },
+            "time": "2025-12-15T10:04:28+00:00"
+        },
+        {
             "name": "monolog/monolog",
             "version": "3.10.0",
             "source": {
@@ -3699,6 +3941,55 @@
             "time": "2026-01-25T14:56:51+00:00"
         },
         {
+            "name": "psr/cache",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/cache.git",
+                "reference": "aa5030cfa5405eccfdcb1083ce040c2cb8d253bf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/cache/zipball/aa5030cfa5405eccfdcb1083ce040c2cb8d253bf",
+                "reference": "aa5030cfa5405eccfdcb1083ce040c2cb8d253bf",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Cache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for caching libraries",
+            "keywords": [
+                "cache",
+                "psr",
+                "psr-6"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/cache/tree/3.0.0"
+            },
+            "time": "2021-02-03T23:26:27+00:00"
+        },
+        {
             "name": "psr/clock",
             "version": "1.0.0",
             "source": {
@@ -4608,6 +4899,180 @@
                 }
             ],
             "time": "2026-02-21T15:57:15+00:00"
+        },
+        {
+            "name": "spomky-labs/base64url",
+            "version": "v2.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Spomky-Labs/base64url.git",
+                "reference": "7752ce931ec285da4ed1f4c5aa27e45e097be61d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Spomky-Labs/base64url/zipball/7752ce931ec285da4ed1f4c5aa27e45e097be61d",
+                "reference": "7752ce931ec285da4ed1f4c5aa27e45e097be61d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpstan/extension-installer": "^1.0",
+                "phpstan/phpstan": "^0.11|^0.12",
+                "phpstan/phpstan-beberlei-assert": "^0.11|^0.12",
+                "phpstan/phpstan-deprecation-rules": "^0.11|^0.12",
+                "phpstan/phpstan-phpunit": "^0.11|^0.12",
+                "phpstan/phpstan-strict-rules": "^0.11|^0.12"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Base64Url\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Florent Morselli",
+                    "homepage": "https://github.com/Spomky-Labs/base64url/contributors"
+                }
+            ],
+            "description": "Base 64 URL Safe Encoding/Decoding PHP Library",
+            "homepage": "https://github.com/Spomky-Labs/base64url",
+            "keywords": [
+                "base64",
+                "rfc4648",
+                "safe",
+                "url"
+            ],
+            "support": {
+                "issues": "https://github.com/Spomky-Labs/base64url/issues",
+                "source": "https://github.com/Spomky-Labs/base64url/tree/v2.0.4"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/Spomky",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/FlorentMorselli",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2020-11-03T09:10:25+00:00"
+        },
+        {
+            "name": "spomky-labs/pki-framework",
+            "version": "1.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Spomky-Labs/pki-framework.git",
+                "reference": "f0e9a548df4e3942886adc9b7830581a46334631"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Spomky-Labs/pki-framework/zipball/f0e9a548df4e3942886adc9b7830581a46334631",
+                "reference": "f0e9a548df4e3942886adc9b7830581a46334631",
+                "shasum": ""
+            },
+            "require": {
+                "brick/math": "^0.10|^0.11|^0.12|^0.13|^0.14",
+                "ext-mbstring": "*",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "ekino/phpstan-banned-code": "^1.0|^2.0|^3.0",
+                "ext-gmp": "*",
+                "ext-openssl": "*",
+                "infection/infection": "^0.28|^0.29|^0.31",
+                "php-parallel-lint/php-parallel-lint": "^1.3",
+                "phpstan/extension-installer": "^1.3|^2.0",
+                "phpstan/phpstan": "^1.8|^2.0",
+                "phpstan/phpstan-deprecation-rules": "^1.0|^2.0",
+                "phpstan/phpstan-phpunit": "^1.1|^2.0",
+                "phpstan/phpstan-strict-rules": "^1.3|^2.0",
+                "phpunit/phpunit": "^10.1|^11.0|^12.0",
+                "rector/rector": "^1.0|^2.0",
+                "roave/security-advisories": "dev-latest",
+                "symfony/string": "^6.4|^7.0|^8.0",
+                "symfony/var-dumper": "^6.4|^7.0|^8.0",
+                "symplify/easy-coding-standard": "^12.0"
+            },
+            "suggest": {
+                "ext-bcmath": "For better performance (or GMP)",
+                "ext-gmp": "For better performance (or BCMath)",
+                "ext-openssl": "For OpenSSL based cyphering"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SpomkyLabs\\Pki\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Joni Eskelinen",
+                    "email": "jonieske@gmail.com",
+                    "role": "Original developer"
+                },
+                {
+                    "name": "Florent Morselli",
+                    "email": "florent.morselli@spomky-labs.com",
+                    "role": "Spomky-Labs PKI Framework developer"
+                }
+            ],
+            "description": "A PHP framework for managing Public Key Infrastructures. It comprises X.509 public key certificates, attribute certificates, certification requests and certification path validation.",
+            "homepage": "https://github.com/spomky-labs/pki-framework",
+            "keywords": [
+                "DER",
+                "Private Key",
+                "ac",
+                "algorithm identifier",
+                "asn.1",
+                "asn1",
+                "attribute certificate",
+                "certificate",
+                "certification request",
+                "cryptography",
+                "csr",
+                "decrypt",
+                "ec",
+                "encrypt",
+                "pem",
+                "pkcs",
+                "public key",
+                "rsa",
+                "sign",
+                "signature",
+                "verify",
+                "x.509",
+                "x.690",
+                "x509",
+                "x690"
+            ],
+            "support": {
+                "issues": "https://github.com/Spomky-Labs/pki-framework/issues",
+                "source": "https://github.com/Spomky-Labs/pki-framework/tree/1.4.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/Spomky",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/FlorentMorselli",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2025-12-20T12:57:40+00:00"
         },
         {
             "name": "symfony/clock",
@@ -7471,6 +7936,95 @@
                 }
             ],
             "time": "2024-11-21T01:49:47+00:00"
+        },
+        {
+            "name": "web-token/jwt-library",
+            "version": "4.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/web-token/jwt-library.git",
+                "reference": "690d4dd47b78f423cb90457f858e4106e1deb728"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/web-token/jwt-library/zipball/690d4dd47b78f423cb90457f858e4106e1deb728",
+                "reference": "690d4dd47b78f423cb90457f858e4106e1deb728",
+                "shasum": ""
+            },
+            "require": {
+                "brick/math": "^0.12|^0.13|^0.14",
+                "php": ">=8.2",
+                "psr/clock": "^1.0",
+                "spomky-labs/pki-framework": "^1.2.1"
+            },
+            "conflict": {
+                "spomky-labs/jose": "*"
+            },
+            "suggest": {
+                "ext-bcmath": "GMP or BCMath is highly recommended to improve the library performance",
+                "ext-gmp": "GMP or BCMath is highly recommended to improve the library performance",
+                "ext-openssl": "For key management (creation, optimization, etc.) and some algorithms (AES, RSA, ECDSA, etc.)",
+                "ext-sodium": "Sodium is required for OKP key creation, EdDSA signature algorithm and ECDH-ES key encryption with OKP keys",
+                "paragonie/sodium_compat": "Sodium is required for OKP key creation, EdDSA signature algorithm and ECDH-ES key encryption with OKP keys",
+                "spomky-labs/aes-key-wrap": "For all Key Wrapping algorithms (AxxxKW, AxxxGCMKW, PBES2-HSxxx+AyyyKW...)",
+                "symfony/console": "Needed to use console commands",
+                "symfony/http-client": "To enable JKU/X5U support."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jose\\Component\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Florent Morselli",
+                    "homepage": "https://github.com/Spomky"
+                },
+                {
+                    "name": "All contributors",
+                    "homepage": "https://github.com/web-token/jwt-framework/contributors"
+                }
+            ],
+            "description": "JWT library",
+            "homepage": "https://github.com/web-token",
+            "keywords": [
+                "JOSE",
+                "JWE",
+                "JWK",
+                "JWKSet",
+                "JWS",
+                "Jot",
+                "RFC7515",
+                "RFC7516",
+                "RFC7517",
+                "RFC7518",
+                "RFC7519",
+                "RFC7520",
+                "bundle",
+                "jwa",
+                "jwt",
+                "symfony"
+            ],
+            "support": {
+                "issues": "https://github.com/web-token/jwt-library/issues",
+                "source": "https://github.com/web-token/jwt-library/tree/4.1.3"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/Spomky",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/FlorentMorselli",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2025-12-18T14:27:35+00:00"
         },
         {
             "name": "webmozart/assert",

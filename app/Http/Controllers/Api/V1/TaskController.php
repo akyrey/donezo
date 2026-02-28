@@ -6,6 +6,8 @@ use App\Data\CreateTaskData;
 use App\Data\TaskData;
 use App\Data\UpdateTaskData;
 use App\Http\Controllers\Controller;
+use App\Jobs\RemoveCalendarEvent;
+use App\Jobs\SyncTaskToCalendar;
 use App\Models\Task;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -116,6 +118,11 @@ class TaskController extends Controller
 
         $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee']);
 
+        // Dispatch calendar sync if task has a date
+        if ($task->scheduled_at || $task->deadline_at) {
+            SyncTaskToCalendar::dispatch($task->id);
+        }
+
         return response()->json([
             'data' => TaskData::from($task),
         ], 201);
@@ -186,6 +193,14 @@ class TaskController extends Controller
 
         $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee', 'project']);
 
+        // Dispatch calendar sync if task has calendar-relevant changes
+        $calendarFields = ['title', 'description', 'scheduled_at', 'deadline_at', 'is_evening'];
+        $hasCalendarChanges = ! empty(array_intersect(array_keys($attributes), $calendarFields));
+
+        if ($hasCalendarChanges && ($task->scheduled_at || $task->deadline_at)) {
+            SyncTaskToCalendar::dispatch($task->id);
+        }
+
         return response()->json([
             'data' => TaskData::from($task),
         ]);
@@ -197,6 +212,20 @@ class TaskController extends Controller
     public function destroy(Request $request, Task $task): JsonResponse
     {
         abort_unless($task->user_id === $request->user()->id, 403);
+
+        // Remove calendar event if synced
+        if ($task->google_calendar_event_id) {
+            $googleAccount = $request->user()->socialAccounts()
+                ->where('provider', 'google')
+                ->first();
+
+            if ($googleAccount) {
+                RemoveCalendarEvent::dispatch(
+                    $task->google_calendar_event_id,
+                    $googleAccount->id,
+                );
+            }
+        }
 
         $task->delete();
 
@@ -214,6 +243,22 @@ class TaskController extends Controller
             'status' => 'completed',
             'completed_at' => Carbon::now(),
         ]);
+
+        // Remove calendar event when task is completed
+        if ($task->google_calendar_event_id) {
+            $googleAccount = $request->user()->socialAccounts()
+                ->where('provider', 'google')
+                ->first();
+
+            if ($googleAccount) {
+                RemoveCalendarEvent::dispatch(
+                    $task->google_calendar_event_id,
+                    $googleAccount->id,
+                );
+            }
+
+            $task->update(['google_calendar_event_id' => null]);
+        }
 
         $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee']);
 
@@ -233,6 +278,11 @@ class TaskController extends Controller
             'status' => 'inbox',
             'completed_at' => null,
         ]);
+
+        // Re-sync to calendar if task has a date
+        if ($task->scheduled_at || $task->deadline_at) {
+            SyncTaskToCalendar::dispatch($task->id);
+        }
 
         $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee']);
 

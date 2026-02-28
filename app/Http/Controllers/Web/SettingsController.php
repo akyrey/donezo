@@ -15,8 +15,19 @@ class SettingsController extends Controller
      */
     public function index(Request $request): Response
     {
+        $user = $request->user();
+        $googleAccount = $user->socialAccounts()->where('provider', 'google')->first();
+
         return Inertia::render('Settings/Index', [
-            'settings' => $request->user()->settings ?? [],
+            'settings' => $user->settings ?? [],
+            'calendarStatus' => [
+                'connected' => $googleAccount !== null,
+                'has_calendar_scope' => $googleAccount?->hasCalendarAccess() ?? false,
+                'token_expired' => $googleAccount?->isTokenExpired() ?? false,
+                'enabled' => (bool) env('GOOGLE_CALENDAR_ENABLED', false),
+            ],
+            'hasGoogleAccount' => $googleAccount !== null,
+            'hasPushSubscriptions' => $user->pushSubscriptions()->exists(),
         ]);
     }
 

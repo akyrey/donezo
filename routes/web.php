@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
@@ -53,4 +54,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    // ──────────────────────────────────────────────
+    // Google Calendar OAuth (requires auth — connects calendar post-login)
+    // ──────────────────────────────────────────────
+    Route::get('/auth/google/calendar/redirect', [CalendarController::class, 'connect'])->name('calendar.connect');
+    Route::get('/auth/google/calendar/callback', [CalendarController::class, 'callback'])->name('calendar.callback');
 });
