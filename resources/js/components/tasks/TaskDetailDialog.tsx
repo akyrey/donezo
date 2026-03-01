@@ -10,7 +10,6 @@ import {
     DialogDescription,
 } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
-import { ScrollArea } from '@/components/ui/ScrollArea';
 import { TaskDetail } from './TaskDetail';
 import { TaskForm } from './TaskForm';
 import { useTagsQuery } from '@/hooks/useTags';
@@ -43,8 +42,8 @@ export function TaskDetailDialog({
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
-                <DialogHeader className="px-6 pt-6 pb-0">
+            <DialogContent className="!grid-rows-none !grid-cols-none !gap-0 !flex flex-col max-w-2xl max-h-[85vh] p-0">
+                <DialogHeader className="shrink-0 px-6 pt-6 pb-0">
                     <div className="flex items-center justify-between">
                         <DialogTitle className="sr-only">
                             {isEditing ? 'Edit Task' : 'Task Details'}
@@ -78,7 +77,7 @@ export function TaskDetailDialog({
                     </div>
                 </DialogHeader>
 
-                <ScrollArea className="flex-1 px-6 pb-6">
+                <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-6 pt-4">
                     {isEditing ? (
                         <TaskForm
                             task={task}
@@ -93,7 +92,7 @@ export function TaskDetailDialog({
                     ) : (
                         <TaskDetail task={task} />
                     )}
-                </ScrollArea>
+                </div>
             </DialogContent>
         </Dialog>
     );
