@@ -5,7 +5,16 @@ import {
     useQueryClient,
     type UseQueryOptions,
 } from '@tanstack/react-query';
+import { router } from '@inertiajs/react';
 import type { Task } from '@/types';
+
+/**
+ * Reload current Inertia page props so server-rendered task lists update
+ * after a client-side API mutation.
+ */
+function reloadInertiaProps() {
+    router.reload();
+}
 
 // Ensure axios sends CSRF token and credentials
 axios.defaults.withCredentials = true;
@@ -94,6 +103,7 @@ export function useTaskMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TASKS_KEY });
+            reloadInertiaProps();
         },
     });
 }
@@ -114,6 +124,7 @@ export function useUpdateTaskMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TASKS_KEY });
+            reloadInertiaProps();
         },
     });
 }
@@ -127,6 +138,7 @@ export function useDeleteTaskMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TASKS_KEY });
+            reloadInertiaProps();
         },
     });
 }
@@ -150,6 +162,7 @@ export function useCompleteTaskMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TASKS_KEY });
+            reloadInertiaProps();
         },
     });
 }
@@ -168,6 +181,7 @@ export function useReorderTasksMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TASKS_KEY });
+            reloadInertiaProps();
         },
     });
 }

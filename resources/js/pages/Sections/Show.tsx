@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { LayoutGrid, FolderKanban } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
+import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import type { Section, Project, Task } from '@/types';
 
 interface SectionShowProps {
@@ -42,6 +44,8 @@ function ProjectCard({ project }: { project: Project }) {
 }
 
 export default function SectionShow({ section, projects, tasks }: SectionShowProps) {
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
     return (
         <AuthenticatedLayout>
             <Head title={section.name} />
@@ -77,7 +81,7 @@ export default function SectionShow({ section, projects, tasks }: SectionShowPro
                         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-text-secondary">
                             Tasks
                         </h2>
-                        <TaskList tasks={tasks} />
+                        <TaskList tasks={tasks} onSelectTask={setSelectedTask} />
                     </section>
                 )}
 
@@ -96,6 +100,14 @@ export default function SectionShow({ section, projects, tasks }: SectionShowPro
                     </div>
                 )}
             </div>
+
+            <TaskDetailDialog
+                task={selectedTask}
+                open={!!selectedTask}
+                onOpenChange={(open) => {
+                    if (!open) setSelectedTask(null);
+                }}
+            />
         </AuthenticatedLayout>
     );
 }

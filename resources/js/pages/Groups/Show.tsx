@@ -22,6 +22,7 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Separator } from '@/components/ui/Separator';
 import { TaskList } from '@/components/tasks/TaskList';
+import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import {
     useAddMemberMutation,
     useRemoveMemberMutation,
@@ -264,6 +265,7 @@ export default function GroupsShow({ group, members, tasks }: Props) {
     const { auth } = usePage<PageProps>().props;
     const [addMemberOpen, setAddMemberOpen] = useState(false);
     const [editGroupOpen, setEditGroupOpen] = useState(false);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     const isCurrentUserOwner = auth.user.id === group.owner.id;
     const deleteGroupMutation = useDeleteGroupMutation();
@@ -371,6 +373,7 @@ export default function GroupsShow({ group, members, tasks }: Props) {
                     tasks={tasks}
                     emptyMessage="No tasks shared with this group yet."
                     showProject
+                    onSelectTask={setSelectedTask}
                 />
             </div>
 
@@ -384,6 +387,13 @@ export default function GroupsShow({ group, members, tasks }: Props) {
                 open={editGroupOpen}
                 onOpenChange={setEditGroupOpen}
                 group={group}
+            />
+            <TaskDetailDialog
+                task={selectedTask}
+                open={!!selectedTask}
+                onOpenChange={(open) => {
+                    if (!open) setSelectedTask(null);
+                }}
             />
         </AuthenticatedLayout>
     );

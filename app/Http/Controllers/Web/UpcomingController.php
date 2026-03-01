@@ -19,13 +19,21 @@ class UpcomingController extends Controller
         $timezone = $request->user()->timezone;
         $today = Carbon::today($timezone);
 
+        // Allow navigating to different weeks via start_date param
+        $startDate = $request->has('start_date')
+            ? Carbon::parse($request->input('start_date'))->startOfDay()
+            : $today;
+
+        $endDate = $startDate->copy()->addDays(6)->endOfDay();
+
         $tasks = $request->user()
             ->tasks()
-            ->where(function ($query) use ($today) {
+            ->where(function ($query) use ($startDate, $endDate) {
                 $query->where('status', 'upcoming')
-                    ->orWhere(function ($q) use ($today) {
+                    ->orWhere(function ($q) use ($startDate, $endDate) {
                         $q->whereNotNull('scheduled_at')
-                            ->whereDate('scheduled_at', '>', $today);
+                            ->whereDate('scheduled_at', '>=', $startDate)
+                            ->whereDate('scheduled_at', '<=', $endDate);
                     });
             })
             ->whereNull('completed_at')
@@ -35,7 +43,15 @@ class UpcomingController extends Controller
             ->with(['tags', 'checklistItems', 'reminders', 'project'])
             ->get();
 
-        $grouped = $tasks->groupBy(function ($task) {
+        // Only include tasks within the displayed date range
+        $filtered = $tasks->filter(function ($task) use ($startDate, $endDate) {
+            if (!$task->scheduled_at) {
+                return true; // unscheduled upcoming tasks always show
+            }
+            return $task->scheduled_at->between($startDate, $endDate);
+        });
+
+        $grouped = $filtered->groupBy(function ($task) {
             return $task->scheduled_at
                 ? $task->scheduled_at->toDateString()
                 : 'unscheduled';
@@ -43,6 +59,7 @@ class UpcomingController extends Controller
 
         return Inertia::render('Upcoming', [
             'grouped_tasks' => $grouped,
+            'start_date' => $startDate->toDateString(),
         ]);
     }
 }

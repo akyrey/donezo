@@ -8,6 +8,7 @@ import remarkGfm from 'remark-gfm';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
 import { TaskForm } from '@/components/tasks/TaskForm';
+import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import type { Project, Task, Heading } from '@/types';
@@ -86,6 +87,7 @@ export default function ProjectShow({
     headings,
 }: ProjectShowProps) {
     const [headingDialogOpen, setHeadingDialogOpen] = useState(false);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t) => t.status === 'completed').length;
@@ -156,7 +158,7 @@ export default function ProjectShow({
                                     Unassigned
                                 </h2>
                             )}
-                            <TaskList tasks={unassignedTasks} />
+                            <TaskList tasks={unassignedTasks} onSelectTask={setSelectedTask} />
                         </section>
                     )}
 
@@ -182,7 +184,7 @@ export default function ProjectShow({
 
                                     <Collapsible.Content>
                                         {headingTasks.length > 0 ? (
-                                            <TaskList tasks={headingTasks} />
+                                            <TaskList tasks={headingTasks} onSelectTask={setSelectedTask} />
                                         ) : (
                                             <p className="py-4 text-center text-sm text-text-tertiary">
                                                 No tasks in this section
@@ -237,6 +239,14 @@ export default function ProjectShow({
                     onOpenChange={setHeadingDialogOpen}
                 />
             </div>
+
+            <TaskDetailDialog
+                task={selectedTask}
+                open={!!selectedTask}
+                onOpenChange={(open) => {
+                    if (!open) setSelectedTask(null);
+                }}
+            />
         </AuthenticatedLayout>
     );
 }

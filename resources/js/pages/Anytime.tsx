@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { Layers } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
+import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import type { Task } from '@/types';
 
 interface AnytimeProps {
@@ -9,6 +11,8 @@ interface AnytimeProps {
 }
 
 export default function Anytime({ tasks }: AnytimeProps) {
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
     return (
         <AuthenticatedLayout>
             <Head title="Anytime" />
@@ -22,7 +26,7 @@ export default function Anytime({ tasks }: AnytimeProps) {
                 </div>
 
                 {tasks.length > 0 ? (
-                    <TaskList tasks={tasks} />
+                    <TaskList tasks={tasks} onSelectTask={setSelectedTask} />
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
                         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-bg-secondary">
@@ -37,6 +41,14 @@ export default function Anytime({ tasks }: AnytimeProps) {
                     </div>
                 )}
             </div>
+
+            <TaskDetailDialog
+                task={selectedTask}
+                open={!!selectedTask}
+                onOpenChange={(open) => {
+                    if (!open) setSelectedTask(null);
+                }}
+            />
         </AuthenticatedLayout>
     );
 }

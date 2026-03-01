@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { Inbox as InboxIcon } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
 import { TaskForm } from '@/components/tasks/TaskForm';
+import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import type { Task } from '@/types';
 
 interface InboxProps {
@@ -10,6 +12,8 @@ interface InboxProps {
 }
 
 export default function Inbox({ tasks }: InboxProps) {
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
     return (
         <AuthenticatedLayout>
             <Head title="Inbox" />
@@ -23,7 +27,7 @@ export default function Inbox({ tasks }: InboxProps) {
                 </div>
 
                 {tasks.length > 0 ? (
-                    <TaskList tasks={tasks} />
+                    <TaskList tasks={tasks} onSelectTask={setSelectedTask} />
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
                         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-bg-secondary">
@@ -42,6 +46,14 @@ export default function Inbox({ tasks }: InboxProps) {
                     <TaskForm placeholder="Add to Inbox..." context="inbox" />
                 </div>
             </div>
+
+            <TaskDetailDialog
+                task={selectedTask}
+                open={!!selectedTask}
+                onOpenChange={(open) => {
+                    if (!open) setSelectedTask(null);
+                }}
+            />
         </AuthenticatedLayout>
     );
 }

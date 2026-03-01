@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { Star, AlertCircle, Sun, Moon } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
 import { TaskForm } from '@/components/tasks/TaskForm';
+import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import type { Task } from '@/types';
 
 interface TodayProps {
@@ -17,6 +19,7 @@ export default function Today({
     evening_tasks,
     overdue_tasks,
 }: TodayProps) {
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const today = new Date();
     const dateLabel = format(today, 'EEE, MMM d');
     const hasAnyTasks =
@@ -52,7 +55,7 @@ export default function Today({
                                         {overdue_tasks.length}
                                     </span>
                                 </div>
-                                <TaskList tasks={overdue_tasks} />
+                                <TaskList tasks={overdue_tasks} onSelectTask={setSelectedTask} />
                             </section>
                         )}
 
@@ -64,7 +67,7 @@ export default function Today({
                                         Morning
                                     </h2>
                                 </div>
-                                <TaskList tasks={morning_tasks} />
+                                <TaskList tasks={morning_tasks} onSelectTask={setSelectedTask} />
                             </section>
                         )}
 
@@ -76,7 +79,7 @@ export default function Today({
                                         This Evening
                                     </h2>
                                 </div>
-                                <TaskList tasks={evening_tasks} />
+                                <TaskList tasks={evening_tasks} onSelectTask={setSelectedTask} />
                             </section>
                         )}
                     </div>
@@ -101,6 +104,14 @@ export default function Today({
                     />
                 </div>
             </div>
+
+            <TaskDetailDialog
+                task={selectedTask}
+                open={!!selectedTask}
+                onOpenChange={(open) => {
+                    if (!open) setSelectedTask(null);
+                }}
+            />
         </AuthenticatedLayout>
     );
 }

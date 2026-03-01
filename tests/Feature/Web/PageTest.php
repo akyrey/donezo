@@ -44,7 +44,9 @@ it('renders the upcoming page with grouped tasks', function () {
 
 it('excludes completed tasks from upcoming', function () {
     $user = User::factory()->create();
-    Task::factory()->for($user)->upcoming()->create();
+    Task::factory()->for($user)->upcoming()->create([
+        'scheduled_at' => now()->addDays(2),
+    ]);
     Task::factory()->for($user)->completed()->create([
         'scheduled_at' => now()->addDay(),
     ]);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Trash2, GripVertical, FileText } from 'lucide-react';
 import type { Task, Project, Section, Tag } from '@/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
@@ -81,6 +81,7 @@ export function TaskForm({
     );
     const [newChecklistTitle, setNewChecklistTitle] = useState('');
     const [newReminderAt, setNewReminderAt] = useState('');
+    const [showInlineDescription, setShowInlineDescription] = useState(false);
 
     const createMutation = useTaskMutation();
     const updateMutation = useUpdateTaskMutation();
@@ -137,6 +138,7 @@ export function TaskForm({
                     setChecklistItems([]);
                     setReminders([]);
                     setSelectedTagIds([]);
+                    setShowInlineDescription(false);
                     onClose?.();
                 },
             });
@@ -191,6 +193,34 @@ export function TaskForm({
                 autoFocus
                 className="border-none px-0 text-base font-medium shadow-none focus-visible:ring-0"
             />
+
+            {/* Inline description toggle + textarea */}
+            {isInline && (
+                <>
+                    {showInlineDescription ? (
+                        <textarea
+                            placeholder="Add notes..."
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            rows={2}
+                            className={cn(
+                                'w-full resize-none rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-secondary',
+                                'placeholder:text-text-tertiary',
+                                'focus:outline-none focus:ring-2 focus:ring-primary/50',
+                            )}
+                        />
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => setShowInlineDescription(true)}
+                            className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-secondary transition-colors"
+                        >
+                            <FileText className="h-3 w-3" />
+                            Add notes
+                        </button>
+                    )}
+                </>
+            )}
 
             {/* Description - only in full form mode */}
             {!isInline && (
