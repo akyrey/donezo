@@ -191,7 +191,11 @@ export function TaskForm({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 autoFocus
-                className="border-none px-0 text-base font-medium shadow-none focus-visible:ring-0"
+                className={cn(
+                    isInline
+                        ? 'rounded-none border-0 border-b border-border/60 bg-transparent px-1 text-base font-medium shadow-none focus-visible:ring-0 focus-visible:border-primary transition-colors'
+                        : 'border-none px-0 text-base font-medium shadow-none focus-visible:ring-0',
+                )}
             />
 
             {/* Inline description toggle + textarea */}
@@ -203,19 +207,24 @@ export function TaskForm({
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             rows={2}
+                            autoFocus
                             className={cn(
-                                'w-full resize-none rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-secondary',
+                                'w-full resize-none rounded-md border border-border/60 bg-bg-secondary/50 px-3 py-2 text-sm text-text',
                                 'placeholder:text-text-tertiary',
-                                'focus:outline-none focus:ring-2 focus:ring-primary/50',
+                                'focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40',
+                                'transition-all',
                             )}
                         />
                     ) : (
                         <button
                             type="button"
                             onClick={() => setShowInlineDescription(true)}
-                            className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-secondary transition-colors"
+                            className={cn(
+                                'flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-text-tertiary',
+                                'hover:text-text-secondary hover:bg-bg-secondary/70 transition-all',
+                            )}
                         >
-                            <FileText className="h-3 w-3" />
+                            <FileText className="h-3.5 w-3.5" />
                             Add notes
                         </button>
                     )}
