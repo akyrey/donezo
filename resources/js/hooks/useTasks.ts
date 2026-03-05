@@ -167,6 +167,23 @@ export function useCompleteTaskMutation() {
     });
 }
 
+export function useToggleChecklistItemMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id: number) => {
+            const response = await axios.post<{ data: { id: number; title: string; is_completed: boolean; position: number } }>(
+                `/api/v1/checklist-items/${id}/toggle`,
+            );
+            return response.data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: TASKS_KEY });
+            reloadInertiaProps();
+        },
+    });
+}
+
 export function useReorderTasksMutation() {
     const queryClient = useQueryClient();
 
