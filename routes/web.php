@@ -47,7 +47,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/someday', [SomedayController::class, 'index'])->name('someday');
     Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook');
 
-    Route::resource('projects', ProjectController::class)->only(['index', 'show']);
+    Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+    Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     Route::get('/sections/{section}', [SectionController::class, 'show'])->name('sections.show');
 
     Route::resource('groups', GroupController::class)->only(['index', 'show']);

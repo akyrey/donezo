@@ -9,6 +9,7 @@ import type { Project } from '@/types';
 
 interface ProjectsIndexProps {
     projects: Project[];
+    openDialog?: boolean;
 }
 
 function ProjectCard({ project }: { project: Project }) {
@@ -163,8 +164,9 @@ function CreateProjectDialog({
     );
 }
 
-export default function ProjectsIndex({ projects }: ProjectsIndexProps) {
-    const [dialogOpen, setDialogOpen] = useState(false);
+export default function ProjectsIndex({ projects, openDialog = false }: ProjectsIndexProps) {
+    const [dialogOpen, setDialogOpen] = useState(openDialog);
+
 
     return (
         <AuthenticatedLayout>
