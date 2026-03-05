@@ -25,7 +25,9 @@ class ProjectController extends Controller
             ->withCount(['tasks as task_count', 'tasks as completed_task_count' => function ($query) {
                 $query->whereNotNull('completed_at');
             }])
-            ->with('headings')
+            ->with([
+                'headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count'),
+            ])
             ->orderBy('position')
             ->get();
 

@@ -273,9 +273,13 @@ function SidebarContent({
                 {/* Projects */}
                 <div className="py-2">
                     <div className="flex items-center justify-between px-3 py-1.5">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+                        <Link
+                            href={route('projects.index')}
+                            onClick={onNavigate}
+                            className="text-xs font-semibold uppercase tracking-wider text-text-tertiary hover:text-text transition-colors"
+                        >
                             Projects
-                        </span>
+                        </Link>
                         <Link href="/projects/create" onClick={onNavigate}>
                             <Button
                                 variant="ghost"
