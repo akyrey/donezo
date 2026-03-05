@@ -7,7 +7,6 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
-import { TaskForm } from '@/components/tasks/TaskForm';
 import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -104,7 +103,7 @@ export default function ProjectShow({
     );
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout taskContext="project" defaultProjectId={project.id}>
             <Head title={project.name} />
 
             <div className="mx-auto max-w-2xl px-4 py-8">
@@ -222,15 +221,6 @@ export default function ProjectShow({
                         <Plus className="h-4 w-4" />
                         Add Heading
                     </Button>
-                </div>
-
-                {/* Quick-add bar */}
-                <div className="sticky bottom-0 mt-4 border-t border-border bg-bg pb-4 pt-4">
-                    <TaskForm
-                        placeholder="Add to project..."
-                        context="project"
-                        projectId={project.id}
-                    />
                 </div>
 
                 <AddHeadingDialog

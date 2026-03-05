@@ -14,7 +14,7 @@ export default function Someday({ tasks }: SomedayProps) {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout taskContext="someday">
             <Head title="Someday" />
 
             <div className="mx-auto max-w-2xl px-4 py-8">

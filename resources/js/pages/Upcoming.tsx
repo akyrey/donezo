@@ -104,7 +104,7 @@ export default function Upcoming({ grouped_tasks, start_date }: UpcomingProps) {
     }
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout taskContext="upcoming">
             <Head title="Upcoming" />
 
             <div className="mx-auto max-w-2xl px-4 py-8">

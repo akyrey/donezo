@@ -3,7 +3,6 @@ import { Head } from '@inertiajs/react';
 import { Inbox as InboxIcon } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
-import { TaskForm } from '@/components/tasks/TaskForm';
 import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import type { Task } from '@/types';
 
@@ -15,7 +14,7 @@ export default function Inbox({ tasks }: InboxProps) {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout taskContext="inbox">
             <Head title="Inbox" />
 
             <div className="mx-auto max-w-2xl px-4 py-8">
@@ -41,10 +40,6 @@ export default function Inbox({ tasks }: InboxProps) {
                         </p>
                     </div>
                 )}
-
-                <div className="sticky bottom-0 mt-6 border-t border-border bg-bg pb-4 pt-4">
-                    <TaskForm placeholder="Add to Inbox..." context="inbox" />
-                </div>
             </div>
 
             <TaskDetailDialog

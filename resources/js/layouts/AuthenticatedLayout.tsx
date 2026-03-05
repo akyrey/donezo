@@ -31,10 +31,15 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { CommandPalette } from '@/components/CommandPalette';
+import { AddTaskDialog } from '@/components/tasks/AddTaskDialog';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
     title?: string;
+    /** Context hint for new tasks created via the + button (e.g. "inbox", "today") */
+    taskContext?: string;
+    /** Pre-select a project when creating a new task */
+    defaultProjectId?: number;
 }
 
 interface NavItem {
@@ -304,6 +309,8 @@ function SidebarContent({
 export default function AuthenticatedLayout({
     children,
     title,
+    taskContext,
+    defaultProjectId,
 }: AuthenticatedLayoutProps) {
     const { auth, projects = [], sections = [], groups = [] } = usePage<
         PageProps<{
@@ -316,6 +323,7 @@ export default function AuthenticatedLayout({
     const currentUrl = usePage().url;
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+    const [addTaskOpen, setAddTaskOpen] = useState(false);
 
     // Global Cmd+K / Ctrl+K shortcut
     useEffect(() => {
@@ -406,20 +414,42 @@ export default function AuthenticatedLayout({
                             {navigator.platform?.includes('Mac') ? '\u2318' : 'Ctrl+'}K
                         </kbd>
                     </Button>
+
                 </header>
 
-                {/* Content area */}
-                <div className="flex-1 overflow-y-auto">
+                {/* Content area — leave room at bottom for the FAB */}
+                <div className="flex-1 overflow-y-auto pb-24">
                     <div className="mx-auto max-w-3xl px-4 py-6 lg:px-8">
                         {children}
                     </div>
                 </div>
             </main>
 
+            {/* FAB — bottom-right on all screen sizes */}
+            <button
+                onClick={() => setAddTaskOpen(true)}
+                className={cn(
+                    'fixed bottom-6 right-6 z-30',
+                    'flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg',
+                    'transition-transform duration-150 active:scale-95 hover:bg-primary-dark',
+                )}
+                aria-label="New task"
+            >
+                <Plus className="h-6 w-6" />
+            </button>
+
             {/* Command Palette */}
             <CommandPalette
                 open={commandPaletteOpen}
                 onOpenChange={setCommandPaletteOpen}
+            />
+
+            {/* Add Task Dialog */}
+            <AddTaskDialog
+                open={addTaskOpen}
+                onOpenChange={setAddTaskOpen}
+                context={taskContext}
+                defaultProjectId={defaultProjectId}
             />
         </div>
     );

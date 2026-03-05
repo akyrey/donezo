@@ -4,7 +4,6 @@ import { format } from 'date-fns';
 import { Star, AlertCircle, Sun, Moon } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
-import { TaskForm } from '@/components/tasks/TaskForm';
 import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import type { Task } from '@/types';
 
@@ -28,7 +27,7 @@ export default function Today({
         overdue_tasks?.length > 0;
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout taskContext="today">
             <Head title="Today" />
 
             <div className="mx-auto max-w-2xl px-4 py-8">
@@ -97,12 +96,6 @@ export default function Today({
                     </div>
                 )}
 
-                <div className="sticky bottom-0 mt-6 border-t border-border bg-bg pb-4 pt-4">
-                    <TaskForm
-                        placeholder="Add to Today..."
-                        context="today"
-                    />
-                </div>
             </div>
 
             <TaskDetailDialog

@@ -14,7 +14,7 @@ export default function Anytime({ tasks }: AnytimeProps) {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout taskContext="anytime">
             <Head title="Anytime" />
 
             <div className="mx-auto max-w-2xl px-4 py-8">

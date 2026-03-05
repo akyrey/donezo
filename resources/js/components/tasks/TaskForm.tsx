@@ -22,6 +22,8 @@ interface TaskFormProps {
     context?: string;
     /** Shorthand for defaultProjectId, used in inline quick-add mode */
     projectId?: number;
+    /** Force inline (compact) UI regardless of context */
+    inline?: boolean;
 }
 
 interface ChecklistEntry {
@@ -47,9 +49,10 @@ export function TaskForm({
     placeholder = 'Task title',
     context,
     projectId: projectIdProp,
+    inline,
 }: TaskFormProps) {
     const isEditing = !!task;
-    const isInline = !!context;
+    const isInline = inline ?? false;
 
     const [title, setTitle] = useState(task?.title ?? '');
     const [description, setDescription] = useState(task?.description ?? '');
