@@ -240,6 +240,7 @@ class TaskController extends Controller
         abort_unless($task->user_id === $request->user()->id, 403);
 
         $task->update([
+            'previous_status' => $task->status,
             'status' => 'completed',
             'completed_at' => Carbon::now(),
         ]);
@@ -275,7 +276,8 @@ class TaskController extends Controller
         abort_unless($task->user_id === $request->user()->id, 403);
 
         $task->update([
-            'status' => 'inbox',
+            'status' => $task->previous_status ?? 'inbox',
+            'previous_status' => null,
             'completed_at' => null,
         ]);
 

@@ -28,6 +28,7 @@ class Task extends Model
         'title',
         'description',
         'status',
+        'previous_status',
         'is_evening',
         'scheduled_at',
         'deadline_at',

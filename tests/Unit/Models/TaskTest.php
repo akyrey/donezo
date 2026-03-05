@@ -23,6 +23,7 @@ it('has correct fillable attributes', function () {
         'title',
         'description',
         'status',
+        'previous_status',
         'is_evening',
         'scheduled_at',
         'deadline_at',

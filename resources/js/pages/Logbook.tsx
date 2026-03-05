@@ -1,10 +1,20 @@
-import { Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Button } from '@/components/ui/Button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from '@/components/ui/Dialog';
 import { cn } from '@/lib/utils';
+import { useCompleteTaskMutation } from '@/hooks/useTasks';
 import type { Paginated, Task } from '@/types';
 
 interface LogbookProps {
@@ -14,6 +24,16 @@ interface LogbookProps {
 export default function Logbook({ tasks }: LogbookProps) {
     const prevLink = tasks.links.prev;
     const nextLink = tasks.links.next;
+    const [taskToUncomplete, setTaskToUncomplete] = useState<Task | null>(null);
+    const completeTask = useCompleteTaskMutation();
+
+    function handleConfirmUncomplete() {
+        if (!taskToUncomplete) return;
+        completeTask.mutate(
+            { id: taskToUncomplete.id, completed: false },
+            { onSuccess: () => setTaskToUncomplete(null) },
+        );
+    }
 
     return (
         <AuthenticatedLayout>
@@ -43,8 +63,8 @@ export default function Logbook({ tasks }: LogbookProps) {
                                 >
                                     <Checkbox
                                         checked={true}
-                                        disabled
-                                        className="mt-0.5 opacity-50"
+                                        className="mt-0.5 cursor-pointer"
+                                        onCheckedChange={() => setTaskToUncomplete(task)}
                                     />
                                     <div className="min-w-0 flex-1">
                                         <p
@@ -131,6 +151,34 @@ export default function Logbook({ tasks }: LogbookProps) {
                     </div>
                 )}
             </div>
+
+            <Dialog
+                open={!!taskToUncomplete}
+                onOpenChange={(open) => { if (!open) setTaskToUncomplete(null); }}
+            >
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Mark as incomplete?</DialogTitle>
+                        <DialogDescription>
+                            "{taskToUncomplete?.title}" will be moved out of your Logbook and back to your tasks.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="mt-2 gap-2">
+                        <Button
+                            variant="ghost"
+                            onClick={() => setTaskToUncomplete(null)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleConfirmUncomplete}
+                            disabled={completeTask.isPending}
+                        >
+                            {completeTask.isPending ? 'Saving...' : 'Mark incomplete'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AuthenticatedLayout>
     );
 }
