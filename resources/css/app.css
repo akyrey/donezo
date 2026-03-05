@@ -74,6 +74,11 @@
     animation: task-complete 0.4s ease-out forwards;
 }
 
+@keyframes shrink {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}
+
 /* Sidebar transition */
 @keyframes sidebar-slide-in {
     from {

@@ -44,6 +44,8 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { CommandPalette } from '@/components/CommandPalette';
 import { AddTaskDialog } from '@/components/tasks/AddTaskDialog';
+import { UndoToast } from '@/components/ui/UndoToast';
+import { useCompleteTaskMutation } from '@/hooks/useTasks';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
@@ -447,6 +449,17 @@ export default function AuthenticatedLayout({
     const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
     const [addTaskOpen, setAddTaskOpen] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [undoTask, setUndoTask] = useState<{ id: number; title: string } | null>(null);
+    const completeTaskMutation = useCompleteTaskMutation();
+
+    useEffect(() => {
+        function handleTaskCompleted(e: Event) {
+            const { id, title } = (e as CustomEvent<{ id: number; title: string }>).detail;
+            setUndoTask({ id, title });
+        }
+        window.addEventListener('task-completed', handleTaskCompleted);
+        return () => window.removeEventListener('task-completed', handleTaskCompleted);
+    }, []);
 
     // Context resolved from drag-drop target
     const [resolvedContext, setResolvedContext] = useState<string | undefined>(taskContext);
@@ -618,6 +631,20 @@ export default function AuthenticatedLayout({
                     context={resolvedContext}
                     defaultProjectId={resolvedProjectId}
                 />
+
+                {/* Undo toast */}
+                {undoTask && (
+                    <UndoToast
+                        message={`"${undoTask.title}" completed`}
+                        onUndo={() =>
+                            completeTaskMutation.mutate({
+                                id: undoTask.id,
+                                completed: false,
+                            })
+                        }
+                        onDismiss={() => setUndoTask(null)}
+                    />
+                )}
             </div>
         </DndContext>
     );

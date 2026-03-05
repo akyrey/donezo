@@ -32,19 +32,23 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
     function handleComplete(e: React.MouseEvent) {
         e.stopPropagation();
         if (!isCompleted) {
-            // Animate out, then fire mutation
             setIsCompleting(true);
             setTimeout(() => {
-                completeMutation.mutate({
-                    id: task.id,
-                    completed: true,
-                });
+                completeMutation.mutate(
+                    { id: task.id, completed: true },
+                    {
+                        onSuccess: () => {
+                            window.dispatchEvent(
+                                new CustomEvent('task-completed', {
+                                    detail: { id: task.id, title: task.title },
+                                }),
+                            );
+                        },
+                    },
+                );
             }, 350);
         } else {
-            completeMutation.mutate({
-                id: task.id,
-                completed: false,
-            });
+            completeMutation.mutate({ id: task.id, completed: false });
         }
     }
 
