@@ -181,10 +181,10 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
                 </div>
             </div>
 
-            {/* Quick actions - shown on hover */}
-            {isHovered && !isCompleted && (
+            {/* Quick actions - always rendered to avoid layout shift, visible on hover */}
+            {!isCompleted && (
                 <TooltipProvider delayDuration={300}>
-                    <div className="flex items-center gap-0.5">
+                    <div className={cn('flex items-center gap-0.5', !isHovered && 'invisible')}>
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button
