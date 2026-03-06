@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, GripVertical, FileText } from 'lucide-react';
+import { Plus, Trash2, GripVertical, FileText, Palette } from 'lucide-react';
 import type { Task, Project, Section, Tag } from '@/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Separator } from '@/components/ui/Separator';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover';
 import { useTaskMutation, useUpdateTaskMutation, type TaskCreateData } from '@/hooks/useTasks';
+import { useTagMutation } from '@/hooks/useTags';
+
+const TAG_COLORS = [
+    '#ef4444', '#f97316', '#eab308', '#22c55e',
+    '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899',
+    '#6b7280', '#000000',
+];
 
 interface TaskFormProps {
     task?: Task;
@@ -85,9 +93,12 @@ export function TaskForm({
     const [newChecklistTitle, setNewChecklistTitle] = useState('');
     const [newReminderAt, setNewReminderAt] = useState('');
     const [showInlineDescription, setShowInlineDescription] = useState(false);
+    const [newTagName, setNewTagName] = useState('');
+    const [newTagColor, setNewTagColor] = useState<string | undefined>(undefined);
 
     const createMutation = useTaskMutation();
     const updateMutation = useUpdateTaskMutation();
+    const tagMutation = useTagMutation();
 
     const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
@@ -183,6 +194,21 @@ export function TaskForm({
             prev.includes(tagId)
                 ? prev.filter((id) => id !== tagId)
                 : [...prev, tagId],
+        );
+    }
+
+    function createTag() {
+        const name = newTagName.trim();
+        if (!name) return;
+        tagMutation.mutate(
+            { name, color: newTagColor },
+            {
+                onSuccess: (tag) => {
+                    setSelectedTagIds((prev) => [...prev, tag.id]);
+                    setNewTagName('');
+                    setNewTagColor(undefined);
+                },
+            },
         );
     }
 
@@ -329,36 +355,113 @@ export function TaskForm({
                     <Separator />
 
                     {/* Tags */}
-                    {tags.length > 0 && (
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-text">
-                                Tags
-                            </label>
-                            <div className="flex flex-wrap gap-2">
-                                {tags.map((tag) => (
-                                    <button
-                                        key={tag.id}
-                                        type="button"
-                                        onClick={() => toggleTag(tag.id)}
-                                        className={cn(
-                                            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
-                                            selectedTagIds.includes(tag.id)
-                                                ? 'bg-primary text-white'
-                                                : 'bg-bg-tertiary text-text-secondary hover:bg-bg-secondary',
-                                        )}
-                                    >
-                                        {tag.color && (
-                                            <span
-                                                className="h-2 w-2 rounded-full"
-                                                style={{ backgroundColor: tag.color }}
-                                            />
-                                        )}
-                                        {tag.name}
-                                    </button>
-                                ))}
-                            </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-text">
+                            Tags
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                            {tags.map((tag) => (
+                                <button
+                                    key={tag.id}
+                                    type="button"
+                                    onClick={() => toggleTag(tag.id)}
+                                    className={cn(
+                                        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
+                                        selectedTagIds.includes(tag.id)
+                                            ? 'bg-primary text-white'
+                                            : 'bg-bg-tertiary text-text-secondary hover:bg-bg-secondary',
+                                    )}
+                                >
+                                    {tag.color && (
+                                        <span
+                                            className="h-2 w-2 rounded-full"
+                                            style={{ backgroundColor: tag.color }}
+                                        />
+                                    )}
+                                    {tag.name}
+                                </button>
+                            ))}
                         </div>
-                    )}
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                placeholder="New tag..."
+                                value={newTagName}
+                                onChange={(e) => setNewTagName(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        createTag();
+                                    }
+                                }}
+                                disabled={tagMutation.isPending}
+                                className="flex h-9 flex-1 rounded-lg border border-border bg-bg px-3 py-1 text-sm text-text shadow-sm placeholder:text-text-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                            {/* Color swatch picker */}
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className={cn(
+                                            'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors',
+                                            newTagColor
+                                                ? 'border-transparent'
+                                                : 'border-border bg-bg hover:border-primary/50 hover:bg-bg-secondary',
+                                        )}
+                                        style={newTagColor ? { backgroundColor: newTagColor } : undefined}
+                                        title="Pick a color"
+                                    >
+                                        {!newTagColor && (
+                                            <Palette className="h-4 w-4 text-text-tertiary" />
+                                        )}
+                                    </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-3" align="end">
+                                    <p className="mb-2 text-xs font-medium text-text-secondary">
+                                        Tag color
+                                    </p>
+                                    <div className="grid grid-cols-5 gap-2">
+                                        {/* "No color" option */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setNewTagColor(undefined)}
+                                            className={cn(
+                                                'h-6 w-6 rounded-full border-2 bg-bg-tertiary transition-colors',
+                                                !newTagColor
+                                                    ? 'border-primary'
+                                                    : 'border-transparent hover:border-border',
+                                            )}
+                                            title="No color"
+                                        />
+                                        {TAG_COLORS.map((color) => (
+                                            <button
+                                                key={color}
+                                                type="button"
+                                                onClick={() => setNewTagColor(color)}
+                                                className={cn(
+                                                    'h-6 w-6 rounded-full border-2 transition-colors',
+                                                    newTagColor === color
+                                                        ? 'border-primary scale-110'
+                                                        : 'border-transparent hover:border-border',
+                                                )}
+                                                style={{ backgroundColor: color }}
+                                                title={color}
+                                            />
+                                        ))}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={createTag}
+                                disabled={!newTagName.trim() || tagMutation.isPending}
+                            >
+                                <Plus className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
 
                     <Separator />
 
