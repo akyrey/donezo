@@ -46,64 +46,153 @@ function AddMemberDialog({
     onOpenChange: (open: boolean) => void;
     groupId: number;
 }) {
-    const [userId, setUserId] = useState('');
-    const addMemberMutation = useAddMemberMutation();
+    const [email, setEmail] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const inviteMutation = useInviteMemberMutation();
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        const id = parseInt(userId, 10);
-        if (!id || isNaN(id)) return;
+        if (!email.trim()) return;
 
-        addMemberMutation.mutate(
-            { groupId, userId: id },
+        inviteMutation.mutate(
+            { groupId, email: email.trim() },
             {
-                onSuccess: () => {
-                    setUserId('');
-                    onOpenChange(false);
-                    window.location.reload();
+                onSuccess: (data) => {
+                    setSuccessMessage(data.message);
+                    setEmail('');
                 },
             },
         );
     }
 
+    function handleClose() {
+        setEmail('');
+        setSuccessMessage('');
+        inviteMutation.reset();
+        onOpenChange(false);
+    }
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleClose}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add Member</DialogTitle>
+                    <DialogTitle>Invite Member</DialogTitle>
                     <DialogDescription>
-                        Add a user to this group by their user ID.
+                        Enter the email address of the person you want to
+                        invite. They will receive an email with instructions
+                        to join the group.
                     </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <Input
-                        label="User ID"
-                        type="number"
-                        value={userId}
-                        onChange={(e) => setUserId(e.target.value)}
-                        placeholder="Enter user ID"
-                        autoFocus
-                    />
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => onOpenChange(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={!userId || addMemberMutation.isPending}
-                        >
-                            {addMemberMutation.isPending
-                                ? 'Adding...'
-                                : 'Add Member'}
-                        </Button>
-                    </DialogFooter>
-                </form>
+
+                {successMessage ? (
+                    <div className="space-y-4">
+                        <div className="flex items-start gap-3 rounded-lg border border-success/30 bg-success/5 p-4">
+                            <Mail className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                            <p className="text-sm text-text">
+                                {successMessage}
+                            </p>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setSuccessMessage('');
+                                    inviteMutation.reset();
+                                }}
+                            >
+                                Invite another
+                            </Button>
+                            <Button type="button" onClick={handleClose}>
+                                Done
+                            </Button>
+                        </DialogFooter>
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <Input
+                            label="Email address"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="colleague@example.com"
+                            autoFocus
+                        />
+                        {inviteMutation.isError && (
+                            <p className="text-sm text-danger">
+                                {(
+                                    inviteMutation.error as {
+                                        response?: { data?: { message?: string } };
+                                    }
+                                )?.response?.data?.message ??
+                                    'Something went wrong. Please try again.'}
+                            </p>
+                        )}
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={handleClose}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={
+                                    !email.trim() || inviteMutation.isPending
+                                }
+                            >
+                                {inviteMutation.isPending
+                                    ? 'Sending...'
+                                    : 'Send Invitation'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                )}
             </DialogContent>
         </Dialog>
+    );
+}
+
+function PendingInvitationItem({
+    invitation,
+    groupId,
+}: {
+    invitation: GroupInvitation;
+    groupId: number;
+}) {
+    const cancelMutation = useCancelInvitationMutation();
+
+    return (
+        <div className="flex items-center gap-3 rounded-lg px-3 py-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-warning/10">
+                <Clock className="h-4 w-4 text-warning" />
+            </div>
+            <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-text">
+                    {invitation.email}
+                </p>
+                <p className="text-xs text-text-tertiary">
+                    Invite pending &middot; expires{' '}
+                    {new Date(invitation.expires_at).toLocaleDateString()}
+                </p>
+            </div>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-text-tertiary hover:text-danger"
+                onClick={() =>
+                    cancelMutation.mutate({
+                        groupId,
+                        invitationId: invitation.id,
+                    })
+                }
+                disabled={cancelMutation.isPending}
+                title="Cancel invitation"
+            >
+                <X className="h-3.5 w-3.5" />
+            </Button>
+        </div>
     );
 }
 
