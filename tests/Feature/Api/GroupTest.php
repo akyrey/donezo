@@ -89,34 +89,7 @@ it('can delete a group as owner', function () {
     $this->assertSoftDeleted('groups', ['id' => $group->id]);
 });
 
-it('can add a member to a group', function () {
-    $owner = User::factory()->create();
-    $newMember = User::factory()->create();
-    $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
 
-    $this->actingAs($owner)
-        ->postJson("/api/v1/groups/{$group->id}/members", [
-            'user_id' => $newMember->id,
-        ])
-        ->assertOk();
-
-    expect($group->members()->where('user_id', $newMember->id)->exists())->toBeTrue();
-});
-
-it('prevents adding duplicate members', function () {
-    $owner = User::factory()->create();
-    $member = User::factory()->create();
-    $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($member->id, ['role' => 'member']);
-
-    $this->actingAs($owner)
-        ->postJson("/api/v1/groups/{$group->id}/members", [
-            'user_id' => $member->id,
-        ])
-        ->assertStatus(422);
-});
 
 it('can remove a member from a group', function () {
     $owner = User::factory()->create();
@@ -210,14 +183,9 @@ it('prevents non-members from viewing a group', function () {
 it('prevents non-owners from managing members', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
-    $newUser = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
     $group->members()->attach($owner->id, ['role' => 'admin']);
     $group->members()->attach($member->id, ['role' => 'member']);
-
-    $this->actingAs($member)
-        ->postJson("/api/v1/groups/{$group->id}/members", ['user_id' => $newUser->id])
-        ->assertStatus(403);
 
     $this->actingAs($member)
         ->deleteJson("/api/v1/groups/{$group->id}/members/{$owner->id}")

@@ -6,6 +6,15 @@ import {resolvePageComponent} from 'laravel-vite-plugin/inertia-helpers';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools';
 
+// Register the service worker for PWA support (push notifications + offline caching)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.warn('Service worker registration failed:', err);
+        });
+    });
+}
+
 const appName = import.meta.env.VITE_APP_NAME || 'Donezo';
 
 const queryClient = new QueryClient();

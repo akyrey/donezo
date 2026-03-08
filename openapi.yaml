@@ -37,6 +37,8 @@ tags:
     description: Subdivisions within a project
   - name: Groups
     description: Shared workspaces with member management
+  - name: Group Invitations
+    description: Email-based invitations to join groups
   - name: Search
     description: Unified search across entities
   - name: Calendar
@@ -1157,31 +1159,17 @@ paths:
         "403":
           $ref: "#/components/responses/Forbidden"
 
-  /groups/{groupId}/members:
+  /groups/{groupId}/invitations:
     parameters:
       - $ref: "#/components/parameters/groupId"
-    post:
-      operationId: addGroupMember
-      tags: [Groups]
-      summary: Add a member to a group (owner only)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [user_id]
-              properties:
-                user_id:
-                  type: integer
-                  description: ID of the user to add
-                role:
-                  type: string
-                  enum: [admin, member]
-                  default: member
+    get:
+      operationId: listGroupInvitations
+      tags: [Group Invitations]
+      summary: List pending invitations for a group (owner only)
+      description: Returns only pending (not accepted, not expired) invitations.
       responses:
         "200":
-          description: Member added
+          description: List of pending invitations
           content:
             application/json:
               schema:
@@ -1189,17 +1177,76 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Group"
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GroupInvitation"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      operationId: sendGroupInvitation
+      tags: [Group Invitations]
+      summary: Invite a user by email (owner only)
+      description: |
+        Sends an invitation email to the provided address.
+
+        - If the email belongs to an existing user, they receive a direct accept link.
+        - If the email does not belong to any user, they receive a registration link
+          that auto-joins them to the group after account creation.
+        - Any existing pending invitation for the same email+group is replaced.
+        - Returns 422 if the target email is already a group member.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGroupInvitation"
+      responses:
+        "201":
+          description: Invitation sent
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, message]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/GroupInvitation"
+                  message:
+                    type: string
         "401":
           $ref: "#/components/responses/Unauthenticated"
         "403":
           $ref: "#/components/responses/Forbidden"
         "422":
-          description: User is already a member or validation failed
+          description: Target user is already a member or validation failed
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
+  /groups/{groupId}/invitations/{invitationId}:
+    parameters:
+      - $ref: "#/components/parameters/groupId"
+      - name: invitationId
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      operationId: cancelGroupInvitation
+      tags: [Group Invitations]
+      summary: Cancel a pending invitation (owner only)
+      responses:
+        "204":
+          description: Invitation cancelled
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Invitation not found or belongs to a different group
 
   /groups/{groupId}/members/{userId}:
     parameters:
@@ -1274,6 +1321,57 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationError"
+
+  /invitations/{token}/accept:
+    parameters:
+      - name: token
+        in: path
+        required: true
+        description: The 64-character invitation token from the email link
+        schema:
+          type: string
+    post:
+      operationId: acceptGroupInvitation
+      tags: [Group Invitations]
+      summary: Accept an invitation by token (authenticated users only)
+      description: |
+        The authenticated user's email must match the invitation email.
+        On success the user is added to the group with the role specified in the invitation.
+      responses:
+        "200":
+          description: Invitation accepted, user joined the group
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message, group_id]
+                properties:
+                  message:
+                    type: string
+                  group_id:
+                    type: integer
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          description: Email mismatch — invitation was sent to a different address
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Token not found or invitation already accepted
+        "410":
+          description: Invitation has expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: User is already a member of the group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   # ── Search ───────────────────────────────────────────────────────────
   /search:
@@ -2080,6 +2178,45 @@ components:
           type: string
           nullable: true
           maxLength: 7
+
+    GroupInvitation:
+      type: object
+      required: [id, group_id, email, token, role, expires_at, created_at]
+      properties:
+        id:
+          type: integer
+        group_id:
+          type: integer
+        email:
+          type: string
+          format: email
+        token:
+          type: string
+          description: 64-character random token used in the accept link
+        role:
+          $ref: "#/components/schemas/GroupRole"
+        accepted_at:
+          type: string
+          format: date-time
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+    CreateGroupInvitation:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          description: Email address of the person to invite
+        role:
+          $ref: "#/components/schemas/GroupRole"
 
     CreateGroup:
       type: object

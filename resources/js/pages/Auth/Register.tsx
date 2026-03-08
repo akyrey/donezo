@@ -4,12 +4,18 @@ import GuestLayout from '@/layouts/GuestLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
-export default function Register() {
+interface Props {
+    invitationToken?: string | null;
+    invitationEmail?: string | null;
+}
+
+export default function Register({ invitationToken, invitationEmail }: Props) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        email: '',
+        email: invitationEmail ?? '',
         password: '',
         password_confirmation: '',
+        invitation_token: invitationToken ?? '',
     });
 
     const submit: SubmitEventHandler = (e) => {
@@ -29,7 +35,9 @@ export default function Register() {
                         Create your account
                     </h1>
                     <p className="mt-2 text-sm text-text-secondary">
-                        Start organizing your tasks with Donezo
+                        {invitationToken
+                            ? 'Create your account to accept the group invitation'
+                            : 'Start organizing your tasks with Donezo'}
                     </p>
                 </div>
 
@@ -107,6 +115,7 @@ export default function Register() {
                         error={errors.email}
                         placeholder="you@example.com"
                         autoComplete="email"
+                        readOnly={!!invitationEmail}
                     />
 
                     <Input

@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Web\AnytimeController;
+use App\Http\Controllers\Web\GroupInvitationController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\GroupController;
 use App\Http\Controllers\Web\InboxController;
@@ -57,6 +58,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    Route::get('/invitations/{token}', [GroupInvitationController::class, 'show'])->name('invitations.accept');
 
     Route::patch('/profile', [SettingsController::class, 'updateProfile'])->name('profile.update');
     Route::patch('/profile/preferences', [SettingsController::class, 'updatePreferences'])->name('profile.preferences');

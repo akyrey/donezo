@@ -7,9 +7,12 @@ import {
     UserMinus,
     Settings,
     Trash2,
+    Mail,
+    X,
+    Clock,
 } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
-import type { Group, GroupMember, Task, PageProps, User } from '@/types';
+import type { Group, GroupInvitation, GroupMember, Task, PageProps, User } from '@/types';
 import { Button } from '@/components/ui/Button';
 import {
     Dialog,
@@ -24,7 +27,9 @@ import { Separator } from '@/components/ui/Separator';
 import { TaskList } from '@/components/tasks/TaskList';
 import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import {
-    useAddMemberMutation,
+    useInviteMemberMutation,
+    useCancelInvitationMutation,
+    useGroupInvitationsQuery,
     useRemoveMemberMutation,
     useUpdateGroupMutation,
     useDeleteGroupMutation,
@@ -37,7 +42,7 @@ interface Props extends PageProps {
     tasks: Task[];
 }
 
-function AddMemberDialog({
+function InviteMemberDialog({
     open,
     onOpenChange,
     groupId,
@@ -352,12 +357,16 @@ function MemberItem({
 
 export default function GroupsShow({ group, members, tasks }: Props) {
     const { auth } = usePage<PageProps>().props;
-    const [addMemberOpen, setAddMemberOpen] = useState(false);
+    const [inviteMemberOpen, setInviteMemberOpen] = useState(false);
     const [editGroupOpen, setEditGroupOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     const isCurrentUserOwner = auth.user.id === group.owner.id;
     const deleteGroupMutation = useDeleteGroupMutation();
+    const { data: invitationsData } = useGroupInvitationsQuery(
+        isCurrentUserOwner ? group.id : 0,
+    );
+    const pendingInvitations = invitationsData?.data ?? [];
 
     function handleDeleteGroup() {
         if (
@@ -431,10 +440,10 @@ export default function GroupsShow({ group, members, tasks }: Props) {
                         <Button
                             variant="ghost"
                             className="gap-1.5 text-xs text-text-secondary"
-                            onClick={() => setAddMemberOpen(true)}
+                            onClick={() => setInviteMemberOpen(true)}
                         >
                             <UserPlus className="h-3.5 w-3.5" />
-                            Add Member
+                            Invite Member
                         </Button>
                     )}
                 </div>
@@ -446,6 +455,13 @@ export default function GroupsShow({ group, members, tasks }: Props) {
                             groupId={group.id}
                             isOwner={member.id === group.owner.id}
                             canManage={isCurrentUserOwner}
+                        />
+                    ))}
+                    {pendingInvitations.map((invitation) => (
+                        <PendingInvitationItem
+                            key={invitation.id}
+                            invitation={invitation}
+                            groupId={group.id}
                         />
                     ))}
                 </div>
@@ -467,9 +483,9 @@ export default function GroupsShow({ group, members, tasks }: Props) {
             </div>
 
             {/* Dialogs */}
-            <AddMemberDialog
-                open={addMemberOpen}
-                onOpenChange={setAddMemberOpen}
+            <InviteMemberDialog
+                open={inviteMemberOpen}
+                onOpenChange={setInviteMemberOpen}
                 groupId={group.id}
             />
             <EditGroupDialog

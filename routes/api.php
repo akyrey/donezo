@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Api\V1\ChecklistItemController;
 use App\Http\Controllers\Api\V1\GroupController;
+use App\Http\Controllers\Api\V1\GroupInvitationController;
 use App\Http\Controllers\Api\V1\HeadingController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\PushSubscriptionController;
@@ -64,9 +65,14 @@ Route::middleware('auth:sanctum')->prefix('v1')->name('api.v1.')->group(function
     // Groups
     // ──────────────────────────────────────────────
     Route::apiResource('groups', GroupController::class);
-    Route::post('groups/{group}/members', [GroupController::class, 'addMember'])->name('groups.add-member');
     Route::delete('groups/{group}/members/{user}', [GroupController::class, 'removeMember'])->name('groups.remove-member');
     Route::post('groups/{group}/tasks', [GroupController::class, 'shareTasks'])->name('groups.share-tasks');
+
+    // Group Invitations
+    Route::get('groups/{group}/invitations', [GroupInvitationController::class, 'index'])->name('groups.invitations.index');
+    Route::post('groups/{group}/invitations', [GroupInvitationController::class, 'store'])->name('groups.invitations.store');
+    Route::delete('groups/{group}/invitations/{invitation}', [GroupInvitationController::class, 'destroy'])->name('groups.invitations.destroy');
+    Route::post('invitations/{token}/accept', [GroupInvitationController::class, 'accept'])->name('invitations.accept');
 
     // ──────────────────────────────────────────────
     // Google Calendar

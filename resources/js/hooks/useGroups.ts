@@ -4,7 +4,7 @@ import {
     useMutation,
     useQueryClient,
 } from '@tanstack/react-query';
-import type { Group, User } from '@/types';
+import type { Group, GroupInvitation, User } from '@/types';
 
 // ──────────────────────────────────────────────
 // Types
@@ -27,6 +27,10 @@ interface GroupsResponse {
 interface GroupDetailResponse {
     data: Group;
     members: User[];
+}
+
+interface GroupInvitationsResponse {
+    data: GroupInvitation[];
 }
 
 // ──────────────────────────────────────────────
@@ -55,6 +59,13 @@ async function fetchGroup(id: number): Promise<GroupDetailResponse> {
     return data;
 }
 
+async function fetchGroupInvitations(groupId: number): Promise<GroupInvitationsResponse> {
+    const { data } = await axios.get<GroupInvitationsResponse>(
+        `/api/v1/groups/${groupId}/invitations`,
+    );
+    return data;
+}
+
 export function useGroupsQuery() {
     return useQuery<GroupsResponse>({
         queryKey: GROUPS_KEY,
@@ -67,6 +78,14 @@ export function useGroupQuery(id: number) {
         queryKey: groupDetailKey(id),
         queryFn: () => fetchGroup(id),
         enabled: id > 0,
+    });
+}
+
+export function useGroupInvitationsQuery(groupId: number) {
+    return useQuery<GroupInvitationsResponse>({
+        queryKey: [...groupDetailKey(groupId), 'invitations'],
+        queryFn: () => fetchGroupInvitations(groupId),
+        enabled: groupId > 0,
     });
 }
 
@@ -127,29 +146,49 @@ export function useDeleteGroupMutation() {
     });
 }
 
-export function useAddMemberMutation() {
+export function useInviteMemberMutation() {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async ({
             groupId,
-            userId,
+            email,
             role = 'member',
         }: {
             groupId: number;
-            userId: number;
+            email: string;
             role?: 'admin' | 'member';
         }) => {
-            const response = await axios.post<{ data: Group }>(
-                `/api/v1/groups/${groupId}/members`,
-                { user_id: userId, role },
+            const response = await axios.post<{ data: GroupInvitation; message: string }>(
+                `/api/v1/groups/${groupId}/invitations`,
+                { email, role },
             );
-            return response.data.data;
+            return response.data;
         },
         onSuccess: (_data, variables) => {
-            queryClient.invalidateQueries({ queryKey: GROUPS_KEY });
             queryClient.invalidateQueries({
-                queryKey: groupDetailKey(variables.groupId),
+                queryKey: [...groupDetailKey(variables.groupId), 'invitations'],
+            });
+        },
+    });
+}
+
+export function useCancelInvitationMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            groupId,
+            invitationId,
+        }: {
+            groupId: number;
+            invitationId: number;
+        }) => {
+            await axios.delete(`/api/v1/groups/${groupId}/invitations/${invitationId}`);
+        },
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: [...groupDetailKey(variables.groupId), 'invitations'],
             });
         },
     });

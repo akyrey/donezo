@@ -72,14 +72,8 @@ export function useNotifications(): UseNotificationsReturn {
                 return;
             }
 
-            // Register service worker if not already registered
-            let registration = await navigator.serviceWorker.getRegistration('/sw.js');
-            if (!registration) {
-                registration = await navigator.serviceWorker.register('/sw.js');
-            }
-
-            // Wait for SW to be ready
-            await navigator.serviceWorker.ready;
+            // Wait for SW to be ready (registered globally in app.tsx)
+            const registration = await navigator.serviceWorker.ready;
 
             // Get VAPID public key
             const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;

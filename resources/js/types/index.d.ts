@@ -107,6 +107,17 @@ export type GroupMember = User & {
     };
 };
 
+export type GroupInvitation = {
+    id: number;
+    group_id: number;
+    email: string;
+    token: string;
+    role: 'admin' | 'member';
+    accepted_at: string | null;
+    expires_at: string;
+    created_at: string;
+};
+
 export type CalendarStatus = {
     connected: boolean;
     has_calendar_scope: boolean;

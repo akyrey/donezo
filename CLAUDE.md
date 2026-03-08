@@ -55,7 +55,8 @@ app/
     Auth/                     # Login, Register, Social OAuth
     Web/                      # Inertia page controllers (server-render)
   Jobs/                       # SyncTaskToCalendar, RemoveCalendarEvent
-  Models/                     # User, Task, Project, Section, Heading, Tag, ChecklistItem, Reminder, Group, PushSubscription, SocialAccount
+  Mail/                       # GroupInvitationMail
+  Models/                     # User, Task, Project, Section, Heading, Tag, ChecklistItem, Reminder, Group, GroupInvitation, PushSubscription, SocialAccount
   Notifications/              # ReminderDueNotification
   Services/                   # GoogleCalendarService
 
@@ -78,7 +79,7 @@ resources/js/
     useSections.ts             # Section CRUD
     useTags.ts                 # Tag CRUD
     useSearch.ts               # Debounced search across tasks/projects/sections/tags
-    useGroups.ts               # Group CRUD + member management
+    useGroups.ts               # Group CRUD, invitations (invite/cancel/accept), member removal
     useCalendar.ts             # Google Calendar status/disconnect/sync
     useNotifications.ts        # Web Push subscribe/unsubscribe
   layouts/
@@ -133,7 +134,13 @@ routes/
 
 ### Group (SoftDeletes)
 - Fields: name, description?, owner_id
-- belongsTo: owner; belongsToMany: members (pivot: role), tasks
+- belongsTo: owner; belongsToMany: members (pivot: role), tasks; hasMany: invitations
+
+### GroupInvitation
+- Fields: group_id, invited_by, email, token (64-char unique), role (default 'member'), accepted_at?, expires_at (7-day TTL)
+- Unique constraint on (group_id, email) — only one pending invite per email+group
+- belongsTo: group, inviter (User via invited_by)
+- Helpers: isPending(), isExpired(), isAccepted()
 
 ### PushSubscription
 - Fields: user_id, endpoint, p256dh_key, auth_token, content_encoding
@@ -185,9 +192,13 @@ GET/PUT/DELETE /tags/{tag}
 # Groups
 GET/POST       /groups
 GET/PUT/DELETE /groups/{group}
-POST           /groups/{group}/members
 DELETE         /groups/{group}/members/{user}
 POST           /groups/{group}/tasks
+
+# Group Invitations
+GET/POST       /groups/{group}/invitations
+DELETE         /groups/{group}/invitations/{invitation}
+POST           /invitations/{token}/accept
 
 # Search
 GET            /search?q={query}&limit=10
@@ -232,6 +243,7 @@ Via `HandleInertiaRequests` middleware:
 | Sections/Show | `{ section, projects, tasks }` | (none) |
 | Groups/Index | `{ groups: Group[] }` | (none) |
 | Groups/Show | `{ group, members, tasks }` | (none) |
+| Groups/AcceptInvitation | `{ invitation: { token, email, role, expired, group, inviter, expires_at } }` | (none, GuestLayout) |
 | Settings/Index | `{ calendarStatus, hasGoogleAccount, hasPushSubscriptions }` | (none) |
 
 ---
@@ -282,6 +294,14 @@ Wraps everything in `DndContext` (@dnd-kit).
 4. Layout shows `UndoToast` (auto-dismiss 4s with progress bar)
 5. Undo calls uncomplete mutation (restores `previous_status`)
 
+### Group Invitation Flow
+1. Owner opens the "Invite Member" dialog on Groups/Show and submits an email
+2. `POST /api/v1/groups/{group}/invitations` creates a `GroupInvitation` (7-day TTL, unique token) and queues `GroupInvitationMail`
+   - **Existing user**: email contains a direct accept link → `GET /invitations/{token}` (Inertia page) → user clicks "Accept" → `POST /api/v1/invitations/{token}/accept`
+   - **New user**: email contains a registration link → `/register?invitation={token}` → email pre-filled and locked → on submit `RegisteredUserController` auto-accepts the invitation and redirects to the group page
+3. Pending invitations appear inline below confirmed members in Groups/Show (with cancel button)
+4. Re-inviting the same email replaces any existing pending invitation atomically
+
 ### Google Calendar Sync
 - `SyncTaskToCalendar` job dispatched on task create/update with dates
 - `RemoveCalendarEvent` job dispatched on task delete/complete
@@ -314,6 +334,61 @@ Custom animations: `task-slide-in`, `task-complete`, `shrink` (undo toast progre
 
 Defined in `resources/js/types/index.d.ts`:
 
-- `User`, `Task`, `Project`, `Section`, `Heading`, `Tag`, `ChecklistItem`, `Reminder`, `RepeatRule`, `Group`, `GroupMember`, `CalendarStatus`
+- `User`, `Task`, `Project`, `Section`, `Heading`, `Tag`, `ChecklistItem`, `Reminder`, `RepeatRule`, `Group`, `GroupMember`, `GroupInvitation`, `CalendarStatus`
 - `Paginated<T>` (with `PaginationLinks` + `PaginationMeta`)
 - `PageProps<T>` -- extends InertiaPageProps with `auth.user`, `projects`, `sections`, `groups`
+
+---
+
+## 13. Testing
+
+**Stack**: Pest 3.8 + PHPUnit 11.5.3, SQLite in-memory DB (configured in `phpunit.xml`), sync queue, array mail driver.
+
+**Run tests**:
+```bash
+./vendor/bin/sail artisan test
+./vendor/bin/sail artisan test --filter GroupInvitation   # single suite
+./vendor/bin/sail artisan test --coverage                 # with coverage report
+```
+
+**Test layout**:
+```
+tests/
+  Unit/Models/
+    GroupInvitationTest.php   # fillable, casts, relationships, isPending/isExpired/isAccepted helpers
+    GroupTest.php             # fillable, relationships, soft deletes
+    ProjectTest.php / TaskTest.php / SocialAccountTest.php
+  Feature/
+    Api/
+      GroupInvitationTest.php # auth guards, send/list/cancel/accept — all edge cases
+      GroupTest.php           # CRUD + remove-member + share-tasks + authorization
+      TaskTest.php / ProjectTest.php / ... (all API resources)
+    Auth/
+      RegisterWithInvitationTest.php  # ?invitation= query param, auto-accept on register
+      LoginTest.php / RegisterTest.php
+    Web/
+      GroupInvitationTest.php  # GET /invitations/{token} Inertia page
+      PageTest.php / InboxTest.php / TodayTest.php
+```
+
+**Key patterns**:
+- Feature tests use `RefreshDatabase` via `Pest.php` (applied to the whole `Feature/` directory)
+- Unit model tests declare `uses(RefreshDatabase::class)` individually (Unit tests don't get it by default)
+- Mail is faked with `Mail::fake()` + `Mail::assertQueued(GroupInvitationMail::class, fn($m) => ...)`
+- Factory states: `GroupInvitation::factory()->pending()`, `->accepted()`, `->expired()`, `->forGroup($group)`, `->invitedBy($user)`, `->forEmail('x@y.com')`
+
+---
+
+## 14. OpenAPI Spec
+
+Hand-written `openapi.yaml` at the project root (OpenAPI 3.1.0). No PHP annotation package — maintained manually.
+
+**Covered tags**: Tasks, Projects, Sections, Tags, Checklist Items, Reminders, Headings, Groups, Group Invitations, Search, Calendar, Push Subscriptions
+
+**Group Invitations endpoints** (added with the invitation feature):
+- `GET  /groups/{groupId}/invitations` — list pending (owner only)
+- `POST /groups/{groupId}/invitations` — send invite by email (owner only)
+- `DELETE /groups/{groupId}/invitations/{invitationId}` — cancel invite (owner only)
+- `POST /invitations/{token}/accept` — accept by token (authenticated, email must match)
+
+**Schemas**: `GroupInvitation`, `CreateGroupInvitation` added alongside `Group`, `CreateGroup`, `UpdateGroup`.

@@ -118,34 +118,6 @@ class GroupController extends Controller
     }
 
     /**
-     * Add a member to a group.
-     */
-    public function addMember(Request $request, Group $group): JsonResponse
-    {
-        abort_unless($group->owner_id === $request->user()->id, 403);
-
-        $validated = $request->validate([
-            'user_id' => ['required', 'integer', 'exists:users,id'],
-            'role' => ['sometimes', 'string', 'in:admin,member'],
-        ]);
-
-        if ($group->members()->where('user_id', $validated['user_id'])->exists()) {
-            return response()->json(['message' => 'User is already a member of this group.'], 422);
-        }
-
-        $group->members()->attach($validated['user_id'], [
-            'role' => $validated['role'] ?? 'member',
-        ]);
-
-        $group->load('owner');
-        $group->loadCount('members as member_count');
-
-        return response()->json([
-            'data' => GroupData::from($group),
-        ]);
-    }
-
-    /**
      * Remove a member from a group.
      */
     public function removeMember(Request $request, Group $group, User $user): JsonResponse
