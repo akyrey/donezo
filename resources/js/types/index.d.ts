@@ -154,6 +154,7 @@ export type PageProps<
         auth: {
             user: User;
         };
+        task_counts: Partial<Record<'inbox' | 'today' | 'upcoming' | 'anytime' | 'someday', number>>;
         projects: Project[];
         sections: Section[];
         groups: Group[];

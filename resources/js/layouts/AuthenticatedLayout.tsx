@@ -62,15 +62,17 @@ interface NavItem {
     /** Maps to a task status context string */
     context: string;
     icon: React.ComponentType<{ className?: string }>;
+    /** Whether this item supports showing an uncomplete task count badge */
+    showBadge?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-    { label: 'Inbox',    href: '/inbox',    context: 'inbox',    icon: Inbox    },
-    { label: 'Today',    href: '/today',    context: 'today',    icon: Sun      },
-    { label: 'Upcoming', href: '/upcoming', context: 'upcoming', icon: Calendar },
-    { label: 'Anytime',  href: '/anytime',  context: 'anytime',  icon: Layers   },
-    { label: 'Someday',  href: '/someday',  context: 'someday',  icon: Archive  },
-    { label: 'Logbook',  href: '/logbook',  context: 'logbook',  icon: BookOpen },
+    { label: 'Inbox',    href: '/inbox',    context: 'inbox',    icon: Inbox,    showBadge: true  },
+    { label: 'Today',    href: '/today',    context: 'today',    icon: Sun,      showBadge: true  },
+    { label: 'Upcoming', href: '/upcoming', context: 'upcoming', icon: Calendar, showBadge: true  },
+    { label: 'Anytime',  href: '/anytime',  context: 'anytime',  icon: Layers,   showBadge: true  },
+    { label: 'Someday',  href: '/someday',  context: 'someday',  icon: Archive,  showBadge: true  },
+    { label: 'Logbook',  href: '/logbook',  context: 'logbook',  icon: BookOpen, showBadge: false },
 ];
 
 /** Droppable ID helpers */
@@ -95,15 +97,18 @@ function DroppableNavItem({
     currentUrl,
     isDragging,
     onNavigate,
+    count,
 }: {
     item: NavItem;
     currentUrl: string;
     isDragging: boolean;
     onNavigate?: () => void;
+    count?: number;
 }) {
     const { setNodeRef, isOver } = useDroppable({ id: navDropId(item.context) });
     const Icon = item.icon;
     const active = isActive(item.href, currentUrl);
+    const showCount = item.showBadge && count != null && count > 0;
 
     return (
         <Link
@@ -118,8 +123,18 @@ function DroppableNavItem({
                 isDragging && isOver && 'ring-2 ring-primary ring-inset bg-primary/10 text-primary',
             )}
         >
-            <Icon className={cn('h-4.5 w-4.5', active || (isDragging && isOver) ? 'text-primary' : 'text-text-tertiary')} />
-            {item.label}
+            <Icon className={cn('h-4.5 w-4.5 shrink-0', active || (isDragging && isOver) ? 'text-primary' : 'text-text-tertiary')} />
+            <span className="flex-1 truncate">{item.label}</span>
+            {showCount && (
+                <span className={cn(
+                    'ml-auto min-w-[1.25rem] rounded-full px-1.5 py-0.5 text-center text-xs font-medium leading-none tabular-nums',
+                    active || (isDragging && isOver)
+                        ? 'bg-primary/15 text-primary'
+                        : 'bg-bg-tertiary text-text-tertiary',
+                )}>
+                    {count}
+                </span>
+            )}
         </Link>
     );
 }
@@ -138,6 +153,8 @@ function DroppableProjectItem({
     const { setNodeRef, isOver } = useDroppable({ id: projDropId(project.id) });
     const projectUrl = `/projects/${project.id}`;
     const active = isActive(projectUrl, currentUrl);
+    const incompleteCount = project.task_count - project.completed_task_count;
+    const showCount = incompleteCount > 0;
 
     return (
         <Link
@@ -152,9 +169,18 @@ function DroppableProjectItem({
                 isDragging && isOver && 'ring-2 ring-primary ring-inset bg-primary/10 text-primary',
             )}
         >
-            <FolderOpen className={cn('h-4 w-4', isDragging && isOver ? 'text-primary' : 'text-text-tertiary')} />
-            <span className="truncate">{project.name}</span>
-            <ChevronRight className="ml-auto h-3.5 w-3.5 text-text-tertiary opacity-0 transition-opacity group-hover:opacity-100" />
+            <FolderOpen className={cn('h-4 w-4 shrink-0', isDragging && isOver ? 'text-primary' : 'text-text-tertiary')} />
+            <span className="flex-1 truncate">{project.name}</span>
+            {showCount && (
+                <span className={cn(
+                    'min-w-[1.25rem] rounded-full px-1.5 py-0.5 text-center text-xs font-medium leading-none tabular-nums',
+                    active || (isDragging && isOver)
+                        ? 'bg-primary/15 text-primary'
+                        : 'bg-bg-tertiary text-text-tertiary',
+                )}>
+                    {incompleteCount}
+                </span>
+            )}
         </Link>
     );
 }
@@ -234,6 +260,7 @@ function SidebarContent({
     user,
     isDragging,
     onNavigate,
+    taskCounts,
 }: {
     currentUrl: string;
     projects: Project[];
@@ -242,6 +269,7 @@ function SidebarContent({
     user: PageProps['auth']['user'];
     isDragging: boolean;
     onNavigate?: () => void;
+    taskCounts: PageProps['task_counts'];
 }) {
     return (
         <div className="flex h-full flex-col">
@@ -266,6 +294,7 @@ function SidebarContent({
                             currentUrl={currentUrl}
                             isDragging={isDragging}
                             onNavigate={onNavigate}
+                            count={taskCounts[item.context as keyof typeof taskCounts]}
                         />
                     ))}
                 </nav>
@@ -391,7 +420,7 @@ function SidebarContent({
                             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-medium text-white">
                                 {user.name
                                     .split(' ')
-                                    .map((n) => n[0])
+                                    .map((n: string) => n[0])
                                     .join('')
                                     .toUpperCase()
                                     .slice(0, 2)}
@@ -436,7 +465,7 @@ export default function AuthenticatedLayout({
     taskContext,
     defaultProjectId,
 }: AuthenticatedLayoutProps) {
-    const { auth, projects = [], sections = [], groups = [] } = usePage<
+    const { auth, task_counts: taskCounts = {}, projects = [], sections = [], groups = [] } = usePage<
         PageProps<{
             projects: Project[];
             sections: Section[];
@@ -562,6 +591,7 @@ export default function AuthenticatedLayout({
                         user={auth.user}
                         isDragging={isDragging}
                         onNavigate={() => setSidebarOpen(false)}
+                        taskCounts={taskCounts}
                     />
                 </aside>
 

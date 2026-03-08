@@ -43,6 +43,17 @@ class HandleInertiaRequests extends Middleware
                     ? UserData::from($request->user())
                     : null,
             ],
+            'task_counts' => fn () => $request->user()
+                ? $request->user()
+                    ->tasks()
+                    ->whereIn('status', ['inbox', 'today', 'upcoming', 'anytime', 'someday'])
+                    ->whereNull('completed_at')
+                    ->whereNull('cancelled_at')
+                    ->selectRaw('status, count(*) as count')
+                    ->groupBy('status')
+                    ->pluck('count', 'status')
+                    ->toArray()
+                : [],
             'projects' => fn () => $request->user()
                 ? ProjectData::collect(
                     $request->user()
