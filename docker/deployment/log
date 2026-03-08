@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+if [ $# -gt 0 ]; then
+  msg=$(printf '%s' "$*" | sed 's/"/\\"/g')
+  printf '{"kind":"APP","level":"SYSTEM","timestamp":"%s","message":"%s"}\n' "$ts" "$msg"
+else
+  while IFS= read -r line; do
+    msg=$(printf '%s' "$line" | sed 's/"/\\"/g')
+    printf '{"kind":"APP","level":"SYSTEM","timestamp":"%s","message":"%s"}\n' "$ts" "$msg"
+  done
+fi

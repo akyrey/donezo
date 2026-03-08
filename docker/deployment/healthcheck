@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+set -e
+
+CONTAINER_MODE=${CONTAINER_MODE:-"http"}
+
+if [ "${CONTAINER_MODE}" = "http" ]; then
+    php artisan octane:status
+elif [ "${CONTAINER_MODE}" = "horizon" ]; then
+    php artisan horizon:status
+elif [ "${CONTAINER_MODE}" = "scheduler" ]; then
+    if [ "$(supervisorctl status scheduler:scheduler_0 | awk '{print tolower($2)}')" = "running" ]; then
+        exit 0
+    fi
+elif [ "${CONTAINER_MODE}" = "reverb" ]; then
+    if [ "$(supervisorctl status reverb:reverb_0 | awk '{print tolower($2)}')" = "running" ]; then
+        exit 0
+    fi
+elif [ "${CONTAINER_MODE}" = "worker" ]; then
+    if [ "$(supervisorctl status worker:worker_0 | awk '{print tolower($2)}')" = "running" ]; then
+        exit 0
+    fi
+else
+    log "Container mode mismatched." && exit 1
+fi

@@ -1,6 +1,7 @@
 # Donezo
 
-A full-featured task management web application inspired by [Things 3](https://culturedcode.com/things/) by Cultured Code. Built with Laravel 12, Inertia.js, React, and PostgreSQL.
+A full-featured task management web application inspired by [Things 3](https://culturedcode.com/things/) by Cultured
+Code. Built with Laravel 12, Inertia.js, React, and PostgreSQL.
 
 ## Tech Stack
 
@@ -167,71 +168,72 @@ npx tsc --noEmit
 
 ### Docker services
 
-| Service  | Port  | Description                 |
-| -------- | ----- | --------------------------- |
-| App      | 80    | Laravel application         |
-| Vite     | 5173  | Frontend dev server         |
-| Postgres | 5432  | Database                    |
-| Redis    | 6379  | Cache, sessions, queues     |
-| Mailpit  | 8025  | Email testing dashboard     |
-| MinIO    | 9000  | S3-compatible object store  |
+| Service  | Port | Description                |
+|----------|------|----------------------------|
+| App      | 80   | Laravel application        |
+| Vite     | 5173 | Frontend dev server        |
+| Postgres | 5432 | Database                   |
+| Redis    | 6379 | Cache, sessions, queues    |
+| Mailpit  | 8025 | Email testing dashboard    |
+| MinIO    | 9000 | S3-compatible object store |
 
 ## API
 
 All API endpoints are under `/api/v1/` and require Sanctum authentication.
 
-The full API specification is available as an [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) document at [`openapi.yaml`](openapi.yaml).
+The full API specification is available as an [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) document at [
+`openapi.yaml`](openapi.yaml).
 
 ### Resources
 
-| Endpoint                                  | Methods                    | Description            |
-| ----------------------------------------- | -------------------------- | ---------------------- |
-| `/api/v1/tasks`                           | GET, POST                  | List/create tasks      |
-| `/api/v1/tasks/{task}`                    | GET, PUT, DELETE           | Read/update/delete     |
-| `/api/v1/tasks/{task}/complete`           | POST                       | Mark complete          |
-| `/api/v1/tasks/{task}/uncomplete`         | POST                       | Mark incomplete        |
-| `/api/v1/tasks/reorder`                   | POST                       | Reorder tasks          |
-| `/api/v1/projects`                        | GET, POST                  | List/create projects   |
-| `/api/v1/projects/{project}`              | GET, PUT, DELETE           | Read/update/delete     |
-| `/api/v1/sections`                        | GET, POST                  | List/create sections   |
-| `/api/v1/sections/{section}`              | GET, PUT, DELETE           | Read/update/delete     |
-| `/api/v1/tags`                            | GET, POST                  | List/create tags       |
-| `/api/v1/tags/{tag}`                      | GET, PUT, DELETE           | Read/update/delete     |
-| `/api/v1/tasks/{task}/checklist-items`    | GET, POST                  | List/create items      |
-| `/api/v1/checklist-items/{item}`          | GET, PUT, DELETE           | Read/update/delete     |
-| `/api/v1/checklist-items/{item}/toggle`   | POST                       | Toggle completion      |
-| `/api/v1/tasks/{task}/reminders`          | GET, POST                  | List/create reminders  |
-| `/api/v1/reminders/{reminder}`            | GET, PUT, DELETE           | Read/update/delete     |
-| `/api/v1/projects/{project}/headings`     | GET, POST                  | List/create headings   |
-| `/api/v1/headings/{heading}`              | GET, PUT, DELETE           | Read/update/delete     |
-| `/api/v1/headings/reorder`               | POST                       | Reorder headings       |
-| `/api/v1/groups`                          | GET, POST                  | List/create groups     |
-| `/api/v1/groups/{group}`                  | GET, PUT, DELETE           | Read/update/delete     |
-| `/api/v1/groups/{group}/members`          | POST                       | Add member             |
-| `/api/v1/groups/{group}/members/{user}`   | DELETE                     | Remove member          |
-| `/api/v1/groups/{group}/tasks`            | POST                       | Share tasks            |
-| `/api/v1/search?q=`                       | GET                        | Search across entities |
-| `/api/v1/calendar/status`                 | GET                        | Calendar sync status   |
-| `/api/v1/calendar/disconnect`             | POST                       | Disconnect calendar    |
-| `/api/v1/calendar/sync`                   | POST                       | Sync tasks to calendar |
-| `/api/v1/push-subscriptions`              | POST, DELETE               | Manage push subs       |
-| `/api/v1/push-subscriptions/vapid-key`    | GET                        | Get VAPID public key   |
+| Endpoint                                | Methods          | Description            |
+|-----------------------------------------|------------------|------------------------|
+| `/api/v1/tasks`                         | GET, POST        | List/create tasks      |
+| `/api/v1/tasks/{task}`                  | GET, PUT, DELETE | Read/update/delete     |
+| `/api/v1/tasks/{task}/complete`         | POST             | Mark complete          |
+| `/api/v1/tasks/{task}/uncomplete`       | POST             | Mark incomplete        |
+| `/api/v1/tasks/reorder`                 | POST             | Reorder tasks          |
+| `/api/v1/projects`                      | GET, POST        | List/create projects   |
+| `/api/v1/projects/{project}`            | GET, PUT, DELETE | Read/update/delete     |
+| `/api/v1/sections`                      | GET, POST        | List/create sections   |
+| `/api/v1/sections/{section}`            | GET, PUT, DELETE | Read/update/delete     |
+| `/api/v1/tags`                          | GET, POST        | List/create tags       |
+| `/api/v1/tags/{tag}`                    | GET, PUT, DELETE | Read/update/delete     |
+| `/api/v1/tasks/{task}/checklist-items`  | GET, POST        | List/create items      |
+| `/api/v1/checklist-items/{item}`        | GET, PUT, DELETE | Read/update/delete     |
+| `/api/v1/checklist-items/{item}/toggle` | POST             | Toggle completion      |
+| `/api/v1/tasks/{task}/reminders`        | GET, POST        | List/create reminders  |
+| `/api/v1/reminders/{reminder}`          | GET, PUT, DELETE | Read/update/delete     |
+| `/api/v1/projects/{project}/headings`   | GET, POST        | List/create headings   |
+| `/api/v1/headings/{heading}`            | GET, PUT, DELETE | Read/update/delete     |
+| `/api/v1/headings/reorder`              | POST             | Reorder headings       |
+| `/api/v1/groups`                        | GET, POST        | List/create groups     |
+| `/api/v1/groups/{group}`                | GET, PUT, DELETE | Read/update/delete     |
+| `/api/v1/groups/{group}/members`        | POST             | Add member             |
+| `/api/v1/groups/{group}/members/{user}` | DELETE           | Remove member          |
+| `/api/v1/groups/{group}/tasks`          | POST             | Share tasks            |
+| `/api/v1/search?q=`                     | GET              | Search across entities |
+| `/api/v1/calendar/status`               | GET              | Calendar sync status   |
+| `/api/v1/calendar/disconnect`           | POST             | Disconnect calendar    |
+| `/api/v1/calendar/sync`                 | POST             | Sync tasks to calendar |
+| `/api/v1/push-subscriptions`            | POST, DELETE     | Manage push subs       |
+| `/api/v1/push-subscriptions/vapid-key`  | GET              | Get VAPID public key   |
 
 ## Environment Variables
 
 Key variables to configure in `.env`:
 
-| Variable                 | Description                              |
-| ------------------------ | ---------------------------------------- |
-| `DB_*`                   | PostgreSQL connection settings           |
-| `GOOGLE_CLIENT_ID`       | Google OAuth client ID                   |
-| `GOOGLE_CLIENT_SECRET`   | Google OAuth client secret               |
-| `GITHUB_CLIENT_ID`       | GitHub OAuth client ID                   |
-| `GITHUB_CLIENT_SECRET`   | GitHub OAuth client secret               |
-| `GOOGLE_CALENDAR_ENABLED`| Enable Google Calendar integration       |
-| `VAPID_PUBLIC_KEY`       | VAPID key for push notifications         |
-| `VAPID_PRIVATE_KEY`      | VAPID private key for push notifications |
-| `TELESCOPE_ENABLED`      | Enable Laravel Telescope                 |
+| Variable                  | Description                              |
+|---------------------------|------------------------------------------|
+| `DB_*`                    | PostgreSQL connection settings           |
+| `GOOGLE_CLIENT_ID`        | Google OAuth client ID                   |
+| `GOOGLE_CLIENT_SECRET`    | Google OAuth client secret               |
+| `GITHUB_CLIENT_ID`        | GitHub OAuth client ID                   |
+| `GITHUB_CLIENT_SECRET`    | GitHub OAuth client secret               |
+| `GOOGLE_CALENDAR_ENABLED` | Enable Google Calendar integration       |
+| `VAPID_PUBLIC_KEY`        | VAPID key for push notifications         |
+| `VAPID_PRIVATE_KEY`       | VAPID private key for push notifications |
+| `TELESCOPE_ENABLED`       | Enable Laravel Telescope                 |
 
 ## Project Structure
 

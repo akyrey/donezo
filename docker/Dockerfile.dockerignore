@@ -1,0 +1,15 @@
+# Directories
+.git/
+.idea/
+dev/
+node_modules/
+vendor/
+public/
+!public/index.php
+!public/favicon.ico
+!public/robots.txt
+storage/*
+
+# Files
+.*
+!.env.production

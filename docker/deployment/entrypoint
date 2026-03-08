@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+set -e
+
+CONTAINER_MODE=${CONTAINER_MODE:-"http"}
+
+initialStuff() {
+    log "Starting in ${CONTAINER_MODE} mode."
+}
+
+if [ "$1" != "" ]; then
+    exec "$@"
+elif [ "${CONTAINER_MODE}" = "http" ]; then
+    initialStuff
+    log "Starting as octane server FrankenPHP"
+    exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.frankenphp.conf
+elif [ "${CONTAINER_MODE}" = "horizon" ]; then
+    initialStuff
+    exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.horizon.conf
+elif [ "${CONTAINER_MODE}" = "reverb" ]; then
+    initialStuff
+    exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.reverb.conf
+elif [ "${CONTAINER_MODE}" = "scheduler" ]; then
+    initialStuff
+    exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.scheduler.conf
+elif [ "${CONTAINER_MODE}" = "worker" ]; then
+    if [ -z "${WORKER_COMMAND}" ]; then
+        log "WORKER_COMMAND is undefined." && exit 1
+    fi
+    initialStuff
+    exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.worker.conf
+else
+    log "Container mode mismatched." && exit 1
+fi

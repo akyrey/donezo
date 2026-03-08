@@ -1,0 +1,100 @@
+{
+	{$CADDY_GLOBAL_OPTIONS}
+
+	admin {$CADDY_SERVER_ADMIN_HOST}:{$CADDY_SERVER_ADMIN_PORT}
+
+	auto_https off
+
+	skip_install_trust
+
+	frankenphp {
+		worker "{$APP_PUBLIC_PATH}/frankenphp-worker.php" {$CADDY_SERVER_WORKER_COUNT}
+	}
+
+	metrics {
+		per_host
+	}
+
+	servers {
+		protocols h1
+	}
+}
+
+{$CADDY_EXTRA_CONFIG}
+
+{$CADDY_SERVER_SERVER_NAME} {
+	log {
+		level WARN
+
+		format filter {
+			wrap {$CADDY_SERVER_LOGGER}
+			fields {
+				uri query {
+					replace authorization REDACTED
+				}
+			}
+		}
+	}
+
+	# Security headers
+	header {
+		# Remove server information headers
+		-Server
+		-X-Powered-By
+
+		# Prevent MIME type sniffing
+		X-Content-Type-Options "nosniff"
+
+		# Clickjacking protection
+		X-Frame-Options "SAMEORIGIN"
+
+		# XSS Protection (legacy browsers)
+		X-XSS-Protection "1; mode=block"
+
+		# Control referrer information
+		Referrer-Policy "strict-origin-when-cross-origin"
+
+		# Restrict browser features
+		Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+
+		# Cross-Origin isolation policies
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Resource-Policy "same-origin"
+
+		# Prevent caching of sensitive data (can be overridden for static assets)
+		?Cache-Control "no-store, no-cache, must-revalidate"
+	}
+
+	route {
+		root * "{$APP_PUBLIC_PATH}"
+		encode zstd br gzip
+
+		{$CADDY_SERVER_EXTRA_DIRECTIVES}
+
+		request_body {
+			max_size 500MB
+		}
+
+		@static {
+			file
+			path *.js *.css *.jpg *.jpeg *.webp *.weba *.webm *.gif *.png *.ico *.cur *.gz *.svg *.svgz *.mp4 *.mp3 *.ogg *.ogv *.htc *.woff2 *.woff
+		}
+
+		@staticshort {
+			file
+			path *.json *.xml *.rss
+		}
+
+		header @static Cache-Control "public, immutable, stale-while-revalidate, max-age=31536000"
+
+		header @staticshort Cache-Control "no-cache, max-age=3600"
+
+		@rejected `path('*.bak', '*.conf', '*.dist', '*.fla', '*.ini', '*.inc', '*.inci', '*.log', '*.orig', '*.psd', '*.sh', '*.sql', '*.swo', '*.swp', '*.swop', '*.env', '*.env.*', '*.lock', '*.yaml', '*.yml', '*.md', '*.txt', '*/.*', '*/.git/*', '*/.svn/*', '*/.hg/*', 'composer.json', 'composer.lock', 'package.json', 'package-lock.json', 'pnpm-lock.yaml', '.htaccess', '.htpasswd') && !path('*/.well-known/*')`
+		error @rejected 401
+
+		php_server {
+			try_files {path} frankenphp-worker.php
+			resolve_root_symlink
+		}
+	}
+}

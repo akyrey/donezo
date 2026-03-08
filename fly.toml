@@ -1,0 +1,59 @@
+# fly.toml app configuration file generated for akyrey-donezo on 2026-03-06T23:26:08+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'akyrey-donezo'
+primary_region = 'ams'
+
+[build]
+  dockerfile = 'docker/Dockerfile'
+
+[deploy]
+  release_command = "composer initiate"
+
+[env]
+  APP_NAME = 'Donezo'
+  APP_TIMEZONE = 'UTC'
+  APP_URL = 'https://akyrey-donezo.fly.dev'
+  ASSET_URL = 'https://akyrey-donezo.fly.dev'
+  BCRYPT_ROUNDS = '12'
+  DB_CONNECTION = 'pgsql'
+  DB_DATABASE = 'donezo'
+  DB_HOST = 'akyrey-donezo-db.flycast'
+  DB_PORT = '5432'
+  LOG_LEVEL = 'debug'
+  LOG_STACK = 'daily,json'
+  MAILGUN_DOMAIN = 'akyrey-donezo.fly.dev'
+  MAIL_MAILER = 'mailgun'
+  SESSION_DOMAIN = 'akyrey-donezo.fly.dev'
+  SESSION_ENCRYPT = 'true'
+  CACHE_STORE = 'file'
+  VITE_APP_NAME = 'donezo'
+  GOOGLE_REDIRECT_URI = 'https://akyrey-donezo.fly.dev/auth/google/callback'
+  PULSE_ENABLED_USERS = 'stein.dario@gmail.com'
+  SENTRY_TRACES_SAMPLE_RATE = '1.0'
+  SENTRY_PROFILES_SAMPLE_RATE = '1.0'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = 'requests'
+    hard_limit = 50
+    soft_limit = 20
+
+  [http_service.http_options]
+    idle_timeout = 300
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '512mb'
+
+[mounts]
+  source = 'donezo'
+  destination = '/data'

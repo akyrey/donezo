@@ -47,13 +47,18 @@
         }
     },
     "scripts": {
-        "setup": [
-            "composer install",
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-            "@php artisan key:generate",
-            "@php artisan migrate --force",
-            "npm install",
-            "npm run build"
+        "build": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan --no-interaction package:discover"
+        ],
+        "initiate": [
+            "@php artisan --no-interaction --no-ansi migrate --force",
+            "@php artisan --no-interaction --no-ansi storage:link",
+            "@php artisan --no-interaction --no-ansi optimize:clear",
+            "@php artisan --no-interaction --no-ansi event:cache",
+            "@php artisan --no-interaction --no-ansi config:cache",
+            "@php artisan --no-interaction --no-ansi route:cache",
+            "@php artisan --no-interaction --no-ansi data:cache-structures"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
