@@ -67,7 +67,7 @@
         ],
         "test": [
             "@php artisan config:clear --ansi",
-            "@php artisan test"
+            "pest --parallel"
         ],
         "test:coverage": "@php artisan test --coverage",
         "pint": "vendor/bin/pint",
