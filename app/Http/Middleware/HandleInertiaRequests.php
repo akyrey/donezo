@@ -6,7 +6,9 @@ use App\Data\GroupData;
 use App\Data\ProjectData;
 use App\Data\SectionData;
 use App\Data\UserData;
+use App\Observers\TaskObserver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -44,15 +46,17 @@ class HandleInertiaRequests extends Middleware
                     : null,
             ],
             'task_counts' => fn () => $request->user()
-                ? $request->user()
-                    ->tasks()
-                    ->whereIn('status', ['inbox', 'today', 'upcoming', 'anytime', 'someday'])
-                    ->whereNull('completed_at')
-                    ->whereNull('cancelled_at')
-                    ->selectRaw('status, count(*) as count')
-                    ->groupBy('status')
-                    ->pluck('count', 'status')
-                    ->toArray()
+                ? Cache::remember(
+                    TaskObserver::cacheKey($request->user()->id),
+                    now()->addHours(6),
+                    fn () => $request->user()
+                        ->tasks()
+                        ->whereIn('status', ['inbox', 'today', 'upcoming', 'anytime', 'someday'])
+                        ->selectRaw('status, count(*) as count')
+                        ->groupBy('status')
+                        ->pluck('count', 'status')
+                        ->toArray()
+                )
                 : [],
             'projects' => fn () => $request->user()
                 ? ProjectData::collect(
