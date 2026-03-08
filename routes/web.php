@@ -58,6 +58,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
+    Route::patch('/profile', [SettingsController::class, 'updateProfile'])->name('profile.update');
+    Route::patch('/profile/preferences', [SettingsController::class, 'updatePreferences'])->name('profile.preferences');
+    Route::put('/profile/password', [SettingsController::class, 'updatePassword'])->name('password.update');
+    Route::delete('/profile', [SettingsController::class, 'destroy'])->name('profile.destroy');
+
     // ──────────────────────────────────────────────
     // Google Calendar OAuth (requires auth — connects calendar post-login)
     // ──────────────────────────────────────────────
