@@ -128,18 +128,20 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
                         </span>
                     )}
 
-                    {/* Tag dots */}
+                    {/* Tag pills */}
                     {task.tags && task.tags.length > 0 && (
                         <div className="flex items-center gap-1">
                             {task.tags.map((tag) => (
                                 <span
                                     key={tag.id}
-                                    className="h-2 w-2 rounded-full"
+                                    className="inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium"
                                     style={{
                                         backgroundColor: tag.color || '#9ca3af',
+                                        color: '#fff',
                                     }}
-                                    title={tag.name}
-                                />
+                                >
+                                    #{tag.name}
+                                </span>
                             ))}
                         </div>
                     )}
