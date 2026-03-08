@@ -39,9 +39,7 @@ class SocialAuthController extends Controller
             'token_expires_at' => isset($socialUser->expiresIn)
                 ? now()->addSeconds($socialUser->expiresIn)
                 : null,
-            'scopes' => isset($socialUser->approvedScopes)
-                ? explode(' ', $socialUser->approvedScopes)
-                : [],
+            'scopes' => $socialUser->approvedScopes ?? [],
         ];
 
         $socialAccount = SocialAccount::where('provider', $provider)
