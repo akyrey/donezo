@@ -32,8 +32,9 @@ primary_region = 'ams'
   VITE_APP_NAME = 'donezo'
   GOOGLE_REDIRECT_URI = 'https://akyrey-donezo.fly.dev/auth/google/callback'
   PULSE_ENABLED_USERS = 'stein.dario@gmail.com'
-  SENTRY_TRACES_SAMPLE_RATE = '1.0'
-  SENTRY_PROFILES_SAMPLE_RATE = '1.0'
+  SENTRY_SEND_DEFAULT_PII = 'true'
+  SENTRY_TRACES_SAMPLE_RATE = '0.2'
+  SENTRY_PROFILES_SAMPLE_RATE = '0.2'
 
 [http_service]
   internal_port = 8080
