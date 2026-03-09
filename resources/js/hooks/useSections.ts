@@ -4,6 +4,7 @@ import {
     useMutation,
     useQueryClient,
 } from '@tanstack/react-query';
+import { router } from '@inertiajs/react';
 import type { Section } from '@/types';
 
 const SECTIONS_KEY = ['sections'];
@@ -45,6 +46,7 @@ export function useSectionMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: SECTIONS_KEY });
+            router.reload();
         },
     });
 }
@@ -65,6 +67,7 @@ export function useUpdateSectionMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: SECTIONS_KEY });
+            router.reload();
         },
     });
 }
@@ -78,6 +81,7 @@ export function useDeleteSectionMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: SECTIONS_KEY });
+            router.reload();
         },
     });
 }

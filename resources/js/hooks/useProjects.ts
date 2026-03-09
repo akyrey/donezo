@@ -4,6 +4,7 @@ import {
     useMutation,
     useQueryClient,
 } from '@tanstack/react-query';
+import { router } from '@inertiajs/react';
 import type { Project } from '@/types';
 
 const PROJECTS_KEY = ['projects'];
@@ -48,6 +49,7 @@ export function useProjectMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: PROJECTS_KEY });
+            router.reload();
         },
     });
 }
@@ -68,6 +70,7 @@ export function useUpdateProjectMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: PROJECTS_KEY });
+            router.reload();
         },
     });
 }
@@ -81,6 +84,7 @@ export function useDeleteProjectMutation() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: PROJECTS_KEY });
+            router.reload();
         },
     });
 }

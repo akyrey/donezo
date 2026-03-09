@@ -17,6 +17,9 @@ import {
     LayoutList,
     Search,
     Users,
+    MoreHorizontal,
+    Pencil,
+    Trash2,
 } from 'lucide-react';
 import {
     DndContext,
@@ -30,9 +33,11 @@ import {
     type DragStartEvent,
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import * as Dialog from '@radix-ui/react-dialog';
 import type { PageProps, Project, Section, Group } from '@/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { ScrollArea } from '@/components/ui/ScrollArea';
 import { Separator } from '@/components/ui/Separator';
 import {
@@ -46,6 +51,8 @@ import { CommandPalette } from '@/components/CommandPalette';
 import { AddTaskDialog } from '@/components/tasks/AddTaskDialog';
 import { UndoToast } from '@/components/ui/UndoToast';
 import { useCompleteTaskMutation } from '@/hooks/useTasks';
+import { useSectionMutation, useUpdateSectionMutation, useDeleteSectionMutation } from '@/hooks/useSections';
+import { useUpdateProjectMutation, useDeleteProjectMutation } from '@/hooks/useProjects';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
@@ -144,11 +151,13 @@ function DroppableProjectItem({
     currentUrl,
     isDragging,
     onNavigate,
+    onAction,
 }: {
     project: Project;
     currentUrl: string;
     isDragging: boolean;
     onNavigate?: () => void;
+    onAction: (action: 'rename' | 'delete', project: Project) => void;
 }) {
     const { setNodeRef, isOver } = useDroppable({ id: projDropId(project.id) });
     const projectUrl = `/projects/${project.id}`;
@@ -157,40 +166,76 @@ function DroppableProjectItem({
     const showCount = incompleteCount > 0;
 
     return (
-        <Link
+        <div
             ref={setNodeRef}
-            href={projectUrl}
-            onClick={onNavigate}
             className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                'group/item flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
                 active
                     ? 'bg-sidebar-active text-primary'
                     : 'text-text-secondary hover:bg-sidebar-hover hover:text-text',
                 isDragging && isOver && 'ring-2 ring-primary ring-inset bg-primary/10 text-primary',
             )}
         >
-            <FolderOpen className={cn('h-4 w-4 shrink-0', isDragging && isOver ? 'text-primary' : 'text-text-tertiary')} />
-            <span className="flex-1 truncate">{project.name}</span>
-            {showCount && (
-                <span className={cn(
-                    'min-w-[1.25rem] rounded-full px-1.5 py-0.5 text-center text-xs font-medium leading-none tabular-nums',
-                    active || (isDragging && isOver)
-                        ? 'bg-primary/15 text-primary'
-                        : 'bg-bg-tertiary text-text-tertiary',
-                )}>
-                    {incompleteCount}
-                </span>
-            )}
-        </Link>
+            <Link
+                href={projectUrl}
+                onClick={onNavigate}
+                className="flex flex-1 items-center gap-3 min-w-0"
+            >
+                <FolderOpen className={cn('h-4 w-4 shrink-0', isDragging && isOver ? 'text-primary' : 'text-text-tertiary')} />
+                <span className="flex-1 truncate">{project.name}</span>
+            </Link>
+            {/* Fixed-size slot: shows badge at rest, three-dot button on hover — no layout shift */}
+            <div className="relative h-5 w-5 shrink-0">
+                {showCount && (
+                    <span className={cn(
+                        'absolute inset-0 flex items-center justify-center rounded-full text-xs font-medium leading-none tabular-nums group-hover/item:invisible',
+                        active || (isDragging && isOver)
+                            ? 'bg-primary/15 text-primary'
+                            : 'bg-bg-tertiary text-text-tertiary',
+                    )}>
+                        {incompleteCount}
+                    </span>
+                )}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button
+                            className={cn(
+                                'absolute inset-0 flex items-center justify-center rounded text-text-tertiary hover:text-text transition-colors invisible group-hover/item:visible',
+                                active && 'text-primary/60 hover:text-primary',
+                            )}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <MoreHorizontal className="h-3.5 w-3.5" />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" side="bottom" className="w-40">
+                        <DropdownMenuItem onSelect={() => onAction('rename', project)}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onSelect={() => onAction('delete', project)}
+                            className="text-danger focus:text-danger"
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+        </div>
     );
 }
 
 function DroppableSectionItem({
     section,
     isDragging,
+    onAction,
 }: {
     section: Section;
     isDragging: boolean;
+    onAction: (action: 'rename' | 'delete', section: Section) => void;
 }) {
     const { setNodeRef, isOver } = useDroppable({ id: sectDropId(section.id) });
 
@@ -198,13 +243,38 @@ function DroppableSectionItem({
         <div
             ref={setNodeRef}
             className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-text-secondary transition-colors',
+                'group/item flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-text-secondary transition-colors',
                 isDragging && 'cursor-copy hover:bg-sidebar-hover',
                 isDragging && isOver && 'ring-2 ring-primary ring-inset bg-primary/10 text-primary',
+                !isDragging && 'hover:bg-sidebar-hover hover:text-text',
             )}
         >
-            <LayoutList className={cn('h-4 w-4', isDragging && isOver ? 'text-primary' : 'text-text-tertiary')} />
-            <span className="truncate">{section.name}</span>
+            <LayoutList className={cn('h-4 w-4 shrink-0', isDragging && isOver ? 'text-primary' : 'text-text-tertiary')} />
+            <span className="flex-1 truncate">{section.name}</span>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <button
+                        className="invisible flex h-5 w-5 shrink-0 items-center justify-center rounded text-text-tertiary hover:text-text transition-colors group-hover/item:visible"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <MoreHorizontal className="h-3.5 w-3.5" />
+                    </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" side="bottom" className="w-40">
+                    <DropdownMenuItem onSelect={() => onAction('rename', section)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                        onSelect={() => onAction('delete', section)}
+                        className="text-danger focus:text-danger"
+                    >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     );
 }
@@ -249,6 +319,235 @@ function DraggableFab({
 }
 
 // ---------------------------------------------------------------------------
+// Add Section Dialog
+// ---------------------------------------------------------------------------
+
+function AddSectionDialog({
+    open,
+    onOpenChange,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}) {
+    const [name, setName] = useState('');
+    const [error, setError] = useState('');
+    const createSection = useSectionMutation();
+
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        setError('');
+
+        if (!name.trim()) {
+            setError('Section name is required.');
+            return;
+        }
+
+        createSection.mutate(
+            { name: name.trim() },
+            {
+                onSuccess: () => {
+                    setName('');
+                    setError('');
+                    onOpenChange(false);
+                },
+                onError: (err: unknown) => {
+                    const axiosError = err as { response?: { data?: { errors?: { name?: string[] }; message?: string } } };
+                    const message =
+                        axiosError.response?.data?.errors?.name?.[0] ??
+                        axiosError.response?.data?.message ??
+                        'Failed to create section.';
+                    setError(message);
+                },
+            },
+        );
+    }
+
+    return (
+        <Dialog.Root open={open} onOpenChange={(value) => {
+            if (!value) {
+                setName('');
+                setError('');
+            }
+            onOpenChange(value);
+        }}>
+            <Dialog.Portal>
+                <Dialog.Overlay className="fixed inset-0 bg-black/40 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
+                <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-bg p-6 shadow-lg focus:outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
+                    <Dialog.Title className="text-lg font-semibold text-text">
+                        New Section
+                    </Dialog.Title>
+                    <Dialog.Description className="mt-1 text-sm text-text-secondary">
+                        Create a new section to group your projects.
+                    </Dialog.Description>
+
+                    <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                        <Input
+                            label="Section name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            error={error}
+                            placeholder="e.g., Work, Personal"
+                            autoFocus
+                        />
+
+                        <div className="flex justify-end gap-3 pt-2">
+                            <Dialog.Close asChild>
+                                <Button type="button" variant="ghost">
+                                    Cancel
+                                </Button>
+                            </Dialog.Close>
+                            <Button type="submit" disabled={createSection.isPending}>
+                                {createSection.isPending
+                                    ? 'Creating...'
+                                    : 'Create Section'}
+                            </Button>
+                        </div>
+                    </form>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Rename Dialog
+// ---------------------------------------------------------------------------
+
+function RenameDialog({
+    open,
+    onOpenChange,
+    currentName,
+    entityType,
+    onRename,
+    isPending,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    currentName: string;
+    entityType: 'project' | 'section';
+    onRename: (name: string) => void;
+    isPending: boolean;
+}) {
+    const [name, setName] = useState(currentName);
+    const [error, setError] = useState('');
+
+    // Sync local name when the dialog opens with a different entity
+    useEffect(() => {
+        if (open) {
+            setName(currentName);
+            setError('');
+        }
+    }, [open, currentName]);
+
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        setError('');
+
+        if (!name.trim()) {
+            setError('Name is required.');
+            return;
+        }
+
+        onRename(name.trim());
+    }
+
+    const label = entityType === 'project' ? 'Project' : 'Section';
+
+    return (
+        <Dialog.Root open={open} onOpenChange={onOpenChange}>
+            <Dialog.Portal>
+                <Dialog.Overlay className="fixed inset-0 bg-black/40 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
+                <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-bg p-6 shadow-lg focus:outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
+                    <Dialog.Title className="text-lg font-semibold text-text">
+                        Rename {label}
+                    </Dialog.Title>
+                    <Dialog.Description className="mt-1 text-sm text-text-secondary">
+                        Enter a new name for this {entityType}.
+                    </Dialog.Description>
+
+                    <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                        <Input
+                            label={`${label} name`}
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            error={error}
+                            autoFocus
+                        />
+
+                        <div className="flex justify-end gap-3 pt-2">
+                            <Dialog.Close asChild>
+                                <Button type="button" variant="ghost">
+                                    Cancel
+                                </Button>
+                            </Dialog.Close>
+                            <Button type="submit" disabled={isPending}>
+                                {isPending ? 'Saving...' : 'Save'}
+                            </Button>
+                        </div>
+                    </form>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Delete Confirm Dialog
+// ---------------------------------------------------------------------------
+
+function DeleteConfirmDialog({
+    open,
+    onOpenChange,
+    entityName,
+    entityType,
+    onConfirm,
+    isPending,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    entityName: string;
+    entityType: 'project' | 'section';
+    onConfirm: () => void;
+    isPending: boolean;
+}) {
+    const label = entityType === 'project' ? 'project' : 'section';
+
+    return (
+        <Dialog.Root open={open} onOpenChange={onOpenChange}>
+            <Dialog.Portal>
+                <Dialog.Overlay className="fixed inset-0 bg-black/40 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
+                <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-bg p-6 shadow-lg focus:outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
+                    <Dialog.Title className="text-lg font-semibold text-text">
+                        Delete {entityType === 'project' ? 'Project' : 'Section'}
+                    </Dialog.Title>
+                    <Dialog.Description className="mt-1 text-sm text-text-secondary">
+                        Are you sure you want to delete <span className="font-medium text-text">{entityName}</span>?
+                        {entityType === 'project'
+                            ? ' The project and its headings will be removed. Tasks will be kept but unassigned from the project.'
+                            : ' Projects and tasks in this section will be kept but unassigned from the section.'}
+                    </Dialog.Description>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <Dialog.Close asChild>
+                            <Button type="button" variant="ghost">
+                                Cancel
+                            </Button>
+                        </Dialog.Close>
+                        <Button
+                            variant="destructive"
+                            onClick={onConfirm}
+                            disabled={isPending}
+                        >
+                            {isPending ? 'Deleting...' : `Delete ${label}`}
+                        </Button>
+                    </div>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
+    );
+}
+
+// ---------------------------------------------------------------------------
 // SidebarContent
 // ---------------------------------------------------------------------------
 
@@ -261,6 +560,9 @@ function SidebarContent({
     isDragging,
     onNavigate,
     taskCounts,
+    onAddSection,
+    onProjectAction,
+    onSectionAction,
 }: {
     currentUrl: string;
     projects: Project[];
@@ -270,6 +572,9 @@ function SidebarContent({
     isDragging: boolean;
     onNavigate?: () => void;
     taskCounts: PageProps['task_counts'];
+    onAddSection: () => void;
+    onProjectAction: (action: 'rename' | 'delete', project: Project) => void;
+    onSectionAction: (action: 'rename' | 'delete', section: Section) => void;
 }) {
     return (
         <div className="flex h-full flex-col">
@@ -329,6 +634,7 @@ function SidebarContent({
                                 currentUrl={currentUrl}
                                 isDragging={isDragging}
                                 onNavigate={onNavigate}
+                                onAction={onProjectAction}
                             />
                         ))}
                         {projects.length === 0 && (
@@ -347,6 +653,14 @@ function SidebarContent({
                         <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
                             Sections
                         </span>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-5 w-5 text-text-tertiary hover:text-text"
+                            onClick={onAddSection}
+                        >
+                            <Plus className="h-3.5 w-3.5" />
+                        </Button>
                     </div>
                     <div className="space-y-0.5">
                         {sections.map((section) => (
@@ -354,6 +668,7 @@ function SidebarContent({
                                 key={section.id}
                                 section={section}
                                 isDragging={isDragging}
+                                onAction={onSectionAction}
                             />
                         ))}
                         {sections.length === 0 && (
@@ -477,9 +792,52 @@ export default function AuthenticatedLayout({
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
     const [addTaskOpen, setAddTaskOpen] = useState(false);
+    const [addSectionOpen, setAddSectionOpen] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [undoTask, setUndoTask] = useState<{ id: number; title: string } | null>(null);
     const completeTaskMutation = useCompleteTaskMutation();
+
+    // Rename / Delete dialog state
+    const [renameTarget, setRenameTarget] = useState<{ id: number; name: string; type: 'project' | 'section' } | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string; type: 'project' | 'section' } | null>(null);
+
+    const updateProject = useUpdateProjectMutation();
+    const deleteProject = useDeleteProjectMutation();
+    const updateSection = useUpdateSectionMutation();
+    const deleteSection = useDeleteSectionMutation();
+
+    function handleProjectAction(action: 'rename' | 'delete', project: Project) {
+        if (action === 'rename') {
+            setRenameTarget({ id: project.id, name: project.name, type: 'project' });
+        } else {
+            setDeleteTarget({ id: project.id, name: project.name, type: 'project' });
+        }
+    }
+
+    function handleSectionAction(action: 'rename' | 'delete', section: Section) {
+        if (action === 'rename') {
+            setRenameTarget({ id: section.id, name: section.name, type: 'section' });
+        } else {
+            setDeleteTarget({ id: section.id, name: section.name, type: 'section' });
+        }
+    }
+
+    function handleRename(newName: string) {
+        if (!renameTarget) return;
+        const mutation = renameTarget.type === 'project' ? updateProject : updateSection;
+        mutation.mutate(
+            { id: renameTarget.id, name: newName },
+            { onSuccess: () => setRenameTarget(null) },
+        );
+    }
+
+    function handleDeleteConfirm() {
+        if (!deleteTarget) return;
+        const mutation = deleteTarget.type === 'project' ? deleteProject : deleteSection;
+        mutation.mutate(deleteTarget.id, {
+            onSuccess: () => setDeleteTarget(null),
+        });
+    }
 
     useEffect(() => {
         function handleTaskCompleted(e: Event) {
@@ -592,6 +950,9 @@ export default function AuthenticatedLayout({
                         isDragging={isDragging}
                         onNavigate={() => setSidebarOpen(false)}
                         taskCounts={taskCounts}
+                        onAddSection={() => setAddSectionOpen(true)}
+                        onProjectAction={handleProjectAction}
+                        onSectionAction={handleSectionAction}
                     />
                 </aside>
 
@@ -660,6 +1021,32 @@ export default function AuthenticatedLayout({
                     onOpenChange={setAddTaskOpen}
                     context={resolvedContext}
                     defaultProjectId={resolvedProjectId}
+                />
+
+                {/* Add Section Dialog */}
+                <AddSectionDialog
+                    open={addSectionOpen}
+                    onOpenChange={setAddSectionOpen}
+                />
+
+                {/* Rename Dialog */}
+                <RenameDialog
+                    open={renameTarget !== null}
+                    onOpenChange={(open) => { if (!open) setRenameTarget(null); }}
+                    currentName={renameTarget?.name ?? ''}
+                    entityType={renameTarget?.type ?? 'project'}
+                    onRename={handleRename}
+                    isPending={updateProject.isPending || updateSection.isPending}
+                />
+
+                {/* Delete Confirm Dialog */}
+                <DeleteConfirmDialog
+                    open={deleteTarget !== null}
+                    onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+                    entityName={deleteTarget?.name ?? ''}
+                    entityType={deleteTarget?.type ?? 'project'}
+                    onConfirm={handleDeleteConfirm}
+                    isPending={deleteProject.isPending || deleteSection.isPending}
                 />
 
                 {/* Undo toast */}
