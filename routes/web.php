@@ -8,6 +8,7 @@ use App\Http\Controllers\Web\AnytimeController;
 use App\Http\Controllers\Web\GroupInvitationController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\GroupController;
+use App\Http\Controllers\Web\HeadingController;
 use App\Http\Controllers\Web\InboxController;
 use App\Http\Controllers\Web\LogbookController;
 use App\Http\Controllers\Web\ProjectController;
@@ -26,8 +27,8 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    Route::get('register', [RegisteredUserController::class, 'create'])->name('register.create');
+    Route::post('register', [RegisteredUserController::class, 'store'])->name('register.store');
 
     Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
     Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
@@ -52,6 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::post('/projects/{project}/headings', [HeadingController::class, 'store'])->name('projects.headings.store');
     Route::get('/sections/{section}', [SectionController::class, 'show'])->name('sections.show');
 
     Route::resource('groups', GroupController::class)->only(['index', 'show']);

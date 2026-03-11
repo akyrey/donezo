@@ -177,7 +177,7 @@ GET/POST       /projects
 GET/PUT/DELETE /projects/{project}
 
 # Headings (nested under projects, shallow)
-POST           /projects/{project}/headings
+GET/POST       /projects/{project}/headings
 GET/PUT/DELETE /headings/{heading}
 POST           /headings/reorder
 

@@ -240,8 +240,8 @@ Key variables to configure in `.env`:
 ```
 app/
   Http/Controllers/
-    Api/V1/          # RESTful API controllers
-    Web/             # Inertia page controllers
+    Api/V1/          # RESTful API controllers (JSON responses)
+    Web/             # Inertia page controllers (redirect/render responses)
     Auth/            # Authentication controllers
   Models/            # Eloquent models (11 models)
   Data/              # Spatie Laravel Data DTOs
