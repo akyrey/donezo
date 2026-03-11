@@ -188,7 +188,7 @@ function DroppableProjectItem({
             <div className="relative h-5 w-5 shrink-0">
                 {showCount && (
                     <span className={cn(
-                        'absolute inset-0 flex items-center justify-center rounded-full text-xs font-medium leading-none tabular-nums group-hover/item:invisible',
+                        'absolute inset-0 hidden lg:flex items-center justify-center rounded-full text-xs font-medium leading-none tabular-nums lg:group-hover/item:invisible',
                         active || (isDragging && isOver)
                             ? 'bg-primary/15 text-primary'
                             : 'bg-bg-tertiary text-text-tertiary',
