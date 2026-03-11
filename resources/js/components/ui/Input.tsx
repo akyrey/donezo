@@ -5,14 +5,16 @@ export interface InputProps
     extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     error?: string;
+    /** Extra classes applied to the outer wrapper div (useful for flex-1, min-w-0, etc.) */
+    wrapperClassName?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ className, type, label, error, id, ...props }, ref) => {
+    ({ className, type, label, error, id, wrapperClassName, ...props }, ref) => {
         const inputId = id || React.useId();
 
         return (
-            <div className="flex flex-col gap-1.5">
+            <div className={cn('flex flex-col gap-1.5', wrapperClassName)}>
                 {label && (
                     <label
                         htmlFor={inputId}

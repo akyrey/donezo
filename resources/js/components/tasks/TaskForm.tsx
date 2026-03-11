@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, GripVertical, FileText, Palette } from 'lucide-react';
+import { Plus, Trash2, GripVertical, FileText, Palette, X } from 'lucide-react';
 import type { Task, Project, Section, Tag } from '@/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
@@ -296,21 +296,53 @@ export function TaskForm({
                     <Separator />
 
                     {/* Scheduling */}
-                    <div className="flex flex-wrap gap-3">
-                        <Input
-                            type="date"
-                            label="Scheduled date"
-                            value={scheduledAt}
-                            onChange={(e) => setScheduledAt(e.target.value)}
-                            className="w-auto"
-                        />
-                        <Input
-                            type="date"
-                            label="Deadline"
-                            value={deadlineAt}
-                            onChange={(e) => setDeadlineAt(e.target.value)}
-                            className="w-auto"
-                        />
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-medium text-text">
+                                Scheduled date
+                            </label>
+                            <div className="flex items-center gap-1">
+                                <input
+                                    type="date"
+                                    value={scheduledAt}
+                                    onChange={(e) => setScheduledAt(e.target.value)}
+                                    className="flex h-9 w-full min-w-0 rounded-lg border border-border bg-bg px-3 py-1 text-sm text-text shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1"
+                                />
+                                {scheduledAt && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setScheduledAt('')}
+                                        className="shrink-0 text-text-tertiary hover:text-danger"
+                                        aria-label="Clear scheduled date"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-medium text-text">
+                                Deadline
+                            </label>
+                            <div className="flex items-center gap-1">
+                                <input
+                                    type="date"
+                                    value={deadlineAt}
+                                    onChange={(e) => setDeadlineAt(e.target.value)}
+                                    className="flex h-9 w-full min-w-0 rounded-lg border border-border bg-bg px-3 py-1 text-sm text-text shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1"
+                                />
+                                {deadlineAt && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setDeadlineAt('')}
+                                        className="shrink-0 text-text-tertiary hover:text-danger"
+                                        aria-label="Clear deadline"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
                     <label className="flex items-center gap-2 text-sm text-text-secondary">
@@ -415,7 +447,7 @@ export function TaskForm({
                                     }
                                 }}
                                 disabled={tagMutation.isPending}
-                                className="flex-1"
+                                wrapperClassName="min-w-0 flex-1"
                             />
                             {/* Color swatch picker */}
                             <Popover>
@@ -519,7 +551,7 @@ export function TaskForm({
                                         addChecklistItem();
                                     }
                                 }}
-                                className="flex-1"
+                                wrapperClassName="min-w-0 flex-1"
                             />
                             <Button
                                 type="button"
@@ -561,8 +593,18 @@ export function TaskForm({
                                 type="datetime-local"
                                 value={newReminderAt}
                                 onChange={(e) => setNewReminderAt(e.target.value)}
-                                className="w-auto"
+                                wrapperClassName="min-w-0 flex-1"
                             />
+                            {newReminderAt && (
+                                <button
+                                    type="button"
+                                    onClick={() => setNewReminderAt('')}
+                                    className="shrink-0 text-text-tertiary hover:text-danger"
+                                    aria-label="Clear reminder date"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            )}
                             <Button
                                 type="button"
                                 variant="ghost"
