@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     Route::post('/projects/{project}/headings', [HeadingController::class, 'store'])->name('projects.headings.store');
+    Route::delete('/headings/{heading}', [HeadingController::class, 'destroy'])->name('headings.destroy');
     Route::get('/sections/{section}', [SectionController::class, 'show'])->name('sections.show');
 
     Route::resource('groups', GroupController::class)->only(['index', 'show']);

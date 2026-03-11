@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Heading;
 use App\Models\Project;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,6 +27,21 @@ class HeadingController extends Controller
             'name' => $validated['name'],
             'position' => $maxPosition + 1,
         ]);
+
+        return redirect()->route('projects.show', $project);
+    }
+
+    /**
+     * Delete a heading, moving its tasks to Unassigned, and redirect back.
+     */
+    public function destroy(Request $request, Heading $heading): RedirectResponse
+    {
+        $project = $heading->project;
+
+        abort_unless($project->user_id === $request->user()->id, 403);
+
+        $heading->tasks()->update(['heading_id' => null]);
+        $heading->delete();
 
         return redirect()->route('projects.show', $project);
     }

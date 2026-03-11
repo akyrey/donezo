@@ -151,7 +151,20 @@ routes/
 
 ---
 
-## 5. API Routes
+## 5. Routes
+
+### Web Routes (Inertia, `auth` middleware)
+
+Heading creation and deletion use dedicated web routes so that Inertia's `useForm` can POST/DELETE and receive a redirect response:
+
+```
+POST   /projects/{project}/headings   projects.headings.store   Web\HeadingController@store
+DELETE /headings/{heading}            headings.destroy          Web\HeadingController@destroy
+```
+
+Both unassign child tasks (`heading_id = null`) before deleting and redirect back to `projects.show`.
+
+### API Routes
 
 All under `auth:sanctum`, prefix `/api/v1/`:
 

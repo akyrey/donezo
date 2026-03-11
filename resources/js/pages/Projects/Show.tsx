@@ -1,6 +1,6 @@
 import { type SubmitEventHandler, useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
-import { FolderKanban, Plus } from 'lucide-react';
+import { FolderKanban, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import ReactMarkdown from 'react-markdown';
@@ -10,6 +10,12 @@ import { TaskList } from '@/components/tasks/TaskList';
 import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import type { Project, Task, Heading } from '@/types';
 
 interface ProjectShowProps {
@@ -77,6 +83,38 @@ function AddHeadingDialog({
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>
+    );
+}
+
+function DeleteHeadingButton({ heading }: { heading: Heading }) {
+    const { delete: destroy, processing } = useForm({});
+
+    function handleDelete() {
+        destroy(route('headings.destroy', heading.id));
+    }
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button
+                    className="rounded p-0.5 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-bg-tertiary focus-visible:opacity-100 focus-visible:outline-none"
+                    aria-label="Heading options"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <MoreHorizontal className="h-4 w-4 text-text-tertiary" />
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                    className="text-danger focus:text-danger"
+                    disabled={processing}
+                    onSelect={handleDelete}
+                >
+                    <Trash2 className="h-4 w-4" />
+                    Delete heading
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }
 
@@ -168,18 +206,21 @@ export default function ProjectShow({
                         return (
                             <Collapsible.Root key={heading.id} defaultOpen>
                                 <section>
-                                    <Collapsible.Trigger asChild>
-                                        <button className="mb-3 flex w-full items-center gap-2 text-left">
-                                            <h2 className="text-sm font-semibold uppercase tracking-wide text-text-secondary">
-                                                {heading.name}
-                                            </h2>
-                                            {headingTasks.length > 0 && (
-                                                <span className="rounded-full bg-bg-secondary px-2 py-0.5 text-xs text-text-tertiary">
-                                                    {headingTasks.length}
-                                                </span>
-                                            )}
-                                        </button>
-                                    </Collapsible.Trigger>
+                                    <div className="group mb-3 flex w-full items-center gap-2">
+                                        <Collapsible.Trigger asChild>
+                                            <button className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                                                <h2 className="text-sm font-semibold uppercase tracking-wide text-text-secondary">
+                                                    {heading.name}
+                                                </h2>
+                                                {headingTasks.length > 0 && (
+                                                    <span className="rounded-full bg-bg-secondary px-2 py-0.5 text-xs text-text-tertiary">
+                                                        {headingTasks.length}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        </Collapsible.Trigger>
+                                        <DeleteHeadingButton heading={heading} />
+                                    </div>
 
                                     <Collapsible.Content>
                                         {headingTasks.length > 0 ? (
