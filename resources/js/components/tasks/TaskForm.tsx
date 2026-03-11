@@ -231,7 +231,7 @@ export function TaskForm({
 
     return (
         <>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pb-4">
             {/* Title */}
             <Input
                 placeholder={placeholder}
@@ -296,18 +296,20 @@ export function TaskForm({
                     <Separator />
 
                     {/* Scheduling */}
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="flex flex-wrap gap-3">
                         <Input
                             type="date"
                             label="Scheduled date"
                             value={scheduledAt}
                             onChange={(e) => setScheduledAt(e.target.value)}
+                            className="w-auto"
                         />
                         <Input
                             type="date"
                             label="Deadline"
                             value={deadlineAt}
                             onChange={(e) => setDeadlineAt(e.target.value)}
+                            className="w-auto"
                         />
                     </div>
 
@@ -336,7 +338,7 @@ export function TaskForm({
                                         e.target.value ? Number(e.target.value) : undefined,
                                     )
                                 }
-                                className="h-9 rounded-lg border border-border bg-bg px-3 text-sm text-text"
+                                className="h-9 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1"
                             >
                                 <option value="">No project</option>
                                 {projects.map((project) => (
@@ -358,7 +360,7 @@ export function TaskForm({
                                         e.target.value ? Number(e.target.value) : undefined,
                                     )
                                 }
-                                className="h-9 rounded-lg border border-border bg-bg px-3 text-sm text-text"
+                                className="h-9 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1"
                             >
                                 <option value="">No section</option>
                                 {sections.map((section) => (
@@ -401,7 +403,7 @@ export function TaskForm({
                             ))}
                         </div>
                         <div className="flex items-center gap-2">
-                            <input
+                            <Input
                                 type="text"
                                 placeholder="New tag..."
                                 value={newTagName}
@@ -413,7 +415,7 @@ export function TaskForm({
                                     }
                                 }}
                                 disabled={tagMutation.isPending}
-                                className="flex h-9 flex-1 rounded-lg border border-border bg-bg px-3 py-1 text-sm text-text shadow-sm placeholder:text-text-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="flex-1"
                             />
                             {/* Color swatch picker */}
                             <Popover>
@@ -559,7 +561,7 @@ export function TaskForm({
                                 type="datetime-local"
                                 value={newReminderAt}
                                 onChange={(e) => setNewReminderAt(e.target.value)}
-                                className="flex-1"
+                                className="w-auto"
                             />
                             <Button
                                 type="button"
