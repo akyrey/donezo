@@ -295,6 +295,7 @@ class TaskController extends Controller
 
     /**
      * Batch reorder tasks.
+     * Optionally update heading_id when tasks are moved between headings.
      */
     public function reorder(Request $request): JsonResponse
     {
@@ -302,14 +303,21 @@ class TaskController extends Controller
             'tasks' => ['required', 'array'],
             'tasks.*.id' => ['required', 'integer', 'exists:tasks,id'],
             'tasks.*.position' => ['required', 'integer', 'min:0'],
+            'tasks.*.heading_id' => ['sometimes', 'nullable', 'integer', 'exists:headings,id'],
         ]);
 
         $userId = $request->user()->id;
 
         foreach ($validated['tasks'] as $item) {
+            $update = ['position' => $item['position']];
+
+            if (array_key_exists('heading_id', $item)) {
+                $update['heading_id'] = $item['heading_id'];
+            }
+
             Task::where('id', $item['id'])
                 ->where('user_id', $userId)
-                ->update(['position' => $item['position']]);
+                ->update($update);
         }
 
         return response()->json(['message' => 'Tasks reordered successfully.']);

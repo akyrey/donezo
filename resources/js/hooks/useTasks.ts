@@ -184,15 +184,36 @@ export function useToggleChecklistItemMutation() {
     });
 }
 
+export interface ReorderTaskItem {
+    id: number;
+    position: number;
+    heading_id?: number | null;
+}
+
 export function useReorderTasksMutation() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (
-            tasks: { id: number; position: number }[],
-        ) => {
+        mutationFn: async (tasks: ReorderTaskItem[]) => {
             const response = await axios.post('/api/v1/tasks/reorder', {
                 tasks,
+            });
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: TASKS_KEY });
+            reloadInertiaProps();
+        },
+    });
+}
+
+export function useReorderHeadingsMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (headings: { id: number; position: number }[]) => {
+            const response = await axios.post('/api/v1/headings/reorder', {
+                headings,
             });
             return response.data;
         },

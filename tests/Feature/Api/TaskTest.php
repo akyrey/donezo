@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Heading;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 
@@ -173,4 +175,86 @@ it('only lists own tasks', function () {
 
     $response->assertOk()
         ->assertJsonCount(2, 'data');
+});
+
+it('can reorder tasks', function () {
+    $user = User::factory()->create();
+    $t1 = Task::factory()->for($user)->inbox()->create(['position' => 0]);
+    $t2 = Task::factory()->for($user)->inbox()->create(['position' => 1]);
+    $t3 = Task::factory()->for($user)->inbox()->create(['position' => 2]);
+
+    $this->actingAs($user)
+        ->postJson('/api/v1/tasks/reorder', [
+            'tasks' => [
+                ['id' => $t3->id, 'position' => 0],
+                ['id' => $t1->id, 'position' => 1],
+                ['id' => $t2->id, 'position' => 2],
+            ],
+        ])
+        ->assertOk()
+        ->assertJsonPath('message', 'Tasks reordered successfully.');
+
+    expect($t3->fresh()->position)->toBe(0);
+    expect($t1->fresh()->position)->toBe(1);
+    expect($t2->fresh()->position)->toBe(2);
+});
+
+it('can reorder tasks and change heading_id', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $heading = Heading::factory()->for($project)->create();
+
+    $t1 = Task::factory()->for($user)->inbox()->create(['position' => 0, 'heading_id' => null]);
+    $t2 = Task::factory()->for($user)->inbox()->create(['position' => 1, 'heading_id' => null]);
+
+    $this->actingAs($user)
+        ->postJson('/api/v1/tasks/reorder', [
+            'tasks' => [
+                ['id' => $t1->id, 'position' => 0, 'heading_id' => $heading->id],
+                ['id' => $t2->id, 'position' => 1, 'heading_id' => $heading->id],
+            ],
+        ])
+        ->assertOk();
+
+    expect($t1->fresh()->heading_id)->toBe($heading->id);
+    expect($t2->fresh()->heading_id)->toBe($heading->id);
+    expect($t1->fresh()->position)->toBe(0);
+    expect($t2->fresh()->position)->toBe(1);
+});
+
+it('can move a task to unassigned by setting heading_id to null', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $heading = Heading::factory()->for($project)->create();
+
+    $task = Task::factory()->for($user)->inbox()->create([
+        'position' => 0,
+        'heading_id' => $heading->id,
+    ]);
+
+    $this->actingAs($user)
+        ->postJson('/api/v1/tasks/reorder', [
+            'tasks' => [
+                ['id' => $task->id, 'position' => 0, 'heading_id' => null],
+            ],
+        ])
+        ->assertOk();
+
+    expect($task->fresh()->heading_id)->toBeNull();
+});
+
+it('cannot reorder tasks belonging to other users', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+    $task = Task::factory()->for($other)->inbox()->create(['position' => 0]);
+
+    $this->actingAs($user)
+        ->postJson('/api/v1/tasks/reorder', [
+            'tasks' => [
+                ['id' => $task->id, 'position' => 5],
+            ],
+        ])
+        ->assertOk(); // returns 200 but position is unchanged
+
+    expect($task->fresh()->position)->toBe(0);
 });
