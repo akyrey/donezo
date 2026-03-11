@@ -4,10 +4,12 @@ import type { PageProps } from '@/types';
 import {
     Dialog,
     DialogContent,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogDescription,
 } from '@/components/ui/Dialog';
+import { Button } from '@/components/ui/Button';
 import { TaskForm } from './TaskForm';
 import { useTagsQuery } from '@/hooks/useTags';
 
@@ -32,7 +34,7 @@ export function AddTaskDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="!grid-rows-none !grid-cols-none !gap-0 !flex flex-col max-w-2xl max-h-[85vh] p-0">
+            <DialogContent className="!grid-rows-none !grid-cols-none !gap-0 !flex flex-col p-0 sm:max-w-2xl sm:max-h-[85vh]">
                 <DialogHeader className="shrink-0 px-6 pt-6 pb-2">
                     <DialogTitle>New Task</DialogTitle>
                     <DialogDescription className="sr-only">
@@ -40,7 +42,7 @@ export function AddTaskDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-6 pt-2">
+                <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-2">
                     <TaskForm
                         projects={projects}
                         sections={sections}
@@ -48,6 +50,24 @@ export function AddTaskDialog({
                         context={context}
                         defaultProjectId={defaultProjectId}
                         onClose={() => onOpenChange(false)}
+                        renderActions={({ submit, isSubmitting, isEditing, isValid }) => (
+                            <DialogFooter className="sticky bottom-0 bg-bg border-t border-border px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] mt-4 gap-2 flex-row justify-end">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={() => onOpenChange(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="button"
+                                    onClick={submit}
+                                    disabled={!isValid || isSubmitting}
+                                >
+                                    {isSubmitting ? 'Saving...' : isEditing ? 'Update Task' : 'Add Task'}
+                                </Button>
+                            </DialogFooter>
+                        )}
                     />
                 </div>
             </DialogContent>

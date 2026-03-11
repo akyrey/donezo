@@ -32,6 +32,18 @@ interface TaskFormProps {
     projectId?: number;
     /** Force inline (compact) UI regardless of context */
     inline?: boolean;
+    /**
+     * When provided, the built-in Cancel/Submit button row is suppressed and
+     * this render-prop is called instead. The parent (e.g. a dialog sticky
+     * footer) is responsible for rendering the buttons and calling submit().
+     * Receives: { submit, isSubmitting, isEditing, isValid }
+     */
+    renderActions?: (args: {
+        submit: () => void;
+        isSubmitting: boolean;
+        isEditing: boolean;
+        isValid: boolean;
+    }) => React.ReactNode;
 }
 
 interface ChecklistEntry {
@@ -58,6 +70,7 @@ export function TaskForm({
     context,
     projectId: projectIdProp,
     inline,
+    renderActions,
 }: TaskFormProps) {
     const isEditing = !!task;
     const isInline = inline ?? false;
@@ -113,8 +126,7 @@ export function TaskForm({
         }
     }
 
-    function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
+    function submitForm() {
         if (!title.trim()) return;
 
         const data: TaskCreateData = {
@@ -157,6 +169,11 @@ export function TaskForm({
                 },
             });
         }
+    }
+
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        submitForm();
     }
 
     function addChecklistItem() {
@@ -213,6 +230,7 @@ export function TaskForm({
     }
 
     return (
+        <>
         <form onSubmit={handleSubmit} className="space-y-4">
             {/* Title */}
             <Input
@@ -278,7 +296,7 @@ export function TaskForm({
                     <Separator />
 
                     {/* Scheduling */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <Input
                             type="date"
                             label="Scheduled date"
@@ -306,7 +324,7 @@ export function TaskForm({
                     <Separator />
 
                     {/* Project and Section */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-sm font-medium text-text">
                                 Project
@@ -558,25 +576,34 @@ export function TaskForm({
                 </>
             )}
 
-            {/* Actions */}
-            <div className="flex justify-end gap-2">
-                {onClose && (
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={onClose}
-                    >
-                        Cancel
+            {/* Actions — only rendered when no external renderActions is provided */}
+            {!renderActions && (
+                <div className="flex justify-end gap-2">
+                    {onClose && (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={onClose}
+                        >
+                            Cancel
+                        </Button>
+                    )}
+                    <Button type="submit" disabled={!title.trim() || isSubmitting}>
+                        {isSubmitting
+                            ? 'Saving...'
+                            : isEditing
+                              ? 'Update Task'
+                              : 'Add Task'}
                     </Button>
-                )}
-                <Button type="submit" disabled={!title.trim() || isSubmitting}>
-                    {isSubmitting
-                        ? 'Saving...'
-                        : isEditing
-                          ? 'Update Task'
-                          : 'Add Task'}
-                </Button>
-            </div>
+                </div>
+            )}
         </form>
+        {renderActions?.({
+            submit: submitForm,
+            isSubmitting,
+            isEditing,
+            isValid: !!title.trim(),
+        })}
+        </>
     );
 }
