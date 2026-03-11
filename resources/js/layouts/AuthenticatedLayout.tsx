@@ -53,7 +53,6 @@ import { UndoToast } from '@/components/ui/UndoToast';
 import { useCompleteTaskMutation } from '@/hooks/useTasks';
 import { useSectionMutation, useUpdateSectionMutation, useDeleteSectionMutation } from '@/hooks/useSections';
 import { useUpdateProjectMutation, useDeleteProjectMutation } from '@/hooks/useProjects';
-import { useLongPress } from '@/hooks/useLongPress';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
@@ -166,23 +165,16 @@ function DroppableProjectItem({
     const incompleteCount = project.task_count - project.completed_task_count;
     const showCount = incompleteCount > 0;
 
-    const [menuOpen, setMenuOpen] = useState(false);
-
-    const longPress = useLongPress({
-        onLongPress: () => setMenuOpen(true),
-    });
-
     return (
         <div
             ref={setNodeRef}
             className={cn(
-                'group/item flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors select-none',
+                'group/item flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
                 active
                     ? 'bg-sidebar-active text-primary'
                     : 'text-text-secondary hover:bg-sidebar-hover hover:text-text',
                 isDragging && isOver && 'ring-2 ring-primary ring-inset bg-primary/10 text-primary',
             )}
-            {...longPress}
         >
             <Link
                 href={projectUrl}
@@ -192,7 +184,7 @@ function DroppableProjectItem({
                 <FolderOpen className={cn('h-4 w-4 shrink-0', isDragging && isOver ? 'text-primary' : 'text-text-tertiary')} />
                 <span className="flex-1 truncate">{project.name}</span>
             </Link>
-            {/* Fixed-size slot: shows badge at rest, three-dot button on hover — no layout shift */}
+            {/* Fixed-size slot: shows badge at rest, three-dot button on hover (desktop) or always (mobile) */}
             <div className="relative h-5 w-5 shrink-0">
                 {showCount && (
                     <span className={cn(
@@ -204,11 +196,11 @@ function DroppableProjectItem({
                         {incompleteCount}
                     </span>
                 )}
-                <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+                <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <button
                             className={cn(
-                                'absolute inset-0 flex items-center justify-center rounded text-text-tertiary hover:text-text transition-colors invisible group-hover/item:visible',
+                                'absolute inset-0 flex items-center justify-center rounded text-text-tertiary hover:text-text transition-colors lg:invisible lg:group-hover/item:visible',
                                 active && 'text-primary/60 hover:text-primary',
                             )}
                             onClick={(e) => e.stopPropagation()}
@@ -247,29 +239,22 @@ function DroppableSectionItem({
 }) {
     const { setNodeRef, isOver } = useDroppable({ id: sectDropId(section.id) });
 
-    const [menuOpen, setMenuOpen] = useState(false);
-
-    const longPress = useLongPress({
-        onLongPress: () => setMenuOpen(true),
-    });
-
     return (
         <div
             ref={setNodeRef}
             className={cn(
-                'group/item flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-text-secondary transition-colors select-none',
+                'group/item flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-text-secondary transition-colors',
                 isDragging && 'cursor-copy hover:bg-sidebar-hover',
                 isDragging && isOver && 'ring-2 ring-primary ring-inset bg-primary/10 text-primary',
                 !isDragging && 'hover:bg-sidebar-hover hover:text-text',
             )}
-            {...longPress}
         >
             <LayoutList className={cn('h-4 w-4 shrink-0', isDragging && isOver ? 'text-primary' : 'text-text-tertiary')} />
             <span className="flex-1 truncate">{section.name}</span>
-            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+            <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <button
-                        className="invisible flex h-5 w-5 shrink-0 items-center justify-center rounded text-text-tertiary hover:text-text transition-colors group-hover/item:visible"
+                        className="lg:invisible flex h-5 w-5 shrink-0 items-center justify-center rounded text-text-tertiary hover:text-text transition-colors lg:group-hover/item:visible"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <MoreHorizontal className="h-3.5 w-3.5" />
