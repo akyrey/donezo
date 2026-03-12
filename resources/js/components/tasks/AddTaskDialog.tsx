@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { TaskForm } from './TaskForm';
 import { useTagsQuery } from '@/hooks/useTags';
+import { useSectionsQuery } from '@/hooks/useSections';
 
 interface AddTaskDialogProps {
     open: boolean;
@@ -28,9 +29,11 @@ export function AddTaskDialog({
     context,
     defaultProjectId,
 }: AddTaskDialogProps) {
-    const { projects, sections } = usePage<PageProps>().props;
+    const { projects } = usePage<PageProps>().props;
     const { data: tagsResponse } = useTagsQuery();
     const tags = tagsResponse?.data ?? [];
+    const { data: sectionsResponse } = useSectionsQuery();
+    const sections = sectionsResponse?.data ?? [];
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>

@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { TaskDetail } from './TaskDetail';
 import { TaskForm } from './TaskForm';
 import { useTagsQuery } from '@/hooks/useTags';
+import { useSectionsQuery } from '@/hooks/useSections';
 import { useToggleChecklistItemMutation } from '@/hooks/useTasks';
 
 interface TaskDetailDialogProps {
@@ -29,9 +30,11 @@ export function TaskDetailDialog({
 }: TaskDetailDialogProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [localTask, setLocalTask] = useState<Task | null>(task);
-    const { projects, sections } = usePage<PageProps>().props;
+    const { projects } = usePage<PageProps>().props;
     const { data: tagsResponse } = useTagsQuery();
+    const { data: sectionsResponse } = useSectionsQuery();
     const tags = tagsResponse?.data ?? [];
+    const sections = sectionsResponse?.data ?? [];
     const toggleChecklistItem = useToggleChecklistItemMutation();
 
     // Keep local task in sync when the prop changes (e.g. dialog reopened with a different task)
