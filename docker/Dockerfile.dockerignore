@@ -6,11 +6,12 @@ node_modules/
 vendor/
 public/
 !public/index.php
-!public/favicon.ico
+!public/favicon.png
 !public/robots.txt
 !public/sw.js
 !public/manifest.webmanifest
-!public/images/
+!public/icons/
+!public/splash/
 storage/*
 
 # Files
