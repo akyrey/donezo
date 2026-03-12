@@ -869,9 +869,13 @@ export default function AuthenticatedLayout({
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    function handleDragStart(_event: DragStartEvent) {
+    function handleDragStart(event: DragStartEvent) {
+        const id = String(event.active.id);
+        // Only handle FAB drags — task/heading drags inside pages are managed by
+        // their own inner DndContext and should not trigger the layout sidebar.
+        if (id !== 'fab') return;
         setIsDragging(true);
-        // Open sidebar on mobile so targets are reachable
+        // Open sidebar on mobile so drop targets are reachable
         setSidebarOpen(true);
     }
 

@@ -171,10 +171,11 @@ export default function ProjectShow({
     const [activeHeading, setActiveHeading] = useState<Heading | null>(null);
 
     // ── Sync server props → local state (e.g. after Inertia reload) ───────────
-    // When the page re-renders from a server reload, we re-sync.
-    // We keep a ref to avoid stale closures.
-    const [serverTasksKey] = useState(() => initialTasks.map((t) => t.id).join(','));
-    const [serverHeadingsKey] = useState(() => initialHeadings.map((h) => h.id).join(','));
+    // Compute a stable string key from the current server props on every render.
+    // When Inertia reloads the page after a mutation, these keys change and the
+    // effects below re-sync local state with the fresh server data.
+    const serverTasksKey = initialTasks.map((t) => `${t.id}:${t.position}:${t.heading_id ?? ''}:${t.updated_at}`).join(',');
+    const serverHeadingsKey = initialHeadings.map((h) => `${h.id}:${h.position}`).join(',');
 
     React.useEffect(() => {
         setTasks(initialTasks);
