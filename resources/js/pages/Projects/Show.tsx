@@ -1,6 +1,7 @@
-import React, { type SubmitEventHandler, useState, useCallback } from 'react';
-import { Head, useForm } from '@inertiajs/react';
-import { FolderKanban, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
+import React, { type SubmitEventHandler, useState, useCallback, useEffect } from 'react';
+import { Head, useForm, router } from '@inertiajs/react';
+import axios from 'axios';
+import { FolderKanban, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import ReactMarkdown from 'react-markdown';
@@ -118,35 +119,146 @@ function AddHeadingDialog({
     );
 }
 
-function DeleteHeadingButton({ heading }: { heading: Heading }) {
-    const { delete: destroy, processing } = useForm({});
+function RenameHeadingDialog({
+    heading,
+    open,
+    onOpenChange,
+}: {
+    heading: Heading;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}) {
+    const [name, setName] = useState(heading.name);
+    const [processing, setProcessing] = useState(false);
+    const [error, setError] = useState<string | undefined>();
+
+    useEffect(() => {
+        if (open) {
+            setName(heading.name);
+            setError(undefined);
+        }
+    }, [open, heading.name]);
+
+    async function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        const trimmed = name.trim();
+        if (!trimmed) {
+            setError('Name is required.');
+            return;
+        }
+        setProcessing(true);
+        try {
+            await axios.put(route('api.v1.headings.update', heading.id), { name: trimmed });
+            onOpenChange(false);
+            router.reload();
+        } catch {
+            setError('Failed to rename heading. Please try again.');
+        } finally {
+            setProcessing(false);
+        }
+    }
+
+    return (
+        <Dialog.Root open={open} onOpenChange={onOpenChange}>
+            <Dialog.Portal>
+                <Dialog.Overlay className="fixed inset-0 bg-black/40 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+                <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-bg p-6 shadow-lg focus:outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95">
+                    <Dialog.Title className="text-lg font-semibold text-text">
+                        Rename Heading
+                    </Dialog.Title>
+                    <Dialog.Description className="mt-1 text-sm text-text-secondary">
+                        Enter a new name for this heading.
+                    </Dialog.Description>
+
+                    <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                        <Input
+                            label="Heading name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            error={error}
+                            autoFocus
+                        />
+
+                        <div className="flex justify-end gap-3 pt-2">
+                            <Dialog.Close asChild>
+                                <Button type="button" variant="ghost">
+                                    Cancel
+                                </Button>
+                            </Dialog.Close>
+                            <Button type="submit" disabled={processing}>
+                                {processing ? 'Saving...' : 'Save'}
+                            </Button>
+                        </div>
+                    </form>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
+    );
+}
+
+function HeadingRow({
+    heading,
+    taskCount,
+}: {
+    heading: Heading;
+    taskCount: number;
+}) {
+    const { delete: destroy, processing: deleting } = useForm({});
+    const [renameOpen, setRenameOpen] = useState(false);
 
     function handleDelete() {
         destroy(route('headings.destroy', heading.id));
     }
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <button
-                    className="rounded p-0.5 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-bg-tertiary focus-visible:opacity-100 focus-visible:outline-none"
-                    aria-label="Heading options"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <MoreHorizontal className="h-4 w-4 text-text-tertiary" />
-                </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                    className="text-danger focus:text-danger"
-                    disabled={processing}
-                    onSelect={handleDelete}
-                >
-                    <Trash2 className="h-4 w-4" />
-                    Delete heading
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+            <div className="group mb-3 flex w-full items-center gap-2">
+                <Collapsible.Trigger asChild>
+                    <button className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                        <h2 className="text-sm font-semibold uppercase tracking-wide text-text-secondary">
+                            {heading.name}
+                        </h2>
+                        {taskCount > 0 && (
+                            <span className="rounded-full bg-bg-secondary px-2 py-0.5 text-xs text-text-tertiary">
+                                {taskCount}
+                            </span>
+                        )}
+                    </button>
+                </Collapsible.Trigger>
+
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button
+                            className="rounded p-0.5 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-bg-tertiary focus-visible:opacity-100 focus-visible:outline-none"
+                            aria-label="Heading options"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <MoreHorizontal className="h-4 w-4 text-text-tertiary" />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => setRenameOpen(true)}>
+                            <Pencil className="h-4 w-4" />
+                            Rename heading
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            className="text-danger focus:text-danger"
+                            disabled={deleting}
+                            onSelect={handleDelete}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Delete heading
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+
+            <RenameHeadingDialog
+                heading={heading}
+                open={renameOpen}
+                onOpenChange={setRenameOpen}
+            />
+        </>
     );
 }
 
@@ -175,7 +287,7 @@ export default function ProjectShow({
     // When Inertia reloads the page after a mutation, these keys change and the
     // effects below re-sync local state with the fresh server data.
     const serverTasksKey = initialTasks.map((t) => `${t.id}:${t.position}:${t.heading_id ?? ''}:${t.updated_at}`).join(',');
-    const serverHeadingsKey = initialHeadings.map((h) => `${h.id}:${h.position}`).join(',');
+    const serverHeadingsKey = initialHeadings.map((h) => `${h.id}:${h.position}:${h.name}`).join(',');
 
     React.useEffect(() => {
         setTasks(initialTasks);
@@ -464,21 +576,10 @@ export default function ProjectShow({
                                                 heading={heading}
                                                 taskCount={headingTasks.length}
                                             >
-                                                <div className="group mb-3 flex w-full items-center gap-2">
-                                                    <Collapsible.Trigger asChild>
-                                                        <button className="flex min-w-0 flex-1 items-center gap-2 text-left">
-                                                            <h2 className="text-sm font-semibold uppercase tracking-wide text-text-secondary">
-                                                                {heading.name}
-                                                            </h2>
-                                                            {headingTasks.length > 0 && (
-                                                                <span className="rounded-full bg-bg-secondary px-2 py-0.5 text-xs text-text-tertiary">
-                                                                    {headingTasks.length}
-                                                                </span>
-                                                            )}
-                                                        </button>
-                                                    </Collapsible.Trigger>
-                                                    <DeleteHeadingButton heading={heading} />
-                                                </div>
+                                                <HeadingRow
+                                                    heading={heading}
+                                                    taskCount={headingTasks.length}
+                                                />
                                             </SortableHeading>
 
                                             <Collapsible.Content>
