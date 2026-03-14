@@ -71,42 +71,37 @@ export function TaskDetailDialog({
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="!grid-rows-none !grid-cols-none !gap-0 !flex flex-col p-0 sm:max-w-2xl sm:max-h-[85vh]">
-                <DialogHeader className="shrink-0 px-6 pt-6 pb-0">
-                    <div className="flex items-center justify-between">
-                        <DialogTitle className="sr-only">
-                            {isEditing ? 'Edit Task' : 'Task Details'}
-                        </DialogTitle>
-                        <DialogDescription className="sr-only">
-                            {isEditing
-                                ? 'Edit the task details below.'
-                                : 'View task details, checklist items, and metadata.'}
-                        </DialogDescription>
-                        {isEditing ? (
+            <DialogContent className="!grid-rows-none !grid-cols-none !gap-0 !flex flex-col p-0 sm:max-w-2xl sm:max-h-[90vh]">
+                {/* Header */}
+                <DialogHeader className="shrink-0 border-b border-border px-6 py-4">
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                            <DialogTitle className="truncate text-base font-semibold text-text">
+                                {isEditing ? 'Edit Task' : localTask.title}
+                            </DialogTitle>
+                            <DialogDescription className="sr-only">
+                                {isEditing
+                                    ? 'Edit the task details below.'
+                                    : 'View task details, checklist items, and metadata.'}
+                            </DialogDescription>
+                        </div>
+
+                        {isEditing && (
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="gap-1.5 text-text-secondary"
+                                className="shrink-0 gap-2 text-text-secondary"
                                 onClick={() => setIsEditing(false)}
                             >
-                                <ArrowLeft className="h-3.5 w-3.5" />
+                                <ArrowLeft className="h-4 w-4" />
                                 Back
-                            </Button>
-                        ) : (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="gap-1.5 text-text-secondary"
-                                onClick={() => setIsEditing(true)}
-                            >
-                                <Pencil className="h-3.5 w-3.5" />
-                                Edit
                             </Button>
                         )}
                     </div>
                 </DialogHeader>
 
-                <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-4">
+                {/* Scrollable content */}
+                <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-6">
                     {isEditing ? (
                         <TaskForm
                             task={localTask ?? undefined}
@@ -142,14 +137,32 @@ export function TaskDetailDialog({
                                 task={localTask!}
                                 onToggleChecklistItem={handleToggleChecklistItem}
                             />
-                            <DialogFooter className="sticky bottom-0 bg-bg border-t border-border px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] mt-4 flex-row justify-end sm:hidden">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={() => handleOpenChange(false)}
-                                >
-                                    Close
-                                </Button>
+                            {/* Footer — shown on all screen sizes */}
+                            <DialogFooter className="sticky bottom-0 bg-bg border-t border-border px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] gap-2 flex-row justify-between items-center">
+                                <span className="text-xs text-text-tertiary">
+                                    {localTask.status !== 'completed'
+                                        ? `Status: ${localTask.status.charAt(0).toUpperCase() + localTask.status.slice(1)}`
+                                        : 'Completed'}
+                                </span>
+                                <div className="flex gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setIsEditing(true)}
+                                    >
+                                        <Pencil className="h-3.5 w-3.5" />
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleOpenChange(false)}
+                                    >
+                                        Close
+                                    </Button>
+                                </div>
                             </DialogFooter>
                         </>
                     )}

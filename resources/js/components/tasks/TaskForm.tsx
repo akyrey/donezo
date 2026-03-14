@@ -306,7 +306,7 @@ export function TaskForm({
                                     type="date"
                                     value={scheduledAt}
                                     onChange={(e) => setScheduledAt(e.target.value)}
-                                    className="flex h-9 w-full min-w-0 rounded-lg border border-border bg-bg px-3 py-1 text-sm text-text shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1"
+                                    className="flex h-9 w-full min-w-0 cursor-pointer rounded-lg border border-border bg-bg px-3 py-1 text-sm text-text shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1"
                                 />
                                 {scheduledAt && (
                                     <button
@@ -329,7 +329,7 @@ export function TaskForm({
                                     type="date"
                                     value={deadlineAt}
                                     onChange={(e) => setDeadlineAt(e.target.value)}
-                                    className="flex h-9 w-full min-w-0 rounded-lg border border-border bg-bg px-3 py-1 text-sm text-text shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1"
+                                    className="flex h-9 w-full min-w-0 cursor-pointer rounded-lg border border-border bg-bg px-3 py-1 text-sm text-text shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1"
                                 />
                                 {deadlineAt && (
                                     <button
@@ -370,7 +370,7 @@ export function TaskForm({
                                         e.target.value ? Number(e.target.value) : undefined,
                                     )
                                 }
-                                className="h-9 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1"
+                                className="h-9 w-full cursor-pointer rounded-lg border border-border bg-bg px-3 text-sm text-text shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1"
                             >
                                 <option value="">No project</option>
                                 {projects.map((project) => (
@@ -392,7 +392,7 @@ export function TaskForm({
                                         e.target.value ? Number(e.target.value) : undefined,
                                     )
                                 }
-                                className="h-9 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1"
+                                className="h-9 w-full cursor-pointer rounded-lg border border-border bg-bg px-3 text-sm text-text shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1"
                             >
                                 <option value="">No section</option>
                                 {sections.map((section) => (

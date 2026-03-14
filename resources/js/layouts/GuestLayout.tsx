@@ -6,7 +6,7 @@ interface GuestLayoutProps {
 
 export default function GuestLayout({ children }: GuestLayoutProps) {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-bg-secondary px-4">
+        <div className="flex min-h-screen items-center justify-center bg-bg-secondary text-text px-4">
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="mb-8 text-center">

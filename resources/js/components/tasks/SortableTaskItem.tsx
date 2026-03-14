@@ -37,6 +37,8 @@ export function SortableTaskItem({
         position: 'relative',
     };
 
+    const isCompleted = task.status === 'completed' || task.status === 'cancelled';
+
     return (
         <div ref={setNodeRef} style={style} className="group/sortable flex items-stretch">
             {/* Drag handle */}
@@ -45,11 +47,12 @@ export function SortableTaskItem({
                 {...attributes}
                 {...listeners}
                 className={cn(
-                    'flex items-center justify-center px-1 py-2.5 text-text-tertiary',
+                    'flex items-start justify-center px-1 pt-3 text-text-tertiary',
                     'opacity-0 transition-opacity group-hover/sortable:opacity-100',
                     'cursor-grab active:cursor-grabbing',
                     'rounded-l-lg hover:bg-bg-secondary',
                     'touch-none select-none',
+                    isCompleted && 'invisible pointer-events-none',
                 )}
                 aria-label="Drag to reorder"
                 tabIndex={-1}

@@ -83,7 +83,6 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
             <div className="mt-0.5" onClick={handleComplete}>
                 <Checkbox
                     checked={isCompleted}
-                    className="cursor-pointer"
                 />
             </div>
 

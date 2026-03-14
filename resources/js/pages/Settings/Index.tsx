@@ -1,3 +1,4 @@
+import React from 'react';
 import { type SubmitEventHandler } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import {
@@ -12,6 +13,10 @@ import {
     RefreshCw,
     Unlink,
     Loader2,
+    Sun,
+    Moon,
+    Monitor,
+    Palette,
 } from 'lucide-react';
 import * as Separator from '@radix-ui/react-separator';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
@@ -25,6 +30,8 @@ import {
     useSyncCalendarMutation,
 } from '@/hooks/useCalendar';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useTheme, type Theme } from '@/hooks/useTheme';
+import { cn } from '@/lib/utils';
 
 interface SettingsProps {
     auth: { user: User; };
@@ -147,7 +154,7 @@ function PreferencesSection({ user }: { user: User }) {
                     <select
                         value={data.timezone}
                         onChange={(e) => setData('timezone', e.target.value)}
-                        className="flex h-9 w-full rounded-lg border border-border bg-bg px-3 py-1 text-sm text-text shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1"
+                        className="flex h-9 w-full cursor-pointer rounded-lg border border-border bg-bg px-3 py-1 text-sm text-text shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1"
                     >
                         {commonTimezones.map((tz) => (
                             <option key={tz} value={tz}>
@@ -486,6 +493,60 @@ function NotificationsSection() {
     );
 }
 
+function AppearanceSection() {
+    const { theme, setTheme, resolvedTheme } = useTheme();
+
+    const options: { value: Theme; label: string; icon: React.ReactNode }[] = [
+        { value: 'light', label: 'Light', icon: <Sun className="h-4 w-4" /> },
+        { value: 'dark', label: 'Dark', icon: <Moon className="h-4 w-4" /> },
+        { value: 'system', label: 'System', icon: <Monitor className="h-4 w-4" /> },
+    ];
+
+    return (
+        <section>
+            <div className="mb-4 flex items-center gap-2">
+                <Palette className="h-5 w-5 text-text-secondary" />
+                <h2 className="text-lg font-semibold text-text">Appearance</h2>
+            </div>
+
+            <div className="max-w-md space-y-4">
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-text">Theme</label>
+                    <p className="text-sm text-text-secondary">
+                        Choose how Donezo looks to you. Select a theme, or sync with your system settings.
+                    </p>
+                </div>
+
+                {/* Segmented control */}
+                <div className="inline-flex rounded-xl border border-border bg-bg-secondary p-1 gap-1">
+                    {options.map((opt) => (
+                        <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => setTheme(opt.value)}
+                            className={cn(
+                                'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 cursor-pointer',
+                                theme === opt.value
+                                    ? 'bg-bg text-text shadow-sm border border-border'
+                                    : 'text-text-secondary hover:text-text hover:bg-bg-tertiary',
+                            )}
+                        >
+                            {opt.icon}
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+
+                <p className="text-xs text-text-tertiary">
+                    Currently showing:{' '}
+                    <span className="font-medium capitalize text-text-secondary">{resolvedTheme}</span>
+                    {theme === 'system' && ' (from system preference)'}
+                </p>
+            </div>
+        </section>
+    );
+}
+
 function DangerZone() {
     const { delete: destroy, processing } = useForm({});
 
@@ -525,7 +586,7 @@ function DangerZone() {
 
                     <AlertDialog.Portal>
                         <AlertDialog.Overlay className="fixed inset-0 bg-black/40 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-                        <AlertDialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-bg p-6 shadow-lg focus:outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95">
+                        <AlertDialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-bg text-text p-6 shadow-lg focus:outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95">
                             <AlertDialog.Title className="text-lg font-semibold text-text">
                                 Are you absolutely sure?
                             </AlertDialog.Title>
@@ -583,6 +644,10 @@ export default function SettingsIndex({
                     <Separator.Root className="h-px bg-border" />
 
                     <PreferencesSection user={user} />
+
+                    <Separator.Root className="h-px bg-border" />
+
+                    <AppearanceSection />
 
                     <Separator.Root className="h-px bg-border" />
 
