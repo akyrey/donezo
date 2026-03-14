@@ -16,11 +16,11 @@ use Inertia\Response;
 class ProjectController extends Controller
 {
     /**
-     * Display a listing of the user's projects.
+     * Build the base project query with counts and relations.
      */
-    public function index(Request $request): Response
+    private function projectsQuery(Request $request): \Illuminate\Database\Eloquent\Builder
     {
-        $projects = $request->user()
+        return $request->user()
             ->projects()
             ->withCount(['tasks as task_count', 'tasks as completed_task_count' => function ($query) {
                 $query->whereNotNull('completed_at');
@@ -28,11 +28,20 @@ class ProjectController extends Controller
             ->with([
                 'headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count'),
             ])
-            ->orderBy('position')
-            ->get();
+            ->orderBy('position');
+    }
+
+    /**
+     * Display a listing of the user's projects.
+     */
+    public function index(Request $request): Response
+    {
+        $projects = $this->projectsQuery($request)->where('status', 'active')->get();
+        $completedProjects = $this->projectsQuery($request)->where('status', 'completed')->get();
 
         return Inertia::render('Projects/Index', [
             'projects' => ProjectData::collect($projects),
+            'completed_projects' => ProjectData::collect($completedProjects),
         ]);
     }
 
@@ -41,19 +50,12 @@ class ProjectController extends Controller
      */
     public function create(Request $request): Response
     {
-        $projects = $request->user()
-            ->projects()
-            ->withCount(['tasks as task_count', 'tasks as completed_task_count' => function ($query) {
-                $query->whereNotNull('completed_at');
-            }])
-            ->with([
-                'headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count'),
-            ])
-            ->orderBy('position')
-            ->get();
+        $projects = $this->projectsQuery($request)->where('status', 'active')->get();
+        $completedProjects = $this->projectsQuery($request)->where('status', 'completed')->get();
 
         return Inertia::render('Projects/Index', [
             'projects' => ProjectData::collect($projects),
+            'completed_projects' => ProjectData::collect($completedProjects),
             'openDialog' => true,
         ]);
     }
@@ -95,9 +97,16 @@ class ProjectController extends Controller
             ->with(['tags', 'checklistItems', 'reminders'])
             ->get();
 
+        $completedTasks = $project->tasks()
+            ->whereNotNull('completed_at')
+            ->orderBy('completed_at', 'desc')
+            ->with(['tags', 'checklistItems', 'reminders'])
+            ->get();
+
         return Inertia::render('Projects/Show', [
             'project' => ProjectData::from($project),
             'tasks' => TaskData::collect($tasks),
+            'completed_tasks' => TaskData::collect($completedTasks),
             'headings' => HeadingData::collect($project->headings),
         ]);
     }

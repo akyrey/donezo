@@ -1,7 +1,7 @@
 import React, { type SubmitEventHandler, useState, useCallback, useEffect } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import axios from 'axios';
-import { FolderKanban, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronRight, FolderKanban, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import ReactMarkdown from 'react-markdown';
@@ -54,6 +54,7 @@ function getContainerForTask(task: Task): string {
 interface ProjectShowProps {
     project: Project;
     tasks: Task[];
+    completed_tasks: Task[];
     headings: Heading[];
 }
 
@@ -262,17 +263,45 @@ function HeadingRow({
     );
 }
 
+// ─── Completed tasks sub-section ──────────────────────────────────────────────
+
+function CompletedTasksSection({
+    tasks,
+    onSelect,
+}: {
+    tasks: Task[];
+    onSelect: (task: Task) => void;
+}) {
+    if (tasks.length === 0) return null;
+
+    return (
+        <div className="mt-2 border-t border-border pt-2">
+            <div className="space-y-0.5">
+                {tasks.map((task) => (
+                    <TaskItem
+                        key={task.id}
+                        task={task}
+                        onSelect={onSelect}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ProjectShow({
     project,
     tasks: initialTasks,
+    completed_tasks: initialCompletedTasks,
     headings: initialHeadings,
 }: ProjectShowProps) {
     // ── State ──────────────────────────────────────────────────────────────────
 
     const [headingDialogOpen, setHeadingDialogOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [showCompleted, setShowCompleted] = useState(false);
 
     // Local copies for optimistic DnD updates
     const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -304,14 +333,23 @@ export default function ProjectShow({
     const reorderHeadingsMutation = useReorderHeadingsMutation();
 
     // ── Derived state ─────────────────────────────────────────────────────────
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.status === 'completed').length;
+    // Use server-side counts for accuracy — the tasks array only contains active tasks,
+    // so computing completedTasks from it would always give 0.
+    const totalTasks = project.task_count ?? 0;
+    const completedTasks = project.completed_task_count ?? 0;
     const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
     const unassignedTasks = tasks.filter((t) => !t.heading_id);
     const tasksByHeading = useCallback(
         (headingId: number) => tasks.filter((t) => t.heading_id === headingId),
         [tasks],
+    );
+
+    // Completed tasks grouped by heading_id (null = unassigned)
+    const completedUnassigned = initialCompletedTasks.filter((t) => !t.heading_id);
+    const completedByHeading = useCallback(
+        (headingId: number) => initialCompletedTasks.filter((t) => t.heading_id === headingId),
+        [initialCompletedTasks],
     );
 
     // ── DnD sensors ───────────────────────────────────────────────────────────
@@ -507,7 +545,7 @@ export default function ProjectShow({
                         </div>
                     )}
 
-                    {/* Progress bar */}
+                    {/* Progress bar — uses server-side counts so completed tasks are always reflected */}
                     {totalTasks > 0 && (
                         <div className="mb-6">
                             <div className="mb-1.5 flex items-center justify-between text-xs text-text-secondary">
@@ -524,6 +562,22 @@ export default function ProjectShow({
                             </div>
                         </div>
                     )}
+
+                    {/* Toggle completed tasks */}
+                    {initialCompletedTasks.length > 0 && (
+                        <button
+                            onClick={() => setShowCompleted((v) => !v)}
+                            className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text transition-colors"
+                        >
+                            {showCompleted ? (
+                                <ChevronDown className="h-4 w-4" />
+                            ) : (
+                                <ChevronRight className="h-4 w-4" />
+                            )}
+                            <CheckCircle2 className="h-4 w-4 text-success" />
+                            {showCompleted ? 'Hide' : 'Show'} completed ({initialCompletedTasks.length})
+                        </button>
+                    )}
                 </div>
 
                 {/* Task sections with DnD */}
@@ -536,7 +590,7 @@ export default function ProjectShow({
                 >
                     <div className="space-y-8">
                         {/* Unassigned tasks */}
-                        {(unassignedTasks.length > 0 || headings.length === 0) && (
+                        {(unassignedTasks.length > 0 || headings.length === 0 || (showCompleted && completedUnassigned.length > 0)) && (
                             <section>
                                 {headings.length > 0 && (
                                     <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-tertiary">
@@ -558,6 +612,14 @@ export default function ProjectShow({
                                         ))}
                                     </div>
                                 </SortableContext>
+
+                                {/* Completed tasks in the unassigned section */}
+                                {showCompleted && (
+                                    <CompletedTasksSection
+                                        tasks={completedUnassigned}
+                                        onSelect={setSelectedTask}
+                                    />
+                                )}
                             </section>
                         )}
 
@@ -568,6 +630,7 @@ export default function ProjectShow({
                         >
                             {headings.map((heading) => {
                                 const headingTasks = tasksByHeading(heading.id);
+                                const headingCompletedTasks = completedByHeading(heading.id);
 
                                 return (
                                     <Collapsible.Root key={heading.id} defaultOpen>
@@ -599,11 +662,21 @@ export default function ProjectShow({
                                                             ))}
                                                         </div>
                                                     ) : (
-                                                        <p className="py-4 text-center text-sm text-text-tertiary">
-                                                            No tasks in this section
-                                                        </p>
+                                                        !showCompleted || headingCompletedTasks.length === 0 ? (
+                                                            <p className="py-4 text-center text-sm text-text-tertiary">
+                                                                No tasks in this section
+                                                            </p>
+                                                        ) : null
                                                     )}
                                                 </SortableContext>
+
+                                                {/* Completed tasks in this heading */}
+                                                {showCompleted && (
+                                                    <CompletedTasksSection
+                                                        tasks={headingCompletedTasks}
+                                                        onSelect={setSelectedTask}
+                                                    />
+                                                )}
                                             </Collapsible.Content>
                                         </section>
                                     </Collapsible.Root>

@@ -42,17 +42,7 @@ export function TaskDetail({
         <div className={cn('space-y-5 pb-6', className)}>
             {/* Header — title + completion checkbox */}
             <div className="flex items-start gap-4">
-                <button
-                    type="button"
-                    onClick={() =>
-                        completeMutation.mutate({
-                            id: task.id,
-                            completed: !isCompleted,
-                        })
-                    }
-                    className="mt-1 shrink-0 cursor-pointer"
-                    aria-label={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
-                >
+                <span className="mt-1 shrink-0">
                     <Checkbox
                         checked={isCompleted}
                         onCheckedChange={() =>
@@ -61,9 +51,10 @@ export function TaskDetail({
                                 completed: !isCompleted,
                             })
                         }
-                        className="h-6 w-6"
+                        className="h-6 w-6 cursor-pointer"
+                        aria-label={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
                     />
-                </button>
+                </span>
                 <div className="min-w-0 flex-1 pt-0.5">
                     <h2
                         className={cn(
@@ -242,6 +233,7 @@ export function TaskDetail({
                                                 !item.is_completed,
                                             )
                                         }
+                                        onClick={(e) => e.stopPropagation()}
                                     />
                                     <span
                                         className={cn(

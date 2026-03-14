@@ -1,6 +1,6 @@
 import { useState, type SubmitEventHandler } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FolderKanban, Plus } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronRight, FolderKanban, Plus } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Button } from '@/components/ui/Button';
@@ -9,10 +9,11 @@ import type { Project } from '@/types';
 
 interface ProjectsIndexProps {
     projects: Project[];
+    completed_projects: Project[];
     openDialog?: boolean;
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, completed = false }: { project: Project; completed?: boolean }) {
     const totalTasks = project.task_count ?? 0;
     const completedTasks = project.completed_task_count ?? 0;
     const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
@@ -25,11 +26,14 @@ function ProjectCard({ project }: { project: Project }) {
     return (
         <Link
             href={route('projects.show', project.id)}
-            className="group flex flex-col rounded-xl border border-border bg-bg p-5 transition-all hover:border-primary/30 hover:shadow-sm"
+            className={`group flex flex-col rounded-xl border border-border bg-bg p-5 transition-all hover:border-primary/30 hover:shadow-sm ${completed ? 'opacity-60' : ''}`}
         >
             <div className="mb-3 flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-lg">
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-lg">
                     <FolderKanban className="h-5 w-5 text-primary" />
+                    {completed && (
+                        <CheckCircle2 className="absolute -bottom-1 -right-1 h-4 w-4 text-success bg-bg rounded-full" />
+                    )}
                 </div>
 
                 {totalTasks > 0 && (
@@ -58,14 +62,14 @@ function ProjectCard({ project }: { project: Project }) {
                             strokeDasharray={circumference}
                             strokeDashoffset={strokeDashoffset}
                             strokeLinecap="round"
-                            className="text-primary"
+                            className={completed ? 'text-success' : 'text-primary'}
                             transform="rotate(-90 18 18)"
                         />
                     </svg>
                 )}
             </div>
 
-            <h3 className="font-medium text-text group-hover:text-primary">
+            <h3 className={`font-medium text-text group-hover:text-primary ${completed ? 'line-through decoration-text-tertiary' : ''}`}>
                 {project.name}
             </h3>
 
@@ -164,16 +168,20 @@ function CreateProjectDialog({
     );
 }
 
-export default function ProjectsIndex({ projects, openDialog = false }: ProjectsIndexProps) {
+export default function ProjectsIndex({ projects, completed_projects, openDialog = false }: ProjectsIndexProps) {
     const [dialogOpen, setDialogOpen] = useState(openDialog);
+    const [showCompleted, setShowCompleted] = useState(false);
 
+    const totalProjects = projects.length + completed_projects.length;
+    const completedCount = completed_projects.length;
+    const hasAnyProjects = totalProjects > 0;
 
     return (
         <AuthenticatedLayout>
             <Head title="Projects" />
 
             <div className="mx-auto max-w-3xl px-4 py-8">
-                <div className="mb-8 flex items-center justify-between">
+                <div className="mb-6 flex items-center justify-between">
                     <h1 className="flex items-center gap-3 text-2xl font-semibold text-text">
                         <FolderKanban className="h-6 w-6 text-primary" />
                         Projects
@@ -184,14 +192,71 @@ export default function ProjectsIndex({ projects, openDialog = false }: Projects
                     </Button>
                 </div>
 
-                {projects.length > 0 ? (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        {projects.map((project) => (
-                            <ProjectCard
-                                key={project.id}
-                                project={project}
-                            />
-                        ))}
+                {/* Overall progress counter */}
+                {hasAnyProjects && (
+                    <div className="mb-6 flex items-center gap-4">
+                        <p className="text-sm text-text-secondary">
+                            <span className="font-medium text-text">{completedCount}</span>
+                            {' '}of{' '}
+                            <span className="font-medium text-text">{totalProjects}</span>
+                            {' '}projects completed
+                        </p>
+                        {totalProjects > 0 && (
+                            <div className="flex-1 max-w-48">
+                                <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-tertiary">
+                                    <div
+                                        className="h-full rounded-full bg-primary transition-all duration-300"
+                                        style={{ width: `${(completedCount / totalProjects) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {hasAnyProjects ? (
+                    <div className="space-y-8">
+                        {/* Active projects */}
+                        {projects.length > 0 && (
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {projects.map((project) => (
+                                    <ProjectCard
+                                        key={project.id}
+                                        project={project}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Completed projects toggle + section */}
+                        {completed_projects.length > 0 && (
+                            <div>
+                                <button
+                                    onClick={() => setShowCompleted((v) => !v)}
+                                    className="mb-4 flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-text transition-colors"
+                                >
+                                    {showCompleted ? (
+                                        <ChevronDown className="h-4 w-4" />
+                                    ) : (
+                                        <ChevronRight className="h-4 w-4" />
+                                    )}
+                                    <CheckCircle2 className="h-4 w-4 text-success" />
+                                    {showCompleted ? 'Hide' : 'Show'} completed ({completed_projects.length})
+                                </button>
+
+                                {showCompleted && (
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        {completed_projects.map((project) => (
+                                            <ProjectCard
+                                                key={project.id}
+                                                project={project}
+                                                completed
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
