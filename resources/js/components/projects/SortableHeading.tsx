@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical } from 'lucide-react';
 import type { Heading } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +20,6 @@ export function SortableHeading({
         attributes,
         listeners,
         setNodeRef,
-        setActivatorNodeRef,
         transform,
         transition,
         isDragging,
@@ -37,31 +35,14 @@ export function SortableHeading({
     };
 
     return (
-        <div ref={setNodeRef} style={style} className="group/sortable-heading">
-            <div className="flex items-center gap-1">
-                {/* Drag handle */}
-                <button
-                    ref={setActivatorNodeRef}
-                    {...attributes}
-                    {...listeners}
-                    className={cn(
-                        'flex items-center justify-center p-0.5 text-text-tertiary',
-                        'opacity-0 transition-opacity group-hover/sortable-heading:opacity-100',
-                        'cursor-grab active:cursor-grabbing',
-                        'rounded hover:bg-bg-tertiary',
-                        'touch-none select-none',
-                    )}
-                    aria-label="Drag to reorder heading"
-                    tabIndex={-1}
-                >
-                    <GripVertical className="h-3.5 w-3.5" />
-                </button>
-
-                {/* Heading content (trigger + actions) */}
-                <div className="min-w-0 flex-1">
-                    {children}
-                </div>
-            </div>
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={cn('touch-none select-none cursor-grab active:cursor-grabbing')}
+            {...attributes}
+            {...listeners}
+        >
+            {children}
         </div>
     );
 }

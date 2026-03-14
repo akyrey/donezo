@@ -10,6 +10,7 @@ import {
     DndContext,
     DragOverlay,
     PointerSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     closestCenter,
@@ -355,6 +356,9 @@ export default function ProjectShow({
     // ── DnD sensors ───────────────────────────────────────────────────────────
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+        // On touch devices, require a 200ms press-and-hold before drag activates so
+        // that quick swipe scrolls still work naturally.
+        useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
     );
 
     // ── Drag handlers ─────────────────────────────────────────────────────────
