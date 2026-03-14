@@ -45,6 +45,8 @@ tags:
     description: Google Calendar integration
   - name: Push Subscriptions
     description: Web Push notification subscriptions
+  - name: Connected Accounts
+    description: Social account connections (Google, GitHub, Apple)
 
 paths:
   # ── Tasks ────────────────────────────────────────────────────────────
@@ -1517,6 +1519,33 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  # ── Connected Accounts ──────────────────────────────────────────────
+  /social-accounts/{socialAccountId}:
+    parameters:
+      - $ref: "#/components/parameters/socialAccountId"
+    delete:
+      operationId: disconnectSocialAccount
+      tags: [Connected Accounts]
+      summary: Disconnect a social account
+      description: |
+        Deletes the social account link for the authenticated user.
+
+        Returns 422 if the user has no password set and this is their only
+        remaining social account, to prevent locking them out.
+      responses:
+        "204":
+          description: Social account disconnected
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          description: Cannot disconnect — would lock the user out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   # ── Push Subscriptions ───────────────────────────────────────────────
   /push-subscriptions:
     post:
@@ -1659,6 +1688,12 @@ components:
       required: true
       schema:
         type: integer
+    socialAccountId:
+      name: socialAccountId
+      in: path
+      required: true
+      schema:
+        type: integer
 
   # ── Shared Responses ─────────────────────────────────────────────────
   responses:
@@ -1722,6 +1757,19 @@ components:
       enum: [admin, member]
 
     # ─── Domain Objects ──────────────────────────────────────
+    SocialAccount:
+      type: object
+      required: [id, provider, created_at]
+      properties:
+        id:
+          type: integer
+        provider:
+          type: string
+          enum: [google, github, apple]
+        created_at:
+          type: string
+          format: date-time
+
     Task:
       type: object
       required:

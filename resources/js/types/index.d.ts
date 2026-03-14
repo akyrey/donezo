@@ -118,6 +118,12 @@ export type GroupInvitation = {
     created_at: string;
 };
 
+export type SocialAccount = {
+    id: number;
+    provider: string;
+    created_at: string;
+};
+
 export type CalendarStatus = {
     connected: boolean;
     has_calendar_scope: boolean;

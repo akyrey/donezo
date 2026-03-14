@@ -82,6 +82,7 @@ resources/js/
     useGroups.ts               # Group CRUD, invitations (invite/cancel/accept), member removal
     useCalendar.ts             # Google Calendar status/disconnect/sync
     useNotifications.ts        # Web Push subscribe/unsubscribe
+    useSocialAccounts.ts       # Social account disconnect
   layouts/
     AuthenticatedLayout.tsx    # Main shell: sidebar, DnD FAB, CommandPalette, AddTaskDialog
     GuestLayout.tsx            # Auth pages
@@ -147,7 +148,10 @@ routes/
 
 ### SocialAccount
 - Fields: user_id, provider, provider_id, provider_token, provider_refresh_token, token_expires_at, scopes
-- Helpers: isTokenExpired(), hasScope(), hasCalendarAccess()
+- belongsTo: user
+- Hidden fields: provider_token, provider_refresh_token
+- Casts: token_expires_at (datetime), scopes (array)
+- Helpers: isTokenExpired(), hasScope(string $scope), hasCalendarAccess()
 
 ---
 
@@ -225,6 +229,9 @@ POST           /calendar/sync
 POST           /push-subscriptions
 DELETE         /push-subscriptions
 GET            /push-subscriptions/vapid-key
+
+# Connected Accounts (Social)
+DELETE         /social-accounts/{socialAccount}
 ```
 
 ---
@@ -257,7 +264,7 @@ Via `HandleInertiaRequests` middleware:
 | Groups/Index | `{ groups: Group[] }` | (none) |
 | Groups/Show | `{ group, members, tasks }` | (none) |
 | Groups/AcceptInvitation | `{ invitation: { token, email, role, expired, group, inviter, expires_at } }` | (none, GuestLayout) |
-| Settings/Index | `{ calendarStatus, hasGoogleAccount, hasPushSubscriptions }` | (none) |
+| Settings/Index | `{ calendarStatus, hasGoogleAccount, hasPushSubscriptions, socialAccounts: SocialAccount[], hasPassword: boolean }` | (none) |
 
 ---
 
@@ -347,7 +354,7 @@ Custom animations: `task-slide-in`, `task-complete`, `shrink` (undo toast progre
 
 Defined in `resources/js/types/index.d.ts`:
 
-- `User`, `Task`, `Project`, `Section`, `Heading`, `Tag`, `ChecklistItem`, `Reminder`, `RepeatRule`, `Group`, `GroupMember`, `GroupInvitation`, `CalendarStatus`
+- `User`, `Task`, `Project`, `Section`, `Heading`, `Tag`, `ChecklistItem`, `Reminder`, `RepeatRule`, `Group`, `GroupMember`, `GroupInvitation`, `SocialAccount`, `CalendarStatus`
 - `Paginated<T>` (with `PaginationLinks` + `PaginationMeta`)
 - `PageProps<T>` -- extends InertiaPageProps with `auth.user`, `projects`, `sections`, `groups`
 
@@ -396,7 +403,7 @@ tests/
 
 Hand-written `openapi.yaml` at the project root (OpenAPI 3.1.0). No PHP annotation package — maintained manually.
 
-**Covered tags**: Tasks, Projects, Sections, Tags, Checklist Items, Reminders, Headings, Groups, Group Invitations, Search, Calendar, Push Subscriptions
+**Covered tags**: Tasks, Projects, Sections, Tags, Checklist Items, Reminders, Headings, Groups, Group Invitations, Search, Calendar, Push Subscriptions, Connected Accounts
 
 **Group Invitations endpoints** (added with the invitation feature):
 - `GET  /groups/{groupId}/invitations` — list pending (owner only)
@@ -404,4 +411,7 @@ Hand-written `openapi.yaml` at the project root (OpenAPI 3.1.0). No PHP annotati
 - `DELETE /groups/{groupId}/invitations/{invitationId}` — cancel invite (owner only)
 - `POST /invitations/{token}/accept` — accept by token (authenticated, email must match)
 
-**Schemas**: `GroupInvitation`, `CreateGroupInvitation` added alongside `Group`, `CreateGroup`, `UpdateGroup`.
+**Connected Accounts endpoints**:
+- `DELETE /social-accounts/{socialAccountId}` — disconnect a social account (owner only; blocked if user has no password and it's their only account)
+
+**Schemas**: `GroupInvitation`, `CreateGroupInvitation` added alongside `Group`, `CreateGroup`, `UpdateGroup`. `SocialAccount` schema added for the Connected Accounts tag.

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Data\SocialAccountData;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,6 +32,8 @@ class SettingsController extends Controller
             ],
             'hasGoogleAccount' => $googleAccount !== null,
             'hasPushSubscriptions' => $user->pushSubscriptions()->exists(),
+            'socialAccounts' => SocialAccountData::collect($user->socialAccounts()->get()),
+            'hasPassword' => $user->password !== null,
         ]);
     }
 
