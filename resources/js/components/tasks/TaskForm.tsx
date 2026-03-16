@@ -83,6 +83,9 @@ export function TaskForm({
     const [projectId, setProjectId] = useState<number | undefined>(
         task?.project_id ?? projectIdProp ?? defaultProjectId,
     );
+    const [headingId, setHeadingId] = useState<number | undefined>(
+        task?.heading_id ?? undefined,
+    );
     const [sectionId, setSectionId] = useState<number | undefined>(
         task?.section_id ?? defaultSectionId,
     );
@@ -137,6 +140,7 @@ export function TaskForm({
             deadline_at: deadlineAt || undefined,
             is_evening: isEvening,
             project_id: projectId,
+            heading_id: headingId,
             section_id: sectionId,
             tags: selectedTagIds.length > 0 ? selectedTagIds : undefined,
             checklist_items: checklistItems.map((item, idx) => ({
@@ -161,6 +165,7 @@ export function TaskForm({
                     setScheduledAt('');
                     setDeadlineAt('');
                     setIsEvening(false);
+                    setHeadingId(undefined);
                     setChecklistItems([]);
                     setReminders([]);
                     setSelectedTagIds([]);
@@ -357,7 +362,7 @@ export function TaskForm({
 
                     <Separator />
 
-                    {/* Project and Section */}
+                    {/* Project, Heading, and Section */}
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-sm font-medium text-text">
@@ -365,11 +370,11 @@ export function TaskForm({
                             </label>
                             <select
                                 value={projectId ?? ''}
-                                onChange={(e) =>
-                                    setProjectId(
-                                        e.target.value ? Number(e.target.value) : undefined,
-                                    )
-                                }
+                                onChange={(e) => {
+                                    const newProjectId = e.target.value ? Number(e.target.value) : undefined;
+                                    setProjectId(newProjectId);
+                                    setHeadingId(undefined);
+                                }}
                                 className="h-9 w-full cursor-pointer rounded-lg border border-border bg-bg px-3 text-sm text-text shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1"
                             >
                                 <option value="">No project</option>
@@ -403,6 +408,42 @@ export function TaskForm({
                             </select>
                         </div>
                     </div>
+
+                    {/* Heading — only shown when a project with headings is selected */}
+                    {(() => {
+                        const selectedProject = projectId
+                            ? projects.find((p) => p.id === projectId)
+                            : undefined;
+                        const availableHeadings = selectedProject?.headings?.filter(
+                            (h) => !h.archived_at,
+                        );
+
+                        if (!availableHeadings || availableHeadings.length === 0) return null;
+
+                        return (
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-text">
+                                    Heading
+                                </label>
+                                <select
+                                    value={headingId ?? ''}
+                                    onChange={(e) =>
+                                        setHeadingId(
+                                            e.target.value ? Number(e.target.value) : undefined,
+                                        )
+                                    }
+                                    className="h-9 w-full cursor-pointer rounded-lg border border-border bg-bg px-3 text-sm text-text shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1"
+                                >
+                                    <option value="">No heading</option>
+                                    {availableHeadings.map((heading) => (
+                                        <option key={heading.id} value={heading.id}>
+                                            {heading.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        );
+                    })()}
 
                     <Separator />
 

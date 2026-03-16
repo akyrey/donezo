@@ -64,6 +64,7 @@ class HandleInertiaRequests extends Middleware
                         ->projects()
                         ->where('status', 'active')
                         ->withCount(['tasks as task_count', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')])
+                        ->with(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count')])
                         ->orderBy('position')
                         ->get()
                 )
