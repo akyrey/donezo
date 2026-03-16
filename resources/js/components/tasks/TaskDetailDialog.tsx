@@ -85,18 +85,6 @@ export function TaskDetailDialog({
                                     : 'View task details, checklist items, and metadata.'}
                             </DialogDescription>
                         </div>
-
-                        {isEditing && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="shrink-0 gap-2 text-text-secondary"
-                                onClick={() => setIsEditing(false)}
-                            >
-                                <ArrowLeft className="h-4 w-4" />
-                                Back
-                            </Button>
-                        )}
                     </div>
                 </DialogHeader>
 
