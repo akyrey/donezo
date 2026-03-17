@@ -5,23 +5,23 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 export default defineConfig({
-    plugins: [
-        laravel({
-            input: ['resources/css/app.css', 'resources/js/app.tsx'],
-            refresh: true,
-            ssr: 'resources/js/ssr.tsx',
-        }),
-        tailwindcss(),
-        react(),
-    ],
-    resolve: {
-        alias: {
-            '@': resolve(__dirname, 'resources/js'),
-        },
+  plugins: [
+    laravel({
+      input: ['resources/css/app.css', 'resources/js/app.tsx'],
+      refresh: true,
+      ssr: 'resources/js/ssr.tsx',
+    }),
+    tailwindcss(),
+    react(),
+  ],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'resources/js'),
     },
-    server: {
-        watch: {
-            ignored: ['**/storage/framework/views/**'],
-        },
+  },
+  server: {
+    watch: {
+      ignored: ['**/storage/framework/views/**'],
     },
+  },
 });

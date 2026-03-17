@@ -24,12 +24,14 @@ Donezo is a Things-inspired (https://culturedcode.com/things/) task management a
 ## 2. Tech Stack
 
 ### Backend
+
 - PHP 8.5, Laravel 12, Inertia.js 2, Sanctum 4, Socialite 5
 - Spatie LaravelData 4 (DTOs for request validation + response shaping)
 - Google API Client 2.19 (Calendar sync), minishlink/web-push 10 (Push notifications)
 - Database: PostgreSQL (via Sail), Redis for queues/cache
 
 ### Frontend
+
 - React 19, TypeScript 5.9, Vite 7
 - @tanstack/react-query 5 (data fetching + mutations)
 - @dnd-kit/core 6 + @dnd-kit/utilities 3 (drag-and-drop)
@@ -39,6 +41,7 @@ Donezo is a Things-inspired (https://culturedcode.com/things/) task management a
 - ziggy-js (Laravel named routes in JS via `route()`)
 
 ### Build
+
 - `composer dev` runs concurrently: `php artisan serve`, `php artisan queue:listen`, `php artisan pail`, `npm run dev`
 - TypeScript check: `./vendor/bin/sail npx tsc --noEmit`
 
@@ -100,10 +103,12 @@ routes/
 ## 4. Database Models & Relationships
 
 ### User
+
 - hasMany: sections, projects, tasks, tags, pushSubscriptions, socialAccounts, ownedGroups
 - belongsToMany: groups (pivot: role)
 
 ### Task
+
 - SoftDeletes
 - Fields: user_id, project_id?, section_id?, heading_id?, title, description?, status (inbox|today|upcoming|anytime|someday|completed|cancelled), previous_status, is_evening, scheduled_at?, deadline_at?, completed_at?, cancelled_at?, repeat_rule?, position, created_by?, assigned_to?, google_calendar_event_id?
 - belongsTo: user, project?, section?, heading?, creator?, assignee?
@@ -112,41 +117,51 @@ routes/
 - Scopes: inbox, today, upcoming, anytime, someday, completed, cancelled, evening, overdue, dueToday
 
 ### Project (SoftDeletes)
+
 - Fields: user_id, section_id?, name, description?, status (active|completed|archived), position, completed_at?
 - belongsTo: user, section?; hasMany: tasks, headings
 
 ### Section (SoftDeletes)
+
 - Fields: user_id, name, position
 - belongsTo: user; hasMany: projects, tasks
 
 ### Heading
+
 - Fields: project_id, name, position, archived_at?
 - belongsTo: project; hasMany: tasks
 
 ### Tag
+
 - Fields: user_id, name, color?
 - belongsTo: user; belongsToMany: tasks
 
 ### ChecklistItem
+
 - Fields: task_id, title, is_completed, position
 
 ### Reminder
+
 - Fields: task_id, remind_at, is_sent
 
 ### Group (SoftDeletes)
+
 - Fields: name, description?, owner_id
 - belongsTo: owner; belongsToMany: members (pivot: role), tasks; hasMany: invitations
 
 ### GroupInvitation
+
 - Fields: group_id, invited_by, email, token (64-char unique), role (default 'member'), accepted_at?, expires_at (7-day TTL)
 - Unique constraint on (group_id, email) — only one pending invite per email+group
 - belongsTo: group, inviter (User via invited_by)
 - Helpers: isPending(), isExpired(), isAccepted()
 
 ### PushSubscription
+
 - Fields: user_id, endpoint, p256dh_key, auth_token, content_encoding
 
 ### SocialAccount
+
 - Fields: user_id, provider, provider_id, provider_token, provider_refresh_token, token_expires_at, scopes
 - belongsTo: user
 - Hidden fields: provider_token, provider_refresh_token
@@ -239,6 +254,7 @@ DELETE         /social-accounts/{socialAccount}
 ## 6. Inertia Shared Data (every authenticated page)
 
 Via `HandleInertiaRequests` middleware:
+
 - `auth.user` -- UserData DTO
 - `projects` -- Active ProjectData[] ordered by position (with task_count, completed_task_count)
 - `sections` -- SectionData[] ordered by position
@@ -250,21 +266,21 @@ Via `HandleInertiaRequests` middleware:
 
 ## 7. Pages & Their Props
 
-| Page | Props | Layout Props |
-|---|---|---|
-| Inbox | `{ tasks: Task[] }` | `taskContext="inbox"` |
-| Today | `{ morning_tasks, evening_tasks, overdue_tasks: Task[] }` | `taskContext="today"` |
-| Upcoming | `{ grouped_tasks: Record<string, Task[]>, start_date? }` | `taskContext="upcoming"` |
-| Anytime | `{ tasks: Task[] }` | `taskContext="anytime"` |
-| Someday | `{ tasks: Task[] }` | `taskContext="someday"` |
-| Logbook | `{ tasks: Paginated<Task> }` | (none) |
-| Projects/Index | `{ projects: Project[], openDialog? }` | (none) |
-| Projects/Show | `{ project, tasks, headings }` | `taskContext="project" defaultProjectId={project.id}` |
-| Sections/Show | `{ section, projects, tasks }` | (none) |
-| Groups/Index | `{ groups: Group[] }` | (none) |
-| Groups/Show | `{ group, members, tasks }` | (none) |
-| Groups/AcceptInvitation | `{ invitation: { token, email, role, expired, group, inviter, expires_at } }` | (none, GuestLayout) |
-| Settings/Index | `{ calendarStatus, hasGoogleAccount, hasPushSubscriptions, socialAccounts: SocialAccount[], hasPassword: boolean }` | (none) |
+| Page                    | Props                                                                                                               | Layout Props                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Inbox                   | `{ tasks: Task[] }`                                                                                                 | `taskContext="inbox"`                                 |
+| Today                   | `{ morning_tasks, evening_tasks, overdue_tasks: Task[] }`                                                           | `taskContext="today"`                                 |
+| Upcoming                | `{ grouped_tasks: Record<string, Task[]>, start_date? }`                                                            | `taskContext="upcoming"`                              |
+| Anytime                 | `{ tasks: Task[] }`                                                                                                 | `taskContext="anytime"`                               |
+| Someday                 | `{ tasks: Task[] }`                                                                                                 | `taskContext="someday"`                               |
+| Logbook                 | `{ tasks: Paginated<Task> }`                                                                                        | (none)                                                |
+| Projects/Index          | `{ projects: Project[], openDialog? }`                                                                              | (none)                                                |
+| Projects/Show           | `{ project, tasks, headings }`                                                                                      | `taskContext="project" defaultProjectId={project.id}` |
+| Sections/Show           | `{ section, projects, tasks }`                                                                                      | (none)                                                |
+| Groups/Index            | `{ groups: Group[] }`                                                                                               | (none)                                                |
+| Groups/Show             | `{ group, members, tasks }`                                                                                         | (none)                                                |
+| Groups/AcceptInvitation | `{ invitation: { token, email, role, expired, group, inviter, expires_at } }`                                       | (none, GuestLayout)                                   |
+| Settings/Index          | `{ calendarStatus, hasGoogleAccount, hasPushSubscriptions, socialAccounts: SocialAccount[], hasPassword: boolean }` | (none)                                                |
 
 ---
 
@@ -273,6 +289,7 @@ Via `HandleInertiaRequests` middleware:
 Wraps everything in `DndContext` (@dnd-kit).
 
 **Sidebar** (left, 256px, mobile drawer):
+
 - Nav items (Inbox, Today, Upcoming, Anytime, Someday, Logbook) -- each is a droppable target
 - Projects list -- each is a droppable target
 - Sections list -- each is a droppable target
@@ -280,10 +297,12 @@ Wraps everything in `DndContext` (@dnd-kit).
 - User menu (Settings, Logout)
 
 **Main area**:
+
 - Top bar: hamburger (mobile), page title, Quick Find button (opens CommandPalette)
 - Content: `children` inside `max-w-3xl`, `pb-24` for FAB clearance
 
 **FAB** (fixed bottom-right, all screen sizes):
+
 - **Tap** (click): opens AddTaskDialog with page-level `taskContext`/`defaultProjectId`
 - **Drag** (8px activation distance): starts DnD, auto-opens sidebar on mobile, shows ghost overlay. Drop on nav item sets that status context, drop on project sets that project. Opens AddTaskDialog with resolved context.
 
@@ -304,10 +323,12 @@ Wraps everything in `DndContext` (@dnd-kit).
 ## 10. Key Patterns
 
 ### Data Flow
+
 - Server-rendered pages via Inertia (Web controllers query + DTO transform + `Inertia::render()`)
 - Client-side mutations via React Query + Axios (hit API v1, invalidate caches, AND `router.reload()` to re-sync Inertia page props)
 
 ### Task Completion with Undo
+
 1. Checkbox click triggers `animate-task-complete` CSS animation
 2. After 350ms, fires `useCompleteTaskMutation`
 3. On success, dispatches `CustomEvent('task-completed')` on `window`
@@ -315,6 +336,7 @@ Wraps everything in `DndContext` (@dnd-kit).
 5. Undo calls uncomplete mutation (restores `previous_status`)
 
 ### Group Invitation Flow
+
 1. Owner opens the "Invite Member" dialog on Groups/Show and submits an email
 2. `POST /api/v1/groups/{group}/invitations` creates a `GroupInvitation` (7-day TTL, unique token) and queues `GroupInvitationMail`
    - **Existing user**: email contains a direct accept link → `GET /invitations/{token}` (Inertia page) → user clicks "Accept" → `POST /api/v1/invitations/{token}/accept`
@@ -323,6 +345,7 @@ Wraps everything in `DndContext` (@dnd-kit).
 4. Re-inviting the same email replaces any existing pending invitation atomically
 
 ### Google Calendar Sync
+
 - `SyncTaskToCalendar` job dispatched on task create/update with dates
 - `RemoveCalendarEvent` job dispatched on task delete/complete
 - `GoogleCalendarService` handles OAuth token refresh, event CRUD
@@ -365,6 +388,7 @@ Defined in `resources/js/types/index.d.ts`:
 **Stack**: Pest 3.8 + PHPUnit 11.5.3, SQLite in-memory DB (configured in `phpunit.xml`), sync queue, array mail driver.
 
 **Run tests**:
+
 ```bash
 ./vendor/bin/sail artisan test
 ./vendor/bin/sail artisan test --filter GroupInvitation   # single suite
@@ -372,6 +396,7 @@ Defined in `resources/js/types/index.d.ts`:
 ```
 
 **Test layout**:
+
 ```
 tests/
   Unit/Models/
@@ -392,6 +417,7 @@ tests/
 ```
 
 **Key patterns**:
+
 - Feature tests use `RefreshDatabase` via `Pest.php` (applied to the whole `Feature/` directory)
 - Unit model tests declare `uses(RefreshDatabase::class)` individually (Unit tests don't get it by default)
 - Mail is faked with `Mail::fake()` + `Mail::assertQueued(GroupInvitationMail::class, fn($m) => ...)`
@@ -406,12 +432,14 @@ Hand-written `openapi.yaml` at the project root (OpenAPI 3.1.0). No PHP annotati
 **Covered tags**: Tasks, Projects, Sections, Tags, Checklist Items, Reminders, Headings, Groups, Group Invitations, Search, Calendar, Push Subscriptions, Connected Accounts
 
 **Group Invitations endpoints** (added with the invitation feature):
+
 - `GET  /groups/{groupId}/invitations` — list pending (owner only)
 - `POST /groups/{groupId}/invitations` — send invite by email (owner only)
 - `DELETE /groups/{groupId}/invitations/{invitationId}` — cancel invite (owner only)
 - `POST /invitations/{token}/accept` — accept by token (authenticated, email must match)
 
 **Connected Accounts endpoints**:
+
 - `DELETE /social-accounts/{socialAccountId}` — disconnect a social account (owner only; blocked if user has no password and it's their only account)
 
 **Schemas**: `GroupInvitation`, `CreateGroupInvitation` added alongside `Group`, `CreateGroup`, `UpdateGroup`. `SocialAccount` schema added for the Connected Accounts tag.

@@ -5,44 +5,37 @@ import type { Heading } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface SortableHeadingProps {
-    heading: Heading;
-    taskCount: number;
-    /** Rendered inside the sortable wrapper — heading title + collapse trigger + actions */
-    children: React.ReactNode;
+  heading: Heading;
+  taskCount: number;
+  /** Rendered inside the sortable wrapper — heading title + collapse trigger + actions */
+  children: React.ReactNode;
 }
 
 export function SortableHeading({
-    heading,
-    taskCount: _taskCount,
-    children,
+  heading,
+  taskCount: _taskCount,
+  children,
 }: SortableHeadingProps) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({
-        id: `heading:${heading.id}`,
-        data: { type: 'heading', heading },
-    });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: `heading:${heading.id}`,
+    data: { type: 'heading', heading },
+  });
 
-    const style: React.CSSProperties = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.4 : undefined,
-    };
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : undefined,
+  };
 
-    return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            className={cn('touch-none select-none cursor-grab active:cursor-grabbing')}
-            {...attributes}
-            {...listeners}
-        >
-            {children}
-        </div>
-    );
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn('cursor-grab touch-none select-none active:cursor-grabbing')}
+      {...attributes}
+      {...listeners}
+    >
+      {children}
+    </div>
+  );
 }

@@ -169,7 +169,7 @@ npx tsc --noEmit
 ### Docker services
 
 | Service  | Port | Description                |
-|----------|------|----------------------------|
+| -------- | ---- | -------------------------- |
 | App      | 80   | Laravel application        |
 | Vite     | 5173 | Frontend dev server        |
 | Postgres | 5432 | Database                   |
@@ -187,7 +187,7 @@ The full API specification is available as an [OpenAPI 3.1](https://spec.openapi
 ### Resources
 
 | Endpoint                                | Methods          | Description            |
-|-----------------------------------------|------------------|------------------------|
+| --------------------------------------- | ---------------- | ---------------------- |
 | `/api/v1/tasks`                         | GET, POST        | List/create tasks      |
 | `/api/v1/tasks/{task}`                  | GET, PUT, DELETE | Read/update/delete     |
 | `/api/v1/tasks/{task}/complete`         | POST             | Mark complete          |
@@ -224,7 +224,7 @@ The full API specification is available as an [OpenAPI 3.1](https://spec.openapi
 Key variables to configure in `.env`:
 
 | Variable                  | Description                              |
-|---------------------------|------------------------------------------|
+| ------------------------- | ---------------------------------------- |
 | `DB_*`                    | PostgreSQL connection settings           |
 | `GOOGLE_CLIENT_ID`        | Google OAuth client ID                   |
 | `GOOGLE_CLIENT_SECRET`    | Google OAuth client secret               |

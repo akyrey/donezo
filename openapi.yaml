@@ -66,7 +66,7 @@ paths:
         - name: status
           in: query
           schema:
-            $ref: "#/components/schemas/TaskStatus"
+            $ref: '#/components/schemas/TaskStatus'
         - name: project_id
           in: query
           schema:
@@ -106,7 +106,7 @@ paths:
             type: integer
             default: 1
       responses:
-        "200":
+        '200':
           description: Paginated list of tasks
           content:
             application/json:
@@ -117,11 +117,11 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Task"
+                      $ref: '#/components/schemas/Task'
                   meta:
-                    $ref: "#/components/schemas/PaginationMeta"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
     post:
       operationId: createTask
       tags: [Tasks]
@@ -131,9 +131,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateTask"
+              $ref: '#/components/schemas/CreateTask'
       responses:
-        "201":
+        '201':
           description: Task created
           content:
             application/json:
@@ -142,21 +142,21 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Task"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /tasks/{taskId}:
     parameters:
-      - $ref: "#/components/parameters/taskId"
+      - $ref: '#/components/parameters/taskId'
     get:
       operationId: getTask
       tags: [Tasks]
       summary: Get a single task
       responses:
-        "200":
+        '200':
           description: Task details
           content:
             application/json:
@@ -165,11 +165,11 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Task"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                    $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     put:
       operationId: updateTask
       tags: [Tasks]
@@ -179,9 +179,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateTask"
+              $ref: '#/components/schemas/UpdateTask'
       responses:
-        "200":
+        '200':
           description: Task updated
           content:
             application/json:
@@ -190,34 +190,34 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Task"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteTask
       tags: [Tasks]
       summary: Soft-delete a task
       responses:
-        "204":
+        '204':
           description: Task deleted
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /tasks/{taskId}/complete:
     parameters:
-      - $ref: "#/components/parameters/taskId"
+      - $ref: '#/components/parameters/taskId'
     post:
       operationId: completeTask
       tags: [Tasks]
       summary: Mark a task as complete
       responses:
-        "200":
+        '200':
           description: Task completed
           content:
             application/json:
@@ -226,21 +226,21 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Task"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                    $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /tasks/{taskId}/uncomplete:
     parameters:
-      - $ref: "#/components/parameters/taskId"
+      - $ref: '#/components/parameters/taskId'
     post:
       operationId: uncompleteTask
       tags: [Tasks]
       summary: Unmark a task as complete (resets to inbox)
       responses:
-        "200":
+        '200':
           description: Task uncompleted
           content:
             application/json:
@@ -249,11 +249,11 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Task"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                    $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /tasks/reorder:
     post:
@@ -280,16 +280,16 @@ paths:
                         type: integer
                         minimum: 0
       responses:
-        "200":
+        '200':
           description: Tasks reordered
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MessageResponse"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   # ── Exports ──────────────────────────────────────────────────────────
   /tasks/export:
@@ -306,22 +306,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ExportAllTasksRequest"
+              $ref: '#/components/schemas/ExportAllTasksRequest'
       responses:
-        "200":
+        '200':
           description: Export queued
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MessageResponse"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /projects/{projectId}/export:
     parameters:
-      - $ref: "#/components/parameters/projectId"
+      - $ref: '#/components/parameters/projectId'
     post:
       operationId: exportProjectTasks
       tags: [Exports]
@@ -330,20 +330,20 @@ paths:
         Queues an `ExportTasksJob` scoped to the given project.
         Returns 403 if the authenticated user is not the project owner.
       responses:
-        "200":
+        '200':
           description: Export queued
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MessageResponse"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /groups/{groupId}/export:
     parameters:
-      - $ref: "#/components/parameters/groupId"
+      - $ref: '#/components/parameters/groupId'
     post:
       operationId: exportGroupTasks
       tags: [Exports]
@@ -352,16 +352,16 @@ paths:
         Queues an `ExportTasksJob` scoped to tasks shared with the given group.
         Returns 403 if the authenticated user is neither owner nor member.
       responses:
-        "200":
+        '200':
           description: Export queued
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MessageResponse"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /exports/download:
     get:
@@ -381,18 +381,18 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: CSV file stream
           content:
             text/csv:
               schema:
                 type: string
                 format: binary
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
           description: Export file not found or has expired
 
   # ── Projects ─────────────────────────────────────────────────────────
@@ -402,7 +402,7 @@ paths:
       tags: [Projects]
       summary: List all projects for the authenticated user
       responses:
-        "200":
+        '200':
           description: List of projects
           content:
             application/json:
@@ -413,9 +413,9 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Project"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
+                      $ref: '#/components/schemas/Project'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
     post:
       operationId: createProject
       tags: [Projects]
@@ -425,9 +425,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateProject"
+              $ref: '#/components/schemas/CreateProject'
       responses:
-        "201":
+        '201':
           description: Project created
           content:
             application/json:
@@ -436,21 +436,21 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Project"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Project'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /projects/{projectId}:
     parameters:
-      - $ref: "#/components/parameters/projectId"
+      - $ref: '#/components/parameters/projectId'
     get:
       operationId: getProject
       tags: [Projects]
       summary: Get a single project
       responses:
-        "200":
+        '200':
           description: Project details
           content:
             application/json:
@@ -459,11 +459,11 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Project"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                    $ref: '#/components/schemas/Project'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     put:
       operationId: updateProject
       tags: [Projects]
@@ -473,9 +473,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateProject"
+              $ref: '#/components/schemas/UpdateProject'
       responses:
-        "200":
+        '200':
           description: Project updated
           content:
             application/json:
@@ -484,24 +484,24 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Project"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Project'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteProject
       tags: [Projects]
       summary: Soft-delete a project
       responses:
-        "204":
+        '204':
           description: Project deleted
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   # ── Sections ─────────────────────────────────────────────────────────
   /sections:
@@ -510,7 +510,7 @@ paths:
       tags: [Sections]
       summary: List all sections for the authenticated user
       responses:
-        "200":
+        '200':
           description: List of sections
           content:
             application/json:
@@ -521,9 +521,9 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Section"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
+                      $ref: '#/components/schemas/Section'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
     post:
       operationId: createSection
       tags: [Sections]
@@ -533,9 +533,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateSection"
+              $ref: '#/components/schemas/CreateSection'
       responses:
-        "201":
+        '201':
           description: Section created
           content:
             application/json:
@@ -544,21 +544,21 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Section"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Section'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /sections/{sectionId}:
     parameters:
-      - $ref: "#/components/parameters/sectionId"
+      - $ref: '#/components/parameters/sectionId'
     get:
       operationId: getSection
       tags: [Sections]
       summary: Get a single section
       responses:
-        "200":
+        '200':
           description: Section details
           content:
             application/json:
@@ -567,11 +567,11 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Section"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                    $ref: '#/components/schemas/Section'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     put:
       operationId: updateSection
       tags: [Sections]
@@ -581,9 +581,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateSection"
+              $ref: '#/components/schemas/UpdateSection'
       responses:
-        "200":
+        '200':
           description: Section updated
           content:
             application/json:
@@ -592,24 +592,24 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Section"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Section'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteSection
       tags: [Sections]
       summary: Soft-delete a section
       responses:
-        "204":
+        '204':
           description: Section deleted
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   # ── Tags ─────────────────────────────────────────────────────────────
   /tags:
@@ -618,7 +618,7 @@ paths:
       tags: [Tags]
       summary: List all tags for the authenticated user
       responses:
-        "200":
+        '200':
           description: List of tags
           content:
             application/json:
@@ -629,9 +629,9 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Tag"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
+                      $ref: '#/components/schemas/Tag'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
     post:
       operationId: createTag
       tags: [Tags]
@@ -641,9 +641,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateTag"
+              $ref: '#/components/schemas/CreateTag'
       responses:
-        "201":
+        '201':
           description: Tag created
           content:
             application/json:
@@ -652,21 +652,21 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Tag"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Tag'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /tags/{tagId}:
     parameters:
-      - $ref: "#/components/parameters/tagId"
+      - $ref: '#/components/parameters/tagId'
     get:
       operationId: getTag
       tags: [Tags]
       summary: Get a single tag
       responses:
-        "200":
+        '200':
           description: Tag details
           content:
             application/json:
@@ -675,11 +675,11 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Tag"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                    $ref: '#/components/schemas/Tag'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     put:
       operationId: updateTag
       tags: [Tags]
@@ -689,9 +689,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateTag"
+              $ref: '#/components/schemas/UpdateTag'
       responses:
-        "200":
+        '200':
           description: Tag updated
           content:
             application/json:
@@ -700,35 +700,35 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Tag"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Tag'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteTag
       tags: [Tags]
       summary: Delete a tag (detaches from all tasks)
       responses:
-        "204":
+        '204':
           description: Tag deleted
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   # ── Checklist Items ──────────────────────────────────────────────────
   /tasks/{taskId}/checklist-items:
     parameters:
-      - $ref: "#/components/parameters/taskId"
+      - $ref: '#/components/parameters/taskId'
     get:
       operationId: listChecklistItems
       tags: [Checklist Items]
       summary: List checklist items for a task
       responses:
-        "200":
+        '200':
           description: List of checklist items
           content:
             application/json:
@@ -739,11 +739,11 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/ChecklistItem"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                      $ref: '#/components/schemas/ChecklistItem'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     post:
       operationId: createChecklistItem
       tags: [Checklist Items]
@@ -760,7 +760,7 @@ paths:
                   type: string
                   maxLength: 500
       responses:
-        "201":
+        '201':
           description: Checklist item created
           content:
             application/json:
@@ -769,23 +769,23 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/ChecklistItem"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/ChecklistItem'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /checklist-items/{checklistItemId}:
     parameters:
-      - $ref: "#/components/parameters/checklistItemId"
+      - $ref: '#/components/parameters/checklistItemId'
     get:
       operationId: getChecklistItem
       tags: [Checklist Items]
       summary: Get a single checklist item
       responses:
-        "200":
+        '200':
           description: Checklist item details
           content:
             application/json:
@@ -794,11 +794,11 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/ChecklistItem"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                    $ref: '#/components/schemas/ChecklistItem'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     put:
       operationId: updateChecklistItem
       tags: [Checklist Items]
@@ -819,7 +819,7 @@ paths:
                   type: integer
                   minimum: 0
       responses:
-        "200":
+        '200':
           description: Checklist item updated
           content:
             application/json:
@@ -828,34 +828,34 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/ChecklistItem"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/ChecklistItem'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteChecklistItem
       tags: [Checklist Items]
       summary: Delete a checklist item
       responses:
-        "204":
+        '204':
           description: Checklist item deleted
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /checklist-items/{checklistItemId}/toggle:
     parameters:
-      - $ref: "#/components/parameters/checklistItemId"
+      - $ref: '#/components/parameters/checklistItemId'
     post:
       operationId: toggleChecklistItem
       tags: [Checklist Items]
       summary: Toggle the completion state of a checklist item
       responses:
-        "200":
+        '200':
           description: Checklist item toggled
           content:
             application/json:
@@ -864,22 +864,22 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/ChecklistItem"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                    $ref: '#/components/schemas/ChecklistItem'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   # ── Reminders ────────────────────────────────────────────────────────
   /tasks/{taskId}/reminders:
     parameters:
-      - $ref: "#/components/parameters/taskId"
+      - $ref: '#/components/parameters/taskId'
     get:
       operationId: listReminders
       tags: [Reminders]
       summary: List reminders for a task
       responses:
-        "200":
+        '200':
           description: List of reminders
           content:
             application/json:
@@ -890,11 +890,11 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Reminder"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                      $ref: '#/components/schemas/Reminder'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     post:
       operationId: createReminder
       tags: [Reminders]
@@ -912,7 +912,7 @@ paths:
                   format: date-time
                   description: Must be a future date/time
       responses:
-        "201":
+        '201':
           description: Reminder created
           content:
             application/json:
@@ -921,23 +921,23 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Reminder"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Reminder'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /reminders/{reminderId}:
     parameters:
-      - $ref: "#/components/parameters/reminderId"
+      - $ref: '#/components/parameters/reminderId'
     get:
       operationId: getReminder
       tags: [Reminders]
       summary: Get a single reminder
       responses:
-        "200":
+        '200':
           description: Reminder details
           content:
             application/json:
@@ -946,11 +946,11 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Reminder"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                    $ref: '#/components/schemas/Reminder'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     put:
       operationId: updateReminder
       tags: [Reminders]
@@ -968,7 +968,7 @@ paths:
                   format: date-time
                   description: Must be a future date/time
       responses:
-        "200":
+        '200':
           description: Reminder updated
           content:
             application/json:
@@ -977,35 +977,35 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Reminder"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Reminder'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteReminder
       tags: [Reminders]
       summary: Delete a reminder
       responses:
-        "204":
+        '204':
           description: Reminder deleted
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   # ── Headings ─────────────────────────────────────────────────────────
   /projects/{projectId}/headings:
     parameters:
-      - $ref: "#/components/parameters/projectId"
+      - $ref: '#/components/parameters/projectId'
     get:
       operationId: listHeadings
       tags: [Headings]
       summary: List headings for a project
       responses:
-        "200":
+        '200':
           description: List of headings
           content:
             application/json:
@@ -1016,11 +1016,11 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Heading"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                      $ref: '#/components/schemas/Heading'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     post:
       operationId: createHeading
       tags: [Headings]
@@ -1037,7 +1037,7 @@ paths:
                   type: string
                   maxLength: 255
       responses:
-        "201":
+        '201':
           description: Heading created
           content:
             application/json:
@@ -1046,23 +1046,23 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Heading"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Heading'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /headings/{headingId}:
     parameters:
-      - $ref: "#/components/parameters/headingId"
+      - $ref: '#/components/parameters/headingId'
     get:
       operationId: getHeading
       tags: [Headings]
       summary: Get a single heading
       responses:
-        "200":
+        '200':
           description: Heading details
           content:
             application/json:
@@ -1071,11 +1071,11 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Heading"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                    $ref: '#/components/schemas/Heading'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     put:
       operationId: updateHeading
       tags: [Headings]
@@ -1094,7 +1094,7 @@ paths:
                   type: integer
                   minimum: 0
       responses:
-        "200":
+        '200':
           description: Heading updated
           content:
             application/json:
@@ -1103,24 +1103,24 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Heading"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Heading'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteHeading
       tags: [Headings]
       summary: Delete a heading (unassigns tasks first)
       responses:
-        "204":
+        '204':
           description: Heading deleted
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /headings/reorder:
     post:
@@ -1147,16 +1147,16 @@ paths:
                         type: integer
                         minimum: 0
       responses:
-        "200":
+        '200':
           description: Headings reordered
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MessageResponse"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   # ── Groups ───────────────────────────────────────────────────────────
   /groups:
@@ -1165,7 +1165,7 @@ paths:
       tags: [Groups]
       summary: List groups the user owns or belongs to
       responses:
-        "200":
+        '200':
           description: List of groups
           content:
             application/json:
@@ -1176,9 +1176,9 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Group"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
+                      $ref: '#/components/schemas/Group'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
     post:
       operationId: createGroup
       tags: [Groups]
@@ -1189,9 +1189,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateGroup"
+              $ref: '#/components/schemas/CreateGroup'
       responses:
-        "201":
+        '201':
           description: Group created
           content:
             application/json:
@@ -1200,22 +1200,22 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Group"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Group'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /groups/{groupId}:
     parameters:
-      - $ref: "#/components/parameters/groupId"
+      - $ref: '#/components/parameters/groupId'
     get:
       operationId: getGroup
       tags: [Groups]
       summary: Get a single group with members
       description: Accessible to group owner and members.
       responses:
-        "200":
+        '200':
           description: Group details with member list
           content:
             application/json:
@@ -1224,15 +1224,15 @@ paths:
                 required: [data, members]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Group"
+                    $ref: '#/components/schemas/Group'
                   members:
                     type: array
                     items:
-                      $ref: "#/components/schemas/User"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                      $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     put:
       operationId: updateGroup
       tags: [Groups]
@@ -1242,9 +1242,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateGroup"
+              $ref: '#/components/schemas/UpdateGroup'
       responses:
-        "200":
+        '200':
           description: Group updated
           content:
             application/json:
@@ -1253,35 +1253,35 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Group"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                    $ref: '#/components/schemas/Group'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteGroup
       tags: [Groups]
       summary: Soft-delete a group (owner only)
       responses:
-        "204":
+        '204':
           description: Group deleted
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /groups/{groupId}/invitations:
     parameters:
-      - $ref: "#/components/parameters/groupId"
+      - $ref: '#/components/parameters/groupId'
     get:
       operationId: listGroupInvitations
       tags: [Group Invitations]
       summary: List pending invitations for a group (owner only)
       description: Returns only pending (not accepted, not expired) invitations.
       responses:
-        "200":
+        '200':
           description: List of pending invitations
           content:
             application/json:
@@ -1292,11 +1292,11 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/GroupInvitation"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                      $ref: '#/components/schemas/GroupInvitation'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     post:
       operationId: sendGroupInvitation
       tags: [Group Invitations]
@@ -1314,9 +1314,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateGroupInvitation"
+              $ref: '#/components/schemas/CreateGroupInvitation'
       responses:
-        "201":
+        '201':
           description: Invitation sent
           content:
             application/json:
@@ -1325,23 +1325,23 @@ paths:
                 required: [data, message]
                 properties:
                   data:
-                    $ref: "#/components/schemas/GroupInvitation"
+                    $ref: '#/components/schemas/GroupInvitation'
                   message:
                     type: string
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
           description: Target user is already a member or validation failed
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
   /groups/{groupId}/invitations/{invitationId}:
     parameters:
-      - $ref: "#/components/parameters/groupId"
+      - $ref: '#/components/parameters/groupId'
       - name: invitationId
         in: path
         required: true
@@ -1352,18 +1352,18 @@ paths:
       tags: [Group Invitations]
       summary: Cancel a pending invitation (owner only)
       responses:
-        "204":
+        '204':
           description: Invitation cancelled
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
           description: Invitation not found or belongs to a different group
 
   /groups/{groupId}/members/{userId}:
     parameters:
-      - $ref: "#/components/parameters/groupId"
+      - $ref: '#/components/parameters/groupId'
       - name: userId
         in: path
         required: true
@@ -1374,7 +1374,7 @@ paths:
       tags: [Groups]
       summary: Remove a member from a group (owner only, cannot remove owner)
       responses:
-        "200":
+        '200':
           description: Member removed
           content:
             application/json:
@@ -1383,21 +1383,21 @@ paths:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/Group"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
+                    $ref: '#/components/schemas/Group'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
           description: Cannot remove the group owner
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
   /groups/{groupId}/tasks:
     parameters:
-      - $ref: "#/components/parameters/groupId"
+      - $ref: '#/components/parameters/groupId'
     post:
       operationId: shareTasksWithGroup
       tags: [Groups]
@@ -1416,7 +1416,7 @@ paths:
                   items:
                     type: integer
       responses:
-        "200":
+        '200':
           description: Tasks shared
           content:
             application/json:
@@ -1427,13 +1427,13 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Task"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                      $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /invitations/{token}/accept:
     parameters:
@@ -1451,7 +1451,7 @@ paths:
         The authenticated user's email must match the invitation email.
         On success the user is added to the group with the role specified in the invitation.
       responses:
-        "200":
+        '200':
           description: Invitation accepted, user joined the group
           content:
             application/json:
@@ -1463,28 +1463,28 @@ paths:
                     type: string
                   group_id:
                     type: integer
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
           description: Email mismatch — invitation was sent to a different address
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "404":
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
           description: Token not found or invitation already accepted
-        "410":
+        '410':
           description: Invitation has expired
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "422":
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
           description: User is already a member of the group
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
   # ── Search ───────────────────────────────────────────────────────────
   /search:
@@ -1511,7 +1511,7 @@ paths:
             type: integer
             default: 10
       responses:
-        "200":
+        '200':
           description: Search results grouped by entity type
           content:
             application/json:
@@ -1522,23 +1522,23 @@ paths:
                   tasks:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Task"
+                      $ref: '#/components/schemas/Task'
                   projects:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Project"
+                      $ref: '#/components/schemas/Project'
                   sections:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Section"
+                      $ref: '#/components/schemas/Section'
                   tags:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Tag"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+                      $ref: '#/components/schemas/Tag'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   # ── Calendar ─────────────────────────────────────────────────────────
   /calendar/status:
@@ -1547,7 +1547,7 @@ paths:
       tags: [Calendar]
       summary: Get Google Calendar connection status
       responses:
-        "200":
+        '200':
           description: Calendar connection status
           content:
             application/json:
@@ -1578,8 +1578,8 @@ paths:
                         type: boolean
                       enabled:
                         type: boolean
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
 
   /calendar/disconnect:
     post:
@@ -1590,14 +1590,14 @@ paths:
         Removes the calendar scope from the social account and clears all
         `google_calendar_event_id` values from the user's tasks.
       responses:
-        "200":
+        '200':
           description: Calendar disconnected
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MessageResponse"
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
 
   /calendar/sync:
     post:
@@ -1608,7 +1608,7 @@ paths:
         Queues a `SyncTaskToCalendar` job for each active task that has
         a `scheduled_at` or `deadline_at` date.
       responses:
-        "200":
+        '200':
           description: Sync queued
           content:
             application/json:
@@ -1621,19 +1621,19 @@ paths:
                   count:
                     type: integer
                     description: Number of tasks queued for sync
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
           description: Google Calendar is not connected
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
   # ── Connected Accounts ──────────────────────────────────────────────
   /social-accounts/{socialAccountId}:
     parameters:
-      - $ref: "#/components/parameters/socialAccountId"
+      - $ref: '#/components/parameters/socialAccountId'
     delete:
       operationId: disconnectSocialAccount
       tags: [Connected Accounts]
@@ -1644,18 +1644,18 @@ paths:
         Returns 422 if the user has no password set and this is their only
         remaining social account, to prevent locking them out.
       responses:
-        "204":
+        '204':
           description: Social account disconnected
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "422":
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
           description: Cannot disconnect — would lock the user out
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
   # ── Push Subscriptions ───────────────────────────────────────────────
   /push-subscriptions:
@@ -1669,9 +1669,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreatePushSubscription"
+              $ref: '#/components/schemas/CreatePushSubscription'
       responses:
-        "201":
+        '201':
           description: Subscription stored
           content:
             application/json:
@@ -1688,10 +1688,10 @@ paths:
                       endpoint:
                         type: string
                         format: uri
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deletePushSubscription
       tags: [Push Subscriptions]
@@ -1707,12 +1707,12 @@ paths:
                 endpoint:
                   type: string
       responses:
-        "204":
+        '204':
           description: Subscription removed
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
-        "422":
-          $ref: "#/components/responses/ValidationError"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /push-subscriptions/vapid-key:
     get:
@@ -1720,7 +1720,7 @@ paths:
       tags: [Push Subscriptions]
       summary: Get the VAPID public key for Web Push
       responses:
-        "200":
+        '200':
           description: VAPID public key
           content:
             application/json:
@@ -1730,8 +1730,8 @@ paths:
                 properties:
                   public_key:
                     type: string
-        "401":
-          $ref: "#/components/responses/Unauthenticated"
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
 
 # ════════════════════════════════════════════════════════════════════════
 # Components
@@ -1900,7 +1900,7 @@ components:
           type: string
           nullable: true
         status:
-          $ref: "#/components/schemas/TaskStatus"
+          $ref: '#/components/schemas/TaskStatus'
         is_evening:
           type: boolean
         scheduled_at:
@@ -1920,7 +1920,7 @@ components:
           format: date-time
           nullable: true
         repeat_rule:
-          $ref: "#/components/schemas/RepeatRule"
+          $ref: '#/components/schemas/RepeatRule'
         position:
           type: integer
         project_id:
@@ -1936,24 +1936,24 @@ components:
           type: string
           nullable: true
         creator:
-          $ref: "#/components/schemas/User"
+          $ref: '#/components/schemas/User'
         assignee:
-          $ref: "#/components/schemas/User"
+          $ref: '#/components/schemas/User'
         checklist_items:
           type: array
           nullable: true
           items:
-            $ref: "#/components/schemas/ChecklistItem"
+            $ref: '#/components/schemas/ChecklistItem'
         reminders:
           type: array
           nullable: true
           items:
-            $ref: "#/components/schemas/Reminder"
+            $ref: '#/components/schemas/Reminder'
         tags:
           type: array
           nullable: true
           items:
-            $ref: "#/components/schemas/Tag"
+            $ref: '#/components/schemas/Tag'
         created_at:
           type: string
           format: date-time
@@ -1981,7 +1981,7 @@ components:
           type: string
           nullable: true
         status:
-          $ref: "#/components/schemas/ProjectStatus"
+          $ref: '#/components/schemas/ProjectStatus'
         position:
           type: integer
         section_id:
@@ -1995,7 +1995,7 @@ components:
           type: array
           nullable: true
           items:
-            $ref: "#/components/schemas/Heading"
+            $ref: '#/components/schemas/Heading'
         task_count:
           type: integer
         completed_task_count:
@@ -2021,7 +2021,7 @@ components:
           type: array
           nullable: true
           items:
-            $ref: "#/components/schemas/Project"
+            $ref: '#/components/schemas/Project'
         created_at:
           type: string
           format: date-time
@@ -2097,7 +2097,7 @@ components:
           type: string
           nullable: true
         owner:
-          $ref: "#/components/schemas/User"
+          $ref: '#/components/schemas/User'
         member_count:
           type: integer
 
@@ -2130,7 +2130,7 @@ components:
       required: [frequency]
       properties:
         frequency:
-          $ref: "#/components/schemas/RepeatFrequency"
+          $ref: '#/components/schemas/RepeatFrequency'
         interval:
           type: integer
           minimum: 1
@@ -2158,7 +2158,7 @@ components:
           nullable: true
           maxLength: 10000
         status:
-          $ref: "#/components/schemas/TaskStatus"
+          $ref: '#/components/schemas/TaskStatus'
         is_evening:
           type: boolean
           default: false
@@ -2166,14 +2166,14 @@ components:
           type: string
           format: date
           nullable: true
-          description: "Format: YYYY-MM-DD"
+          description: 'Format: YYYY-MM-DD'
         deadline_at:
           type: string
           format: date
           nullable: true
-          description: "Format: YYYY-MM-DD"
+          description: 'Format: YYYY-MM-DD'
         repeat_rule:
-          $ref: "#/components/schemas/RepeatRule"
+          $ref: '#/components/schemas/RepeatRule'
         project_id:
           type: integer
           nullable: true
@@ -2225,21 +2225,21 @@ components:
           nullable: true
           maxLength: 10000
         status:
-          $ref: "#/components/schemas/TaskStatus"
+          $ref: '#/components/schemas/TaskStatus'
         is_evening:
           type: boolean
         scheduled_at:
           type: string
           format: date
           nullable: true
-          description: "Format: YYYY-MM-DD"
+          description: 'Format: YYYY-MM-DD'
         deadline_at:
           type: string
           format: date
           nullable: true
-          description: "Format: YYYY-MM-DD"
+          description: 'Format: YYYY-MM-DD'
         repeat_rule:
-          $ref: "#/components/schemas/RepeatRule"
+          $ref: '#/components/schemas/RepeatRule'
         project_id:
           type: integer
           nullable: true
@@ -2289,7 +2289,7 @@ components:
           type: integer
           nullable: true
         status:
-          $ref: "#/components/schemas/ProjectStatus"
+          $ref: '#/components/schemas/ProjectStatus'
         position:
           type: integer
           minimum: 0
@@ -2353,7 +2353,7 @@ components:
           type: string
           description: 64-character random token used in the accept link
         role:
-          $ref: "#/components/schemas/GroupRole"
+          $ref: '#/components/schemas/GroupRole'
         accepted_at:
           type: string
           format: date-time
@@ -2375,7 +2375,7 @@ components:
           maxLength: 255
           description: Email address of the person to invite
         role:
-          $ref: "#/components/schemas/GroupRole"
+          $ref: '#/components/schemas/GroupRole'
 
     CreateGroup:
       type: object
@@ -2426,7 +2426,7 @@ components:
       description: All fields are optional.
       properties:
         status:
-          $ref: "#/components/schemas/TaskStatus"
+          $ref: '#/components/schemas/TaskStatus'
           description: Filter to a single status bucket. Omit to export all active tasks.
         include_completed:
           type: boolean
