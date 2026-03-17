@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\CalendarController;
+use App\Http\Controllers\Api\V1\TaskExportController;
 use App\Http\Controllers\Api\V1\ChecklistItemController;
 use App\Http\Controllers\Api\V1\GroupController;
 use App\Http\Controllers\Api\V1\GroupInvitationController;
@@ -22,6 +23,13 @@ Route::middleware('auth:sanctum')->prefix('v1')->name('api.v1.')->group(function
     Route::get('search', SearchController::class)->name('search');
 
     // ──────────────────────────────────────────────
+    // Exports (must be registered before apiResource
+    // routes to avoid {task}/{project}/{group} captures)
+    // ──────────────────────────────────────────────
+    Route::post('tasks/export', [TaskExportController::class, 'exportAll'])->name('tasks.export');
+    Route::get('exports/download', [TaskExportController::class, 'download'])->name('exports.download');
+
+    // ──────────────────────────────────────────────
     // Tasks
     // ──────────────────────────────────────────────
     Route::apiResource('tasks', TaskController::class);
@@ -33,6 +41,7 @@ Route::middleware('auth:sanctum')->prefix('v1')->name('api.v1.')->group(function
     // Projects
     // ──────────────────────────────────────────────
     Route::apiResource('projects', ProjectController::class);
+    Route::post('projects/{project}/export', [TaskExportController::class, 'exportProject'])->name('projects.export');
 
     // ──────────────────────────────────────────────
     // Sections
@@ -68,6 +77,7 @@ Route::middleware('auth:sanctum')->prefix('v1')->name('api.v1.')->group(function
     Route::apiResource('groups', GroupController::class);
     Route::delete('groups/{group}/members/{user}', [GroupController::class, 'removeMember'])->name('groups.remove-member');
     Route::post('groups/{group}/tasks', [GroupController::class, 'shareTasks'])->name('groups.share-tasks');
+    Route::post('groups/{group}/export', [TaskExportController::class, 'exportGroup'])->name('groups.export');
 
     // Group Invitations
     Route::get('groups/{group}/invitations', [GroupInvitationController::class, 'index'])->name('groups.invitations.index');

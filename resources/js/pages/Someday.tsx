@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Head } from '@inertiajs/react';
-import { Archive } from 'lucide-react';
+import { Archive, Download } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
 import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
+import { Button } from '@/components/ui/Button';
+import { useAllTasksExport } from '@/hooks/useExport';
 import type { Task } from '@/types';
 
 interface SomedayProps {
@@ -12,17 +14,28 @@ interface SomedayProps {
 
 export default function Someday({ tasks }: SomedayProps) {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const { isLoading: isExporting, requestExport } = useAllTasksExport({ status: 'someday' });
 
     return (
         <AuthenticatedLayout taskContext="someday">
             <Head title="Someday" />
 
             <div className="mx-auto max-w-2xl px-4 py-8">
-                <div className="mb-8">
+                <div className="mb-8 flex items-center justify-between">
                     <h1 className="flex items-center gap-3 text-2xl font-semibold text-text">
                         <Archive className="h-6 w-6 text-text-tertiary" />
                         Someday
                     </h1>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={requestExport}
+                        disabled={isExporting}
+                        title="Export tasks as CSV"
+                    >
+                        <Download className="h-4 w-4" />
+                        {isExporting ? 'Requesting…' : 'Export'}
+                    </Button>
                 </div>
 
                 {tasks.length > 0 ? (

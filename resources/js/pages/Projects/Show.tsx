@@ -1,7 +1,7 @@
 import React, { type SubmitEventHandler, useState, useCallback, useEffect } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import axios from 'axios';
-import { CheckCircle2, ChevronDown, ChevronRight, FolderKanban, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronRight, Download, FolderKanban, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import ReactMarkdown from 'react-markdown';
@@ -37,6 +37,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { useReorderTasksMutation, useReorderHeadingsMutation } from '@/hooks/useTasks';
+import { useProjectExport } from '@/hooks/useExport';
 import type { Project, Task, Heading } from '@/types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -329,9 +330,10 @@ export default function ProjectShow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [serverHeadingsKey]);
 
-    // ── Mutations ──────────────────────────────────────────────────────────────
+    // ── Mutations & exports ───────────────────────────────────────────────────
     const reorderTasksMutation = useReorderTasksMutation();
     const reorderHeadingsMutation = useReorderHeadingsMutation();
+    const { isLoading: isExporting, requestExport } = useProjectExport(project.id);
 
     // ── Derived state ─────────────────────────────────────────────────────────
     // Use server-side counts for accuracy — the tasks array only contains active tasks,
@@ -722,7 +724,7 @@ export default function ProjectShow({
                 )}
 
                 {/* Actions */}
-                <div className="mt-6 flex items-center gap-2 border-t border-border pt-4">
+                <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
                     <Button
                         variant="ghost"
                         size="sm"
@@ -730,6 +732,16 @@ export default function ProjectShow({
                     >
                         <Plus className="h-4 w-4" />
                         Add Heading
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={requestExport}
+                        disabled={isExporting}
+                        title="Export project tasks as CSV"
+                    >
+                        <Download className="h-4 w-4" />
+                        {isExporting ? 'Requesting…' : 'Export CSV'}
                     </Button>
                 </div>
 

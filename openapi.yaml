@@ -39,6 +39,13 @@ tags:
     description: Shared workspaces with member management
   - name: Group Invitations
     description: Email-based invitations to join groups
+  - name: Exports
+    description: |
+      Asynchronous CSV export for tasks, projects, and groups.
+      Posting to an export endpoint queues a background job. When the job
+      completes the authenticated user receives a database notification
+      (type "export_ready") containing a `download_url`. That URL points
+      to `GET /exports/download?path=…` which streams the file.
   - name: Search
     description: Unified search across entities
   - name: Calendar
@@ -283,6 +290,110 @@ paths:
           $ref: "#/components/responses/Unauthenticated"
         "422":
           $ref: "#/components/responses/ValidationError"
+
+  # ── Exports ──────────────────────────────────────────────────────────
+  /tasks/export:
+    post:
+      operationId: exportAllTasks
+      tags: [Exports]
+      summary: Queue a CSV export of all tasks
+      description: |
+        Queues an `ExportTasksJob` for the authenticated user's tasks.
+        An optional `status` filter narrows the export to a single status bucket.
+        When the job completes the user receives a `database` notification
+        with `type: "export_ready"` containing a `download_url`.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportAllTasksRequest"
+      responses:
+        "200":
+          description: Export queued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /projects/{projectId}/export:
+    parameters:
+      - $ref: "#/components/parameters/projectId"
+    post:
+      operationId: exportProjectTasks
+      tags: [Exports]
+      summary: Queue a CSV export of a project's tasks (owner only)
+      description: |
+        Queues an `ExportTasksJob` scoped to the given project.
+        Returns 403 if the authenticated user is not the project owner.
+      responses:
+        "200":
+          description: Export queued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /groups/{groupId}/export:
+    parameters:
+      - $ref: "#/components/parameters/groupId"
+    post:
+      operationId: exportGroupTasks
+      tags: [Exports]
+      summary: Queue a CSV export of a group's shared tasks (owner or member)
+      description: |
+        Queues an `ExportTasksJob` scoped to tasks shared with the given group.
+        Returns 403 if the authenticated user is neither owner nor member.
+      responses:
+        "200":
+          description: Export queued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /exports/download:
+    get:
+      operationId: downloadExport
+      tags: [Exports]
+      summary: Download a previously generated CSV export file
+      description: |
+        Streams the CSV file identified by `path` (the value from the
+        `download_url` query parameter in the export-ready notification).
+        The path must start with `exports/`; any other prefix returns 403.
+        Returns 404 if the file has been removed.
+      parameters:
+        - name: path
+          in: query
+          required: true
+          description: Storage path returned in the export-ready notification (e.g. "exports/tasks-all-2026-01-01-abc12345.csv")
+          schema:
+            type: string
+      responses:
+        "200":
+          description: CSV file stream
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Export file not found or has expired
 
   # ── Projects ─────────────────────────────────────────────────────────
   /projects:
@@ -2309,6 +2420,18 @@ components:
           type: string
           enum: [aesgcm, aes128gcm]
           default: aesgcm
+
+    ExportAllTasksRequest:
+      type: object
+      description: All fields are optional.
+      properties:
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+          description: Filter to a single status bucket. Omit to export all active tasks.
+        include_completed:
+          type: boolean
+          default: false
+          description: When true, completed and cancelled tasks are included in the export.
 
     # ─── Utility Schemas ─────────────────────────────────────
     PaginationMeta:

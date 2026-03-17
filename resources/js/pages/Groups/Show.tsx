@@ -3,6 +3,7 @@ import { Head, usePage } from '@inertiajs/react';
 import {
     Users,
     Crown,
+    Download,
     UserPlus,
     UserMinus,
     Settings,
@@ -34,6 +35,7 @@ import {
     useUpdateGroupMutation,
     useDeleteGroupMutation,
 } from '@/hooks/useGroups';
+import { useGroupExport } from '@/hooks/useExport';
 import { cn } from '@/lib/utils';
 
 interface Props extends PageProps {
@@ -363,6 +365,7 @@ export default function GroupsShow({ group, members, tasks }: Props) {
 
     const isCurrentUserOwner = auth.user.id === group.owner.id;
     const deleteGroupMutation = useDeleteGroupMutation();
+    const { isLoading: isExporting, requestExport } = useGroupExport(group.id);
     const { data: invitationsData } = useGroupInvitationsQuery(
         isCurrentUserOwner ? group.id : 0,
     );
@@ -406,27 +409,40 @@ export default function GroupsShow({ group, members, tasks }: Props) {
                         </div>
                     </div>
 
-                    {isCurrentUserOwner && (
-                        <div className="flex items-center gap-1">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setEditGroupOpen(true)}
-                                className="text-text-tertiary"
-                            >
-                                <Settings className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={handleDeleteGroup}
-                                className="text-text-tertiary hover:text-danger"
-                                disabled={deleteGroupMutation.isPending}
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    )}
+                    <div className="flex items-center gap-1">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={requestExport}
+                            disabled={isExporting}
+                            title="Export group tasks as CSV"
+                            className="text-text-tertiary"
+                        >
+                            <Download className="h-4 w-4" />
+                            {isExporting ? 'Requesting…' : 'Export CSV'}
+                        </Button>
+                        {isCurrentUserOwner && (
+                            <>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setEditGroupOpen(true)}
+                                    className="text-text-tertiary"
+                                >
+                                    <Settings className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={handleDeleteGroup}
+                                    className="text-text-tertiary hover:text-danger"
+                                    disabled={deleteGroupMutation.isPending}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
 

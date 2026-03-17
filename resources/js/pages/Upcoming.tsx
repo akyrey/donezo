@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { format, parse, addDays, subDays, isToday, isTomorrow, startOfDay } from 'date-fns';
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
 import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
+import { useAllTasksExport } from '@/hooks/useExport';
 import type { Task } from '@/types';
 
 interface UpcomingProps {
@@ -81,6 +82,7 @@ function formatDateHeading(dateStr: string): string {
 
 export default function Upcoming({ grouped_tasks, start_date }: UpcomingProps) {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const { isLoading: isExporting, requestExport } = useAllTasksExport({ status: 'upcoming' });
 
     const currentStartDate = start_date
         ? parse(start_date, 'yyyy-MM-dd', new Date())
@@ -113,16 +115,28 @@ export default function Upcoming({ grouped_tasks, start_date }: UpcomingProps) {
                         <Calendar className="h-6 w-6 text-success" />
                         Upcoming
                     </h1>
-                    {!isToday(currentStartDate) && (
+                    <div className="flex items-center gap-1">
+                        {!isToday(currentStartDate) && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-text-secondary"
+                                onClick={() => handleNavigate(new Date())}
+                            >
+                                Today
+                            </Button>
+                        )}
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="text-xs text-text-secondary"
-                            onClick={() => handleNavigate(new Date())}
+                            onClick={requestExport}
+                            disabled={isExporting}
+                            title="Export tasks as CSV"
                         >
-                            Today
+                            <Download className="h-4 w-4" />
+                            {isExporting ? 'Requesting…' : 'Export'}
                         </Button>
-                    )}
+                    </div>
                 </div>
 
                 <CalendarStrip
