@@ -1,19 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Models\PushSubscription;
 use App\Models\Reminder;
 use App\Notifications\ReminderDueNotification;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
 
-class ProcessDueReminders extends Command
+final class ProcessDueReminders extends Command
 {
     protected $signature = 'reminders:process';
-
     protected $description = 'Process due reminders and send push notifications';
 
     public function handle(): int
@@ -34,7 +36,7 @@ class ProcessDueReminders extends Command
         foreach ($dueReminders as $reminder) {
             $user = $reminder->task->user;
 
-            if (! $user) {
+            if (!$user) {
                 continue;
             }
 
@@ -70,7 +72,7 @@ class ProcessDueReminders extends Command
         $vapidPrivateKey = env('VAPID_PRIVATE_KEY');
         $vapidSubject = env('VAPID_SUBJECT', config('app.url'));
 
-        if (! $vapidPublicKey || ! $vapidPrivateKey) {
+        if (!$vapidPublicKey || !$vapidPrivateKey) {
             Log::warning('VAPID keys not configured, skipping push notifications.');
 
             return;
@@ -102,7 +104,7 @@ class ProcessDueReminders extends Command
             }
 
             foreach ($webPush->flush() as $report) {
-                if (! $report->isSuccess()) {
+                if (!$report->isSuccess()) {
                     Log::warning('Push notification failed', [
                         'endpoint' => $report->getEndpoint(),
                         'reason' => $report->getReason(),
@@ -114,7 +116,7 @@ class ProcessDueReminders extends Command
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send push notifications', [
                 'error' => $e->getMessage(),
             ]);

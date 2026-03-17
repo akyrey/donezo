@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Section;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends Factory<\App\Models\Project>
  */
-class ProjectFactory extends Factory
+final class ProjectFactory extends Factory
 {
     /**
      * Define the model's default state.

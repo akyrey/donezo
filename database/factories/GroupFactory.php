@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\User;
@@ -8,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends Factory<\App\Models\Group>
  */
-class GroupFactory extends Factory
+final class GroupFactory extends Factory
 {
     /**
      * Define the model's default state.

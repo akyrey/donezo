@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\ReminderData;
@@ -9,7 +11,7 @@ use App\Models\Task;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ReminderController extends Controller
+final class ReminderController extends Controller
 {
     /**
      * List reminders for a task.

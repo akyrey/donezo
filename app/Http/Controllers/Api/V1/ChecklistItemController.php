@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\ChecklistItemData;
@@ -9,7 +11,7 @@ use App\Models\Task;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ChecklistItemController extends Controller
+final class ChecklistItemController extends Controller
 {
     /**
      * List checklist items for a task.
@@ -101,7 +103,7 @@ class ChecklistItemController extends Controller
         abort_unless($checklistItem->task->user_id === $request->user()->id, 403);
 
         $checklistItem->update([
-            'is_completed' => ! $checklistItem->is_completed,
+            'is_completed' => !$checklistItem->is_completed,
         ]);
 
         return response()->json([

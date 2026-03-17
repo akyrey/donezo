@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
@@ -7,7 +9,7 @@ use App\Models\Section;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class SectionController extends Controller
+final class SectionController extends Controller
 {
     /**
      * List all sections for the authenticated user.

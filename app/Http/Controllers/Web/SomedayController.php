@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Data\TaskData;
@@ -8,7 +10,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class SomedayController extends Controller
+final class SomedayController extends Controller
 {
     /**
      * Display the Someday view with tasks that have status "someday".

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Data\ProjectData;
@@ -11,7 +13,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class SectionController extends Controller
+final class SectionController extends Controller
 {
     /**
      * Display a specific section with its projects and tasks.

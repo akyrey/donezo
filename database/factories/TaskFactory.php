@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Heading;
@@ -11,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends Factory<\App\Models\Task>
  */
-class TaskFactory extends Factory
+final class TaskFactory extends Factory
 {
     /**
      * Define the model's default state.

@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncTaskToCalendar;
-use App\Models\Task;
 use App\Services\GoogleCalendarService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
-class CalendarController extends Controller
+final class CalendarController extends Controller
 {
     /**
      * Get the current calendar connection status.
@@ -25,7 +27,7 @@ class CalendarController extends Controller
             ->where('provider', 'google')
             ->first();
 
-        if (! $googleAccount) {
+        if (!$googleAccount) {
             return response()->json([
                 'connected' => false,
                 'has_calendar_scope' => false,
@@ -87,7 +89,7 @@ class CalendarController extends Controller
 
             return redirect()->route('settings')
                 ->with('success', 'Google Calendar connected successfully.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Google Calendar OAuth callback failed', [
                 'error' => $e->getMessage(),
             ]);
@@ -132,7 +134,7 @@ class CalendarController extends Controller
             ->where('provider', 'google')
             ->first();
 
-        if (! $googleAccount || ! $googleAccount->hasCalendarAccess()) {
+        if (!$googleAccount || !$googleAccount->hasCalendarAccess()) {
             return response()->json([
                 'message' => 'Google Calendar is not connected.',
             ], 422);

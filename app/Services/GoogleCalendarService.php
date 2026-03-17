@@ -1,19 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\SocialAccount;
 use App\Models\Task;
+use Exception;
 use Google\Client as GoogleClient;
 use Google\Service\Calendar as GoogleCalendar;
 use Google\Service\Calendar\Event as GoogleCalendarEvent;
 use Google\Service\Calendar\EventDateTime;
 use Illuminate\Support\Facades\Log;
 
-class GoogleCalendarService
+final class GoogleCalendarService
 {
     public const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar';
-
     private GoogleClient $client;
 
     public function __construct()
@@ -40,7 +42,7 @@ class GoogleCalendarService
         if ($this->client->isAccessTokenExpired() && $account->provider_refresh_token) {
             $newToken = $this->client->fetchAccessTokenWithRefreshToken($account->provider_refresh_token);
 
-            if (! isset($newToken['error'])) {
+            if (!isset($newToken['error'])) {
                 $account->update([
                     'provider_token' => $newToken['access_token'],
                     'token_expires_at' => now()->addSeconds($newToken['expires_in'] ?? 3600),
@@ -65,7 +67,7 @@ class GoogleCalendarService
             $createdEvent = $calendar->events->insert('primary', $event);
 
             return $createdEvent->getId();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to create Google Calendar event', [
                 'task_id' => $task->id,
                 'error' => $e->getMessage(),
@@ -80,7 +82,7 @@ class GoogleCalendarService
      */
     public function updateEvent(Task $task): bool
     {
-        if (! $task->google_calendar_event_id) {
+        if (!$task->google_calendar_event_id) {
             return false;
         }
 
@@ -91,7 +93,7 @@ class GoogleCalendarService
             $calendar->events->update('primary', $task->google_calendar_event_id, $event);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to update Google Calendar event', [
                 'task_id' => $task->id,
                 'event_id' => $task->google_calendar_event_id,
@@ -112,7 +114,7 @@ class GoogleCalendarService
             $calendar->events->delete('primary', $eventId);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to delete Google Calendar event', [
                 'event_id' => $eventId,
                 'error' => $e->getMessage(),
@@ -160,7 +162,7 @@ class GoogleCalendarService
         $event->setEnd($end);
 
         // Add Donezo source metadata
-        $event->setSource(new \Google\Service\Calendar\EventSource([
+        $event->setSource(new GoogleCalendar\EventSource([
             'title' => 'Donezo',
             'url' => config('app.url') . '/tasks/' . $task->id,
         ]));
@@ -178,7 +180,7 @@ class GoogleCalendarService
             $calendar->calendarList->listCalendarList(['maxResults' => 1]);
 
             return true;
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }

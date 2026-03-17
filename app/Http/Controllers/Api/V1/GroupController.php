@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\GroupData;
@@ -11,7 +13,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class GroupController extends Controller
+final class GroupController extends Controller
 {
     /**
      * List groups the authenticated user belongs to or owns.

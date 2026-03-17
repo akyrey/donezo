@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Data\TaskData;
@@ -8,7 +10,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class LogbookController extends Controller
+final class LogbookController extends Controller
 {
     /**
      * Display the Logbook view with completed and cancelled tasks (paginated).

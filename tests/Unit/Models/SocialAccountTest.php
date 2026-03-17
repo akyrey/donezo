@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,6 +97,6 @@ it('casts attributes correctly', function () {
         'scopes' => ['email', 'profile'],
     ]);
 
-    expect($account->token_expires_at)->toBeInstanceOf(\Illuminate\Support\Carbon::class);
+    expect($account->token_expires_at)->toBeInstanceOf(Illuminate\Support\Carbon::class);
     expect($account->scopes)->toBeArray();
 });

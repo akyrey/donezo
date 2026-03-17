@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Group;
 use App\Models\Task;
 use App\Models\User;
@@ -88,8 +90,6 @@ it('can delete a group as owner', function () {
 
     $this->assertSoftDeleted('groups', ['id' => $group->id]);
 });
-
-
 
 it('can remove a member from a group', function () {
     $owner = User::factory()->create();

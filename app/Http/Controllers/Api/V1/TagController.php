@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\TagData;
@@ -8,7 +10,7 @@ use App\Models\Tag;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class TagController extends Controller
+final class TagController extends Controller
 {
     /**
      * List all tags for the authenticated user.

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 
-class DashboardController extends Controller
+final class DashboardController extends Controller
 {
     /**
      * Redirect to the default view (Today).

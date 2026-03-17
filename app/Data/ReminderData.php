@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Data;
 
 use Carbon\Carbon;
 use Spatie\LaravelData\Data;
 
-class ReminderData extends Data
+final class ReminderData extends Data
 {
     public function __construct(
         public readonly int $id,

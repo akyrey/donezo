@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -14,7 +16,7 @@ use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class RegisteredUserController extends Controller
+final class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
@@ -71,7 +73,7 @@ class RegisteredUserController extends Controller
             $invitation = GroupInvitation::where('token', $request->string('invitation_token'))
                 ->whereNull('accepted_at')
                 ->where('expires_at', '>', now())
-                ->where('email', strtolower($user->email))
+                ->where('email', mb_strtolower($user->email))
                 ->first();
 
             if ($invitation) {

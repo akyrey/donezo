@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
@@ -11,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class TaskExportController extends Controller
+final class TaskExportController extends Controller
 {
     /**
      * Queue a CSV export for all of the authenticated user's tasks.
@@ -23,12 +25,12 @@ class TaskExportController extends Controller
     public function exportAll(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'status'             => ['sometimes', 'string', 'in:inbox,today,upcoming,anytime,someday,completed,cancelled'],
-            'include_completed'  => ['sometimes', 'boolean'],
+            'status' => ['sometimes', 'string', 'in:inbox,today,upcoming,anytime,someday,completed,cancelled'],
+            'include_completed' => ['sometimes', 'boolean'],
         ]);
 
         $filters = array_filter([
-            'status'            => $validated['status'] ?? null,
+            'status' => $validated['status'] ?? null,
             'include_completed' => $validated['include_completed'] ?? false,
         ], fn ($v) => $v !== null);
 
@@ -64,9 +66,9 @@ class TaskExportController extends Controller
      */
     public function exportGroup(Request $request, Group $group): JsonResponse
     {
-        $userId   = $request->user()->id;
+        $userId = $request->user()->id;
         $isMember = $group->members()->where('user_id', $userId)->exists();
-        $isOwner  = $group->owner_id === $userId;
+        $isOwner = $group->owner_id === $userId;
 
         abort_unless($isMember || $isOwner, 403);
 
@@ -96,11 +98,11 @@ class TaskExportController extends Controller
         $path = $validated['path'];
 
         // Security: only allow paths inside the exports/ directory
-        if (! str_starts_with($path, 'exports/')) {
+        if (!str_starts_with($path, 'exports/')) {
             abort(403, 'Invalid export path.');
         }
 
-        if (! Storage::disk('local')->exists($path)) {
+        if (!Storage::disk('local')->exists($path)) {
             return response()->json(['message' => 'Export file not found. It may have expired.'], 404);
         }
 
@@ -110,7 +112,7 @@ class TaskExportController extends Controller
         $disk = Storage::disk('local');
 
         return $disk->download($path, $filename, [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }

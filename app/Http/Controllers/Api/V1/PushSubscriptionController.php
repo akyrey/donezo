@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\PushSubscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class PushSubscriptionController extends Controller
+final class PushSubscriptionController extends Controller
 {
     /**
      * Store a new push subscription.

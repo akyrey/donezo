@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
@@ -8,7 +10,7 @@ use App\Models\Project;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
-class HeadingController extends Controller
+final class HeadingController extends Controller
 {
     /**
      * Create a heading for a project and redirect back to the project page.

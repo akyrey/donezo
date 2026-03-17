@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\ProjectData;
@@ -10,7 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class SearchController extends Controller
+final class SearchController extends Controller
 {
     /**
      * Unified search across tasks, projects, sections, and tags.
@@ -33,7 +35,7 @@ class SearchController extends Controller
                     ->orWhere('description', $likeOperator, "%{$query}%");
             })
             ->whereNull('cancelled_at')
-            ->orderByRaw("CASE WHEN completed_at IS NULL THEN 0 ELSE 1 END")
+            ->orderByRaw('CASE WHEN completed_at IS NULL THEN 0 ELSE 1 END')
             ->orderBy('updated_at', 'desc')
             ->limit($limit)
             ->with(['tags', 'project'])

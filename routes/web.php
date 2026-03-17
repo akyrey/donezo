@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Web\AnytimeController;
-use App\Http\Controllers\Web\GroupInvitationController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\GroupController;
+use App\Http\Controllers\Web\GroupInvitationController;
 use App\Http\Controllers\Web\HeadingController;
 use App\Http\Controllers\Web\InboxController;
 use App\Http\Controllers\Web\LogbookController;

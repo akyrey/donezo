@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Data;
 
 use Carbon\Carbon;
@@ -7,7 +9,7 @@ use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\DataCollection;
 
-class ProjectData extends Data
+final class ProjectData extends Data
 {
     public function __construct(
         public readonly int $id,

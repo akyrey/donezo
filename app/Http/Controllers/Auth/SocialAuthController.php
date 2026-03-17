@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -11,7 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
-class SocialAuthController extends Controller
+final class SocialAuthController extends Controller
 {
     /**
      * Redirect the user to the provider's authentication page.
@@ -48,7 +50,7 @@ class SocialAuthController extends Controller
 
         if ($socialAccount) {
             // Preserve existing refresh token if the new one is null
-            if (! $tokenData['provider_refresh_token']) {
+            if (!$tokenData['provider_refresh_token']) {
                 unset($tokenData['provider_refresh_token']);
             }
 
@@ -62,7 +64,7 @@ class SocialAuthController extends Controller
         // Check if a user with this email already exists
         $user = User::where('email', $socialUser->getEmail())->first();
 
-        if (! $user) {
+        if (!$user) {
             $user = User::create([
                 'name' => $socialUser->getName() ?? $socialUser->getNickname(),
                 'email' => $socialUser->getEmail(),
@@ -89,7 +91,7 @@ class SocialAuthController extends Controller
     {
         $allowed = ['google', 'github', 'apple'];
 
-        if (! in_array($provider, $allowed, true)) {
+        if (!in_array($provider, $allowed, true)) {
             abort(404, "Social provider [{$provider}] is not supported.");
         }
     }

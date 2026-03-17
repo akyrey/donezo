@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\HeadingData;
@@ -9,7 +11,7 @@ use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class HeadingController extends Controller
+final class HeadingController extends Controller
 {
     /**
      * List headings for a project.

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\Task;
@@ -8,12 +10,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
-class SyncTaskToCalendar implements ShouldQueue
+final class SyncTaskToCalendar implements ShouldQueue
 {
     use Queueable;
-
     public int $tries = 3;
-
     public int $backoff = 30;
 
     public function __construct(
@@ -24,11 +24,11 @@ class SyncTaskToCalendar implements ShouldQueue
     {
         $task = Task::with('user.socialAccounts')->find($this->taskId);
 
-        if (! $task) {
+        if (!$task) {
             return;
         }
 
-        if (! config('services.google.client_id') || ! env('GOOGLE_CALENDAR_ENABLED', false)) {
+        if (!config('services.google.client_id') || !env('GOOGLE_CALENDAR_ENABLED', false)) {
             return;
         }
 
@@ -36,7 +36,7 @@ class SyncTaskToCalendar implements ShouldQueue
             ->where('provider', 'google')
             ->first();
 
-        if (! $googleAccount || ! $googleAccount->hasCalendarAccess()) {
+        if (!$googleAccount || !$googleAccount->hasCalendarAccess()) {
             return;
         }
 
@@ -46,7 +46,7 @@ class SyncTaskToCalendar implements ShouldQueue
             // Update existing event
             $success = $service->updateEvent($task);
 
-            if (! $success) {
+            if (!$success) {
                 Log::warning('Failed to update calendar event for task', ['task_id' => $task->id]);
             }
         } else {

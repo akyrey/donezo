@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Group;
@@ -10,7 +12,7 @@ use Illuminate\Support\Str;
 /**
  * @extends Factory<\App\Models\GroupInvitation>
  */
-class GroupInvitationFactory extends Factory
+final class GroupInvitationFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -89,7 +91,7 @@ class GroupInvitationFactory extends Factory
     public function forEmail(string $email): static
     {
         return $this->state(fn (array $attributes) => [
-            'email' => strtolower($email),
+            'email' => mb_strtolower($email),
         ]);
     }
 }

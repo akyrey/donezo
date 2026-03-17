@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\CreateTaskData;
@@ -14,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Optional;
 
-class TaskController extends Controller
+final class TaskController extends Controller
 {
     /**
      * List tasks with filters.
@@ -151,43 +153,43 @@ class TaskController extends Controller
 
         $attributes = [];
 
-        if (! $data->title instanceof Optional) {
+        if (!$data->title instanceof Optional) {
             $attributes['title'] = $data->title;
         }
-        if (! $data->description instanceof Optional) {
+        if (!$data->description instanceof Optional) {
             $attributes['description'] = $data->description;
         }
-        if (! $data->status instanceof Optional) {
+        if (!$data->status instanceof Optional) {
             $attributes['status'] = $data->status;
         }
-        if (! $data->is_evening instanceof Optional) {
+        if (!$data->is_evening instanceof Optional) {
             $attributes['is_evening'] = $data->is_evening;
         }
-        if (! $data->scheduled_at instanceof Optional) {
+        if (!$data->scheduled_at instanceof Optional) {
             $attributes['scheduled_at'] = $data->scheduled_at;
         }
-        if (! $data->deadline_at instanceof Optional) {
+        if (!$data->deadline_at instanceof Optional) {
             $attributes['deadline_at'] = $data->deadline_at;
         }
-        if (! $data->repeat_rule instanceof Optional) {
+        if (!$data->repeat_rule instanceof Optional) {
             $attributes['repeat_rule'] = $data->repeat_rule?->toArray();
         }
-        if (! $data->project_id instanceof Optional) {
+        if (!$data->project_id instanceof Optional) {
             $attributes['project_id'] = $data->project_id;
         }
-        if (! $data->section_id instanceof Optional) {
+        if (!$data->section_id instanceof Optional) {
             $attributes['section_id'] = $data->section_id;
         }
-        if (! $data->heading_id instanceof Optional) {
+        if (!$data->heading_id instanceof Optional) {
             $attributes['heading_id'] = $data->heading_id;
         }
-        if (! $data->assigned_to instanceof Optional) {
+        if (!$data->assigned_to instanceof Optional) {
             $attributes['assigned_to'] = $data->assigned_to;
         }
 
         $task->update($attributes);
 
-        if (! $data->tags instanceof Optional) {
+        if (!$data->tags instanceof Optional) {
             $task->tags()->sync($data->tags);
         }
 
@@ -195,7 +197,7 @@ class TaskController extends Controller
 
         // Dispatch calendar sync if task has calendar-relevant changes
         $calendarFields = ['title', 'description', 'scheduled_at', 'deadline_at', 'is_evening'];
-        $hasCalendarChanges = ! empty(array_intersect(array_keys($attributes), $calendarFields));
+        $hasCalendarChanges = !empty(array_intersect(array_keys($attributes), $calendarFields));
 
         if ($hasCalendarChanges && ($task->scheduled_at || $task->deadline_at)) {
             SyncTaskToCalendar::dispatch($task->id);

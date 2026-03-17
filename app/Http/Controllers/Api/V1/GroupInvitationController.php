@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\GroupInvitationData;
@@ -13,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
-class GroupInvitationController extends Controller
+final class GroupInvitationController extends Controller
 {
     /**
      * Invite a user by email to join a group.
@@ -28,7 +30,7 @@ class GroupInvitationController extends Controller
             'role' => ['sometimes', 'string', 'in:admin,member'],
         ]);
 
-        $email = strtolower(trim($validated['email']));
+        $email = mb_strtolower(mb_trim($validated['email']));
         $role = $validated['role'] ?? 'member';
 
         // Check if target user is already a member
@@ -113,7 +115,7 @@ class GroupInvitationController extends Controller
         $user = $request->user();
 
         // The accepting user's email must match the invitation email
-        if (strtolower($user->email) !== strtolower($invitation->email)) {
+        if (mb_strtolower($user->email) !== mb_strtolower($invitation->email)) {
             return response()->json(['message' => 'This invitation was sent to a different email address.'], 403);
         }
 
@@ -121,6 +123,7 @@ class GroupInvitationController extends Controller
 
         if ($group->members()->where('user_id', $user->id)->exists()) {
             $invitation->update(['accepted_at' => now()]);
+
             return response()->json(['message' => 'You are already a member of this group.'], 422);
         }
 

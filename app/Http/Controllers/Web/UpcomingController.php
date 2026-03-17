@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Data\TaskData;
@@ -9,7 +11,7 @@ use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class UpcomingController extends Controller
+final class UpcomingController extends Controller
 {
     /**
      * Display the Upcoming view with tasks grouped by date.
@@ -48,6 +50,7 @@ class UpcomingController extends Controller
             if (!$task->scheduled_at) {
                 return true; // unscheduled upcoming tasks always show
             }
+
             return $task->scheduled_at->between($startDate, $endDate);
         });
 

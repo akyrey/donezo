@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\ChecklistItem;
-use App\Models\Heading;
 use App\Models\Project;
 use App\Models\Reminder;
-use App\Models\Section;
 use App\Models\Tag;
 use App\Models\Task;
 use App\Models\User;

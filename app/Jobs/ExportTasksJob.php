@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\Group;
@@ -11,18 +13,16 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class ExportTasksJob implements ShouldQueue
+final class ExportTasksJob implements ShouldQueue
 {
     use Queueable;
-
     public int $tries = 3;
-
     public int $backoff = 30;
 
     /**
-     * @param  int    $userId     The user requesting the export
-     * @param  string $scope      'all' | 'status' | 'project' | 'group'
-     * @param  array<string, mixed>  $filters    e.g. ['status' => 'inbox'] | ['project_id' => 5] | ['group_id' => 2]
+     * @param int                  $userId  The user requesting the export
+     * @param string               $scope   'all' | 'status' | 'project' | 'group'
+     * @param array<string, mixed> $filters e.g. ['status' => 'inbox'] | ['project_id' => 5] | ['group_id' => 2]
      */
     public function __construct(
         public readonly int $userId,
@@ -34,7 +34,7 @@ class ExportTasksJob implements ShouldQueue
     {
         $user = User::find($this->userId);
 
-        if (! $user) {
+        if (!$user) {
             return;
         }
 
@@ -101,13 +101,14 @@ class ExportTasksJob implements ShouldQueue
 
         return match ($this->scope) {
             'project' => $this->fetchProjectTasks($user, $eagerLoads),
-            'group'   => $this->fetchGroupTasks($user, $eagerLoads),
-            default   => $this->fetchUserTasks($user, $eagerLoads),
+            'group' => $this->fetchGroupTasks($user, $eagerLoads),
+            default => $this->fetchUserTasks($user, $eagerLoads),
         };
     }
 
     /**
-     * @param  array<int, string>  $eagerLoads
+     * @param array<int, string> $eagerLoads
+     *
      * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task>
      */
     private function fetchUserTasks(User $user, array $eagerLoads): \Illuminate\Database\Eloquent\Collection
@@ -118,7 +119,7 @@ class ExportTasksJob implements ShouldQueue
             $query->where('status', $this->filters['status']);
         }
 
-        if (! ($this->filters['include_completed'] ?? false)) {
+        if (!($this->filters['include_completed'] ?? false)) {
             $query->whereNull('completed_at')->whereNull('cancelled_at');
         }
 
@@ -126,20 +127,21 @@ class ExportTasksJob implements ShouldQueue
     }
 
     /**
-     * @param  array<int, string>  $eagerLoads
+     * @param array<int, string> $eagerLoads
+     *
      * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task>
      */
     private function fetchProjectTasks(User $user, array $eagerLoads): \Illuminate\Database\Eloquent\Collection
     {
         $projectId = $this->filters['project_id'] ?? null;
 
-        if (! $projectId) {
+        if (!$projectId) {
             return $user->tasks()->with($eagerLoads)->whereNull('completed_at')->whereNull('cancelled_at')->orderBy('position')->get();
         }
 
         $project = Project::find($projectId);
 
-        if (! $project || $project->user_id !== $user->id) {
+        if (!$project || $project->user_id !== $user->id) {
             return new \Illuminate\Database\Eloquent\Collection();
         }
 
@@ -147,27 +149,28 @@ class ExportTasksJob implements ShouldQueue
     }
 
     /**
-     * @param  array<int, string>  $eagerLoads
+     * @param array<int, string> $eagerLoads
+     *
      * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task>
      */
     private function fetchGroupTasks(User $user, array $eagerLoads): \Illuminate\Database\Eloquent\Collection
     {
         $groupId = $this->filters['group_id'] ?? null;
 
-        if (! $groupId) {
+        if (!$groupId) {
             return new \Illuminate\Database\Eloquent\Collection();
         }
 
         $group = Group::find($groupId);
 
-        if (! $group) {
+        if (!$group) {
             return new \Illuminate\Database\Eloquent\Collection();
         }
 
         $isMember = $group->members()->where('user_id', $user->id)->exists();
-        $isOwner  = $group->owner_id === $user->id;
+        $isOwner = $group->owner_id === $user->id;
 
-        if (! $isMember && ! $isOwner) {
+        if (!$isMember && !$isOwner) {
             return new \Illuminate\Database\Eloquent\Collection();
         }
 
@@ -182,9 +185,9 @@ class ExportTasksJob implements ShouldQueue
 
         $slug = match ($this->scope) {
             'project' => 'project-' . ($this->filters['project_id'] ?? 'unknown'),
-            'group'   => 'group-' . ($this->filters['group_id'] ?? 'unknown'),
-            'status'  => ($this->filters['status'] ?? 'tasks'),
-            default   => 'all-tasks',
+            'group' => 'group-' . ($this->filters['group_id'] ?? 'unknown'),
+            'status' => ($this->filters['status'] ?? 'tasks'),
+            default => 'all-tasks',
         };
 
         return 'tasks-' . Str::slug($slug) . '-' . $date . '-' . Str::random(8) . '.csv';

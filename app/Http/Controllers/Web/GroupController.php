@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Data\GroupData;
@@ -11,7 +13,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class GroupController extends Controller
+final class GroupController extends Controller
 {
     /**
      * Display a listing of the user's groups (owned + member of).

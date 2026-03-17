@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Data\TaskData;
@@ -9,7 +11,7 @@ use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class TodayController extends Controller
+final class TodayController extends Controller
 {
     /**
      * Display the Today view with tasks for today, split by morning/evening.

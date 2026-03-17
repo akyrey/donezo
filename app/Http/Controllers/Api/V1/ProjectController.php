@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\CreateProjectData;
@@ -10,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-class ProjectController extends Controller
+final class ProjectController extends Controller
 {
     /**
      * List all projects for the authenticated user.
@@ -82,7 +84,7 @@ class ProjectController extends Controller
             'position' => ['sometimes', 'integer', 'min:0'],
         ]);
 
-        if (isset($validated['status']) && $validated['status'] === 'completed' && ! $project->completed_at) {
+        if (isset($validated['status']) && $validated['status'] === 'completed' && !$project->completed_at) {
             $validated['completed_at'] = Carbon::now();
         } elseif (isset($validated['status']) && $validated['status'] !== 'completed') {
             $validated['completed_at'] = null;

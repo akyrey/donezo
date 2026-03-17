@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Reminder;
 use App\Models\Task;
 use App\Models\User;

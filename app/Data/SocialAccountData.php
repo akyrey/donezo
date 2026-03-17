@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Data;
 
 use Spatie\LaravelData\Data;
 
-class SocialAccountData extends Data
+final class SocialAccountData extends Data
 {
     public function __construct(
         public readonly int $id,

@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-class TaskExportReadyNotification extends Notification
+final class TaskExportReadyNotification extends Notification
 {
     use Queueable;
 
     /**
-     * @param  string  $storagePath  Path on the 'local' disk, e.g. "exports/tasks-all-2026-03-17-abc12345.csv"
-     * @param  string  $filename     Human-readable filename shown in the notification
+     * @param string $storagePath Path on the 'local' disk, e.g. "exports/tasks-all-2026-03-17-abc12345.csv"
+     * @param string $filename    Human-readable filename shown in the notification
      */
     public function __construct(
         public readonly string $storagePath,
@@ -36,9 +38,9 @@ class TaskExportReadyNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'type'         => 'export_ready',
+            'type' => 'export_ready',
             'storage_path' => $this->storagePath,
-            'filename'     => $this->filename,
+            'filename' => $this->filename,
             'download_url' => route('api.v1.exports.download', ['path' => $this->storagePath]),
         ];
     }
@@ -52,13 +54,13 @@ class TaskExportReadyNotification extends Notification
     {
         return [
             'title' => 'Your export is ready',
-            'body'  => $this->filename . ' is ready to download.',
-            'icon'  => '/images/icon-192.png',
+            'body' => $this->filename . ' is ready to download.',
+            'icon' => '/images/icon-192.png',
             'badge' => '/images/badge-72.png',
-            'data'  => [
-                'type'         => 'export_ready',
+            'data' => [
+                'type' => 'export_ready',
                 'storage_path' => $this->storagePath,
-                'filename'     => $this->filename,
+                'filename' => $this->filename,
             ],
         ];
     }

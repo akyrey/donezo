@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Observers\TaskObserver;
@@ -14,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 #[ObservedBy(TaskObserver::class)]
-class Task extends Model
+final class Task extends Model
 {
     use HasFactory, SoftDeletes;
 

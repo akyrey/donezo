@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
@@ -7,7 +9,7 @@ use App\Models\GroupInvitation;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class GroupInvitationController extends Controller
+final class GroupInvitationController extends Controller
 {
     /**
      * Show the accept-invitation page for an existing authenticated user.

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use App\Models\Reminder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-class ReminderDueNotification extends Notification
+final class ReminderDueNotification extends Notification
 {
     use Queueable;
 
@@ -50,7 +52,7 @@ class ReminderDueNotification extends Notification
         return [
             'title' => 'Reminder: ' . $this->reminder->task->title,
             'body' => $this->reminder->task->description
-                ? substr(strip_tags($this->reminder->task->description), 0, 100)
+                ? mb_substr(strip_tags($this->reminder->task->description), 0, 100)
                 : 'You have a task reminder.',
             'icon' => '/images/icon-192.png',
             'badge' => '/images/badge-72.png',

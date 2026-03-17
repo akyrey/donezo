@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use App\Data\GroupData;
@@ -11,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
-class HandleInertiaRequests extends Middleware
+final class HandleInertiaRequests extends Middleware
 {
     /**
      * The root template that's loaded on the first page visit.
@@ -82,13 +84,13 @@ class HandleInertiaRequests extends Middleware
                     $request->user()
                         ->groups()
                         ->with('owner')
-                    ->withCount('members as member_count')
-                    ->get()
-                    ->merge(
-                        $request->user()
-                            ->ownedGroups()
-                            ->with('owner')
-                            ->withCount('members as member_count')
+                        ->withCount('members as member_count')
+                        ->get()
+                        ->merge(
+                            $request->user()
+                                ->ownedGroups()
+                                ->with('owner')
+                                ->withCount('members as member_count')
                                 ->get()
                         )
                         ->unique('id')

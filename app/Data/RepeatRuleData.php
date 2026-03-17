@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Data;
 
 use Spatie\LaravelData\Attributes\Validation\In;
@@ -7,7 +9,7 @@ use Spatie\LaravelData\Attributes\Validation\Min;
 use Spatie\LaravelData\Attributes\Validation\Nullable;
 use Spatie\LaravelData\Data;
 
-class RepeatRuleData extends Data
+final class RepeatRuleData extends Data
 {
     public function __construct(
         #[In('daily', 'weekly', 'monthly', 'yearly')]

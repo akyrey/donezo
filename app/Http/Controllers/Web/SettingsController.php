@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Data\SocialAccountData;
@@ -12,7 +14,7 @@ use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class SettingsController extends Controller
+final class SettingsController extends Controller
 {
     /**
      * Display the settings page.

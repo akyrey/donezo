@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Data;
 
 use Spatie\LaravelData\Attributes\Validation\Exists;
@@ -8,7 +10,7 @@ use Spatie\LaravelData\Attributes\Validation\Nullable;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
 
-class UpdateProjectData extends Data
+final class UpdateProjectData extends Data
 {
     public function __construct(
         #[Max(255)]

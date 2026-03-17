@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Observers;
 
 use App\Models\Task;
 use Illuminate\Support\Facades\Cache;
 
-class TaskObserver
+final class TaskObserver
 {
     /**
      * The cache key for a user's sidebar task counts.

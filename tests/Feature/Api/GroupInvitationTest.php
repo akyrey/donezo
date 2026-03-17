@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Mail\GroupInvitationMail;
 use App\Models\Group;
 use App\Models\GroupInvitation;
@@ -52,8 +54,7 @@ it('owner can invite a new user by email', function () {
         'role' => 'member',
     ]);
 
-    Mail::assertQueued(GroupInvitationMail::class, fn ($mail) =>
-        $mail->isNewUser === true && $mail->hasTo('newuser@example.com')
+    Mail::assertQueued(GroupInvitationMail::class, fn ($mail) => $mail->isNewUser === true && $mail->hasTo('newuser@example.com')
     );
 });
 
@@ -71,8 +72,7 @@ it('owner can invite an existing user by email', function () {
         ])
         ->assertStatus(201);
 
-    Mail::assertQueued(GroupInvitationMail::class, fn ($mail) =>
-        $mail->isNewUser === false && $mail->hasTo('existing@example.com')
+    Mail::assertQueued(GroupInvitationMail::class, fn ($mail) => $mail->isNewUser === false && $mail->hasTo('existing@example.com')
     );
 });
 

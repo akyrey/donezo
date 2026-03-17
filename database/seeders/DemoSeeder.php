@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\ChecklistItem;
@@ -13,7 +15,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
-class DemoSeeder extends Seeder
+final class DemoSeeder extends Seeder
 {
     /**
      * Create demo data for local development.
