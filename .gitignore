@@ -27,3 +27,6 @@ Thumbs.db
 /.phpstorm.meta.php
 /docker-compose.override.yml
 .phpunit.cache
+
+frankenphp-worker.php
+frankenphp

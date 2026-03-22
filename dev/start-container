@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+if [ -n "$UID" ]; then
+  usermod -u "${DEV_UID}" "${DEV_USER}"
+fi
+
+if [ $# -gt 0 ]; then
+  exec gosu "${DEV_USER}" "$@"
+  exit
+fi
+
+# check if XDEBUG_MODE is empty or set to "off"
+if [ -z "${XDEBUG_MODE}" ] || [ "${XDEBUG_MODE}" == "off" ]; then
+  echo "Starting in octane mode with XDEBUG disabled"
+  phpdismod xdebug
+  CMD="php ${WORKDIR}/artisan octane:start --server=frankenphp --log-level=${LOG_LEVEL:-error} --host=0.0.0.0 --admin-port=2019 --port=80 --watch"
+else
+  echo "Starting in serve mode with XDEBUG enabled"
+  phpenmod xdebug
+  if [ -z "${XDEBUG_CONFIG}" ]; then
+    export XDEBUG_CONFIG="idekey=DONEZO client_host=host.docker.internal client_port=9003"
+  fi
+  CMD="php ${WORKDIR}/artisan serve --host=0.0.0.0 --port=80"
+fi
+
+if [ -z "${SUPERVISOR_PHP_COMMAND}" ]; then
+  export SUPERVISOR_PHP_COMMAND="${CMD}"
+fi
+
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+

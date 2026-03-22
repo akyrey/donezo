@@ -1,0 +1,24 @@
+services:
+  sail:
+    exec: "docker compose exec -u developer donezo.ws"
+    commands:
+      shell:    "bash"
+      artisan:  "php artisan"
+      composer: "composer"
+      pnpm:     "pnpm"
+      node:     "node"
+      npm:      "npm"
+
+commands:
+    build:
+        cmd: docker compose build
+    start:
+        cmd: docker compose up -d
+        aliases: [up]
+    stop:
+        cmd: docker compose down
+        aliases: [down]
+    restart:
+        cmd: docker compose down && docker compose up -d
+    logs:
+        cmd: docker compose logs
