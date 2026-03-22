@@ -1,0 +1,53 @@
+name: PHPStan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: phpstan-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpstan:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, intl, gd, exif, iconv
+          coverage: none
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Cache PHPStan result
+        uses: actions/cache@v4
+        with:
+          path: /tmp/phpstan
+          key: phpstan-${{ hashFiles('composer.lock', 'phpstan.neon', 'app/**/*.php') }}
+          restore-keys: phpstan-
+
+      - name: Run PHPStan
+        run: composer stan -- --error-format=github --tmp-dir=/tmp/phpstan
