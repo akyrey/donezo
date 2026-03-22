@@ -15,7 +15,7 @@ final class ChecklistItemChanged implements ShouldBroadcastNow
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @param  array<int>  $groupIds  IDs of groups the parent task belongs to
+     * @param array<int> $groupIds IDs of groups the parent task belongs to
      */
     public function __construct(
         public readonly int $taskId,

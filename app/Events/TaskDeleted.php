@@ -15,7 +15,7 @@ final class TaskDeleted implements ShouldBroadcastNow
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @param  array<int>  $groupIds  IDs of groups this task belonged to (loaded before deletion)
+     * @param array<int> $groupIds IDs of groups this task belonged to (loaded before deletion)
      */
     public function __construct(
         public readonly int $taskId,

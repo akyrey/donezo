@@ -15,7 +15,7 @@ final class GroupDeleted implements ShouldBroadcastNow
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @param  array<int>  $memberIds  IDs of all members (loaded before detaching)
+     * @param array<int> $memberIds IDs of all members (loaded before detaching)
      */
     public function __construct(
         public readonly int $groupId,
