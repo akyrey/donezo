@@ -10,7 +10,7 @@
     "lint:prettier:fix": "prettier --write ."
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.0.0",
+    "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query-devtools": "^5.91.3",
     "@types/node": "^25.3.2",
     "concurrently": "^9.0.1",
