@@ -68,9 +68,9 @@ final class ProcessDueReminders extends Command
             return;
         }
 
-        $vapidPublicKey = env('VAPID_PUBLIC_KEY');
-        $vapidPrivateKey = env('VAPID_PRIVATE_KEY');
-        $vapidSubject = env('VAPID_SUBJECT', config('app.url'));
+        $vapidPublicKey = config('services.vapid.public_key');
+        $vapidPrivateKey = config('services.vapid.private_key');
+        $vapidSubject = config('services.vapid.subject') ?? config('app.url');
 
         if (!$vapidPublicKey || !$vapidPrivateKey) {
             Log::warning('VAPID keys not configured, skipping push notifications.');

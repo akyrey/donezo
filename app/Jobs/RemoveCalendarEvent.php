@@ -22,7 +22,7 @@ final class RemoveCalendarEvent implements ShouldQueue
 
     public function handle(GoogleCalendarService $service): void
     {
-        if (!config('services.google.client_id') || !env('GOOGLE_CALENDAR_ENABLED', false)) {
+        if (!config('services.google.client_id') || !config('services.google.calendar_enabled')) {
             return;
         }
 

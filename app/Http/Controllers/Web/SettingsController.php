@@ -30,7 +30,7 @@ final class SettingsController extends Controller
                 'connected' => $googleAccount !== null,
                 'has_calendar_scope' => $googleAccount?->hasCalendarAccess() ?? false,
                 'token_expired' => $googleAccount?->isTokenExpired() ?? false,
-                'enabled' => (bool) env('GOOGLE_CALENDAR_ENABLED', false),
+                'enabled' => (bool) config('services.google.calendar_enabled'),
             ],
             'hasGoogleAccount' => $googleAccount !== null,
             'hasPushSubscriptions' => $user->pushSubscriptions()->exists(),

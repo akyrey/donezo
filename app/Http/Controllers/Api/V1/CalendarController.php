@@ -31,7 +31,7 @@ final class CalendarController extends Controller
             return response()->json([
                 'connected' => false,
                 'has_calendar_scope' => false,
-                'enabled' => (bool) env('GOOGLE_CALENDAR_ENABLED', false),
+                'enabled' => (bool) config('services.google.calendar_enabled'),
             ]);
         }
 
@@ -39,7 +39,7 @@ final class CalendarController extends Controller
             'connected' => true,
             'has_calendar_scope' => $googleAccount->hasCalendarAccess(),
             'token_expired' => $googleAccount->isTokenExpired(),
-            'enabled' => (bool) env('GOOGLE_CALENDAR_ENABLED', false),
+            'enabled' => (bool) config('services.google.calendar_enabled'),
         ]);
     }
 
