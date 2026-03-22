@@ -6,6 +6,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Data\CreateProjectData;
 use App\Data\ProjectData;
+use App\Events\ProjectCreated;
+use App\Events\ProjectDeleted;
+use App\Events\ProjectUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
@@ -48,6 +51,8 @@ final class ProjectController extends Controller
 
         $project->loadCount(['tasks as task_count', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')]);
         $project->load(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count')]);
+
+        broadcast(new ProjectCreated($project))->toOthers();
 
         return response()->json([
             'data' => ProjectData::from($project),
@@ -95,6 +100,8 @@ final class ProjectController extends Controller
         $project->loadCount(['tasks as task_count', 'tasks as completed_task_count' => fn ($q) => $q->whereNotNull('completed_at')]);
         $project->load(['headings' => fn ($q) => $q->orderBy('position')->withCount('tasks as task_count')]);
 
+        broadcast(new ProjectUpdated($project))->toOthers();
+
         return response()->json([
             'data' => ProjectData::from($project),
         ]);
@@ -107,7 +114,12 @@ final class ProjectController extends Controller
     {
         abort_unless($project->user_id === $request->user()->id, 403);
 
+        $projectId = $project->id;
+        $userId = $project->user_id;
+
         $project->delete();
+
+        broadcast(new ProjectDeleted($projectId, $userId))->toOthers();
 
         return response()->json(null, 204);
     }

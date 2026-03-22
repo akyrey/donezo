@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\ReminderData;
+use App\Events\ReminderChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Reminder;
 use App\Models\Task;
@@ -40,6 +41,8 @@ final class ReminderController extends Controller
 
         $reminder = $task->reminders()->create(array_merge($validated, ['is_sent' => false]));
 
+        broadcast(new ReminderChanged($task->id, $task->user_id))->toOthers();
+
         return response()->json([
             'data' => ReminderData::from($reminder),
         ], 201);
@@ -70,6 +73,9 @@ final class ReminderController extends Controller
 
         $reminder->update($validated);
 
+        $task = $reminder->task;
+        broadcast(new ReminderChanged($task->id, $task->user_id))->toOthers();
+
         return response()->json([
             'data' => ReminderData::from($reminder),
         ]);
@@ -82,7 +88,11 @@ final class ReminderController extends Controller
     {
         abort_unless($reminder->task->user_id === $request->user()->id, 403);
 
+        $task = $reminder->task;
+
         $reminder->delete();
+
+        broadcast(new ReminderChanged($task->id, $task->user_id))->toOthers();
 
         return response()->json(null, 204);
     }

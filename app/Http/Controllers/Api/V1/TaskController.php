@@ -7,6 +7,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Data\CreateTaskData;
 use App\Data\TaskData;
 use App\Data\UpdateTaskData;
+use App\Events\TaskCompleted;
+use App\Events\TaskCreated;
+use App\Events\TaskDeleted;
+use App\Events\TaskUncompleted;
+use App\Events\TaskUpdated;
+use App\Events\TasksReordered;
 use App\Http\Controllers\Controller;
 use App\Jobs\RemoveCalendarEvent;
 use App\Jobs\SyncTaskToCalendar;
@@ -118,12 +124,14 @@ final class TaskController extends Controller
             }
         }
 
-        $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee']);
+        $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee', 'groups']);
 
         // Dispatch calendar sync if task has a date
         if ($task->scheduled_at || $task->deadline_at) {
             SyncTaskToCalendar::dispatch($task->id);
         }
+
+        broadcast(new TaskCreated($task))->toOthers();
 
         return response()->json([
             'data' => TaskData::from($task),
@@ -193,7 +201,7 @@ final class TaskController extends Controller
             $task->tags()->sync($data->tags);
         }
 
-        $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee', 'project']);
+        $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee', 'project', 'groups']);
 
         // Dispatch calendar sync if task has calendar-relevant changes
         $calendarFields = ['title', 'description', 'scheduled_at', 'deadline_at', 'is_evening'];
@@ -202,6 +210,8 @@ final class TaskController extends Controller
         if ($hasCalendarChanges && ($task->scheduled_at || $task->deadline_at)) {
             SyncTaskToCalendar::dispatch($task->id);
         }
+
+        broadcast(new TaskUpdated($task))->toOthers();
 
         return response()->json([
             'data' => TaskData::from($task),
@@ -214,6 +224,9 @@ final class TaskController extends Controller
     public function destroy(Request $request, Task $task): JsonResponse
     {
         abort_unless($task->user_id === $request->user()->id, 403);
+
+        // Capture group IDs before deletion
+        $groupIds = $task->groups()->pluck('groups.id')->toArray();
 
         // Remove calendar event if synced
         if ($task->google_calendar_event_id) {
@@ -230,6 +243,8 @@ final class TaskController extends Controller
         }
 
         $task->delete();
+
+        broadcast(new TaskDeleted($task->id, $task->user_id, $groupIds))->toOthers();
 
         return response()->json(null, 204);
     }
@@ -263,7 +278,9 @@ final class TaskController extends Controller
             $task->update(['google_calendar_event_id' => null]);
         }
 
-        $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee']);
+        $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee', 'groups']);
+
+        broadcast(new TaskCompleted($task))->toOthers();
 
         return response()->json([
             'data' => TaskData::from($task),
@@ -288,7 +305,9 @@ final class TaskController extends Controller
             SyncTaskToCalendar::dispatch($task->id);
         }
 
-        $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee']);
+        $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee', 'groups']);
+
+        broadcast(new TaskUncompleted($task))->toOthers();
 
         return response()->json([
             'data' => TaskData::from($task),
@@ -321,6 +340,8 @@ final class TaskController extends Controller
                 ->where('user_id', $userId)
                 ->update($update);
         }
+
+        broadcast(new TasksReordered($userId))->toOthers();
 
         return response()->json(['message' => 'Tasks reordered successfully.']);
     }

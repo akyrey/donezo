@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\HeadingData;
+use App\Events\HeadingCreated;
+use App\Events\HeadingDeleted;
+use App\Events\HeadingUpdated;
+use App\Events\HeadingsReordered;
 use App\Http\Controllers\Controller;
 use App\Models\Heading;
 use App\Models\Project;
@@ -50,6 +54,8 @@ final class HeadingController extends Controller
 
         $heading->loadCount('tasks as task_count');
 
+        broadcast(new HeadingCreated($heading, $request->user()->id))->toOthers();
+
         return response()->json([
             'data' => HeadingData::from($heading),
         ], 201);
@@ -84,6 +90,8 @@ final class HeadingController extends Controller
         $heading->update($validated);
         $heading->loadCount('tasks as task_count');
 
+        broadcast(new HeadingUpdated($heading, $request->user()->id))->toOthers();
+
         return response()->json([
             'data' => HeadingData::from($heading),
         ]);
@@ -96,9 +104,15 @@ final class HeadingController extends Controller
     {
         abort_unless($heading->project->user_id === $request->user()->id, 403);
 
+        $headingId = $heading->id;
+        $projectId = $heading->project_id;
+        $userId = $request->user()->id;
+
         // Unassign tasks from this heading before deleting
         $heading->tasks()->update(['heading_id' => null]);
         $heading->delete();
+
+        broadcast(new HeadingDeleted($headingId, $projectId, $userId))->toOthers();
 
         return response()->json(null, 204);
     }
@@ -121,6 +135,8 @@ final class HeadingController extends Controller
                 ->whereHas('project', fn ($q) => $q->where('user_id', $userId))
                 ->update(['position' => $item['position']]);
         }
+
+        broadcast(new HeadingsReordered($userId))->toOthers();
 
         return response()->json(['message' => 'Headings reordered successfully.']);
     }

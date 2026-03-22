@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\ChecklistItemData;
+use App\Events\ChecklistItemChanged;
 use App\Http\Controllers\Controller;
 use App\Models\ChecklistItem;
 use App\Models\Task;
@@ -46,6 +47,9 @@ final class ChecklistItemController extends Controller
             'is_completed' => false,
         ]);
 
+        $groupIds = $task->groups()->pluck('groups.id')->toArray();
+        broadcast(new ChecklistItemChanged($task->id, $task->user_id, $groupIds))->toOthers();
+
         return response()->json([
             'data' => ChecklistItemData::from($item),
         ], 201);
@@ -78,6 +82,10 @@ final class ChecklistItemController extends Controller
 
         $checklistItem->update($validated);
 
+        $task = $checklistItem->task;
+        $groupIds = $task->groups()->pluck('groups.id')->toArray();
+        broadcast(new ChecklistItemChanged($task->id, $task->user_id, $groupIds))->toOthers();
+
         return response()->json([
             'data' => ChecklistItemData::from($checklistItem),
         ]);
@@ -90,7 +98,12 @@ final class ChecklistItemController extends Controller
     {
         abort_unless($checklistItem->task->user_id === $request->user()->id, 403);
 
+        $task = $checklistItem->task;
+        $groupIds = $task->groups()->pluck('groups.id')->toArray();
+
         $checklistItem->delete();
+
+        broadcast(new ChecklistItemChanged($task->id, $task->user_id, $groupIds))->toOthers();
 
         return response()->json(null, 204);
     }
@@ -105,6 +118,10 @@ final class ChecklistItemController extends Controller
         $checklistItem->update([
             'is_completed' => !$checklistItem->is_completed,
         ]);
+
+        $task = $checklistItem->task;
+        $groupIds = $task->groups()->pluck('groups.id')->toArray();
+        broadcast(new ChecklistItemChanged($task->id, $task->user_id, $groupIds))->toOthers();
 
         return response()->json([
             'data' => ChecklistItemData::from($checklistItem),

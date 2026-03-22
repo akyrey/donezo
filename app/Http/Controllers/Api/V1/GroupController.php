@@ -7,6 +7,10 @@ namespace App\Http\Controllers\Api\V1;
 use App\Data\GroupData;
 use App\Data\TaskData;
 use App\Data\UserData;
+use App\Events\GroupDeleted;
+use App\Events\GroupMemberRemoved;
+use App\Events\GroupTasksShared;
+use App\Events\GroupUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Group;
 use App\Models\User;
@@ -100,6 +104,8 @@ final class GroupController extends Controller
         $group->load('owner');
         $group->loadCount('members as member_count');
 
+        broadcast(new GroupUpdated($group))->toOthers();
+
         return response()->json([
             'data' => GroupData::from($group),
         ]);
@@ -112,9 +118,15 @@ final class GroupController extends Controller
     {
         abort_unless($group->owner_id === $request->user()->id, 403);
 
+        // Capture member IDs before detaching so we can notify them
+        $memberIds = $group->members()->pluck('users.id')->toArray();
+        $groupId = $group->id;
+
         $group->members()->detach();
         $group->tasks()->detach();
         $group->delete();
+
+        broadcast(new GroupDeleted($groupId, $memberIds))->toOthers();
 
         return response()->json(null, 204);
     }
@@ -134,6 +146,8 @@ final class GroupController extends Controller
 
         $group->load('owner');
         $group->loadCount('members as member_count');
+
+        broadcast(new GroupMemberRemoved($group->id, $user->id))->toOthers();
 
         return response()->json([
             'data' => GroupData::from($group),
@@ -164,6 +178,8 @@ final class GroupController extends Controller
             ->whereIn('tasks.id', $userTaskIds)
             ->with(['tags', 'checklistItems', 'reminders'])
             ->get();
+
+        broadcast(new GroupTasksShared($group->id))->toOthers();
 
         return response()->json([
             'data' => TaskData::collect($tasks),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\GroupInvitationData;
+use App\Events\GroupMemberJoined;
 use App\Http\Controllers\Controller;
 use App\Mail\GroupInvitationMail;
 use App\Models\Group;
@@ -129,6 +130,8 @@ final class GroupInvitationController extends Controller
 
         $group->members()->attach($user->id, ['role' => $invitation->role]);
         $invitation->update(['accepted_at' => now()]);
+
+        broadcast(new GroupMemberJoined($group->id, $user->id))->toOthers();
 
         return response()->json([
             'message' => 'You have joined the group.',

@@ -58,6 +58,7 @@ import {
   useDeleteSectionMutation,
 } from '@/hooks/useSections';
 import { useUpdateProjectMutation, useDeleteProjectMutation } from '@/hooks/useProjects';
+import { useBroadcast } from '@/hooks/useBroadcast';
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -818,6 +819,9 @@ export default function AuthenticatedLayout({
     name: string;
     type: 'project' | 'section';
   } | null>(null);
+
+  // Subscribe to real-time broadcast events for multi-tab and cross-user sync
+  useBroadcast();
 
   const updateProject = useUpdateProjectMutation();
   const deleteProject = useDeleteProjectMutation();

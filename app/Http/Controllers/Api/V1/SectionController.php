@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Events\SectionCreated;
+use App\Events\SectionDeleted;
+use App\Events\SectionUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Section;
 use Illuminate\Http\JsonResponse;
@@ -43,6 +46,8 @@ final class SectionController extends Controller
             'position' => $maxPosition + 1,
         ]);
 
+        broadcast(new SectionCreated($section))->toOthers();
+
         return response()->json([
             'data' => $section,
         ], 201);
@@ -76,6 +81,8 @@ final class SectionController extends Controller
 
         $section->update($validated);
 
+        broadcast(new SectionUpdated($section))->toOthers();
+
         return response()->json([
             'data' => $section,
         ]);
@@ -88,7 +95,12 @@ final class SectionController extends Controller
     {
         abort_unless($section->user_id === $request->user()->id, 403);
 
+        $sectionId = $section->id;
+        $userId = $section->user_id;
+
         $section->delete();
+
+        broadcast(new SectionDeleted($sectionId, $userId))->toOthers();
 
         return response()->json(null, 204);
     }
