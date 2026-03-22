@@ -41,7 +41,7 @@ primary_region = 'ams'
   SENTRY_PROFILES_SAMPLE_RATE = '0.2'
 
 [http_service]
-  internal_port = 8080
+  internal_port = 8000
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true

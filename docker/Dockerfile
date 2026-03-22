@@ -122,6 +122,7 @@ RUN install-php-extensions \
         redis \
         igbinary \
         excimer \
+        uv \
     && docker-php-source delete \
     && rm -rf /tmp/* /var/tmp/*
 
