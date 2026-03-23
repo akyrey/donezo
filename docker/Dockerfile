@@ -231,7 +231,12 @@ RUN mkdir -p \
         storage/logs \
     && chmod -R a+rw storage
 
-RUN composer build \
+RUN APP_URL=http://localhost \
+    BROADCAST_CONNECTION=log \
+    REVERB_APP_KEY=placeholder \
+    REVERB_APP_SECRET=placeholder \
+    REVERB_APP_ID=placeholder \
+    composer build \
     && composer clear-cache
 
 EXPOSE 8080
