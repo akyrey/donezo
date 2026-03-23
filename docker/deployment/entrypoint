@@ -5,6 +5,8 @@ CONTAINER_MODE=${CONTAINER_MODE:-"http"}
 
 initialStuff() {
     log "Starting in ${CONTAINER_MODE} mode."
+
+    composer initiate
 }
 
 if [ "$1" != "" ]; then
