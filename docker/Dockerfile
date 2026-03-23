@@ -231,7 +231,7 @@ RUN mkdir -p \
         storage/logs \
     && chmod -R a+rw storage
 
-RUN composer build \
+RUN APP_DOMAIN=localhost composer build \
     && composer clear-cache
 
 EXPOSE 8080
