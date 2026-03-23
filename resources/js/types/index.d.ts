@@ -167,6 +167,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
     auth: {
       user: User;
     };
+    app_version: string;
     task_counts: Partial<Record<'inbox' | 'today' | 'upcoming' | 'anytime' | 'someday', number>>;
     projects: Project[];
     sections: Section[];

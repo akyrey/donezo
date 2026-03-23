@@ -18,8 +18,8 @@ ARG NODE_VERSION="lts-alpine"
 ARG WORKDIR="/app"
 
 ## Composer stage ##############################################################
-FROM --platform=${PLATFORM} composer:${COMPOSER_VERSION} AS vendor
-FROM --platform=${PLATFORM} caddy:${CADDY_VERSION}-builder AS builder
+FROM composer:${COMPOSER_VERSION} AS vendor
+FROM caddy:${CADDY_VERSION}-builder AS builder
 
 ## Node stage for assets building stage ########################################
 FROM node:${NODE_VERSION} AS assets
@@ -38,7 +38,7 @@ COPY --link . .
 RUN pnpm run build:ssr
 
 ## Caddy builder stage #########################################################
-FROM --platform=${PLATFORM} dunglas/frankenphp:${FRANKEN_VERSION}-builder-php${PHP_VERSION}-alpine AS caddy
+FROM dunglas/frankenphp:${FRANKEN_VERSION}-builder-php${PHP_VERSION}-alpine AS caddy
 
 COPY --from=builder /usr/bin/xcaddy /usr/bin/xcaddy
 
@@ -56,7 +56,7 @@ RUN --mount=type=cache,id=gomod,target=/go/pkg/mod \
         --with github.com/dunglas/caddy-cbrotli
 
 ## FrankenPHP builder stage ####################################################
-FROM --platform=${PLATFORM} dunglas/frankenphp:${FRANKEN_VERSION}-php${PHP_VERSION}-alpine AS franken
+FROM dunglas/frankenphp:${FRANKEN_VERSION}-php${PHP_VERSION}-alpine AS franken
 
 COPY --from=caddy /usr/local/bin/frankenphp /usr/local/bin/frankenphp
 
@@ -187,8 +187,8 @@ LABEL org.opencontainers.image.title="${APPNAME}" \
       org.opencontainers.image.maintainer="Akyrey <stein.dario@gmail.com>"
 
 ENV APPNAME="${APPNAME}" \
-    APPVERSION="${APPVERSION}" \
-    APPVERSIONHASH="${APPVERSIONHASH}"
+    APP_VERSION="${APPVERSION}" \
+    APP_VERSION_HASH="${APPVERSIONHASH}"
 
 # Vendor files installation
 COPY --link --chown=${WWWUSER}:${WWWUSER} composer.json composer.lock ./

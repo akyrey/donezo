@@ -97,6 +97,7 @@ final class HandleInertiaRequests extends Middleware
                         ->values()
                 )
                 : [],
+            'app_version' => config('app.version'),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

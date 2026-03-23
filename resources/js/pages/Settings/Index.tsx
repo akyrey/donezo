@@ -1,6 +1,6 @@
 import React from 'react';
 import { type SubmitEventHandler } from 'react';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import {
   Settings as SettingsIcon,
   Trash2,
@@ -24,7 +24,7 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
-import type { User, CalendarStatus, SocialAccount } from '@/types';
+import type { User, CalendarStatus, SocialAccount, PageProps } from '@/types';
 import { useDisconnectCalendarMutation, useSyncCalendarMutation } from '@/hooks/useCalendar';
 import { useDisconnectSocialAccountMutation } from '@/hooks/useSocialAccounts';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -635,6 +635,22 @@ function DangerZone() {
   );
 }
 
+function AboutSection() {
+  const { app_version } = usePage<PageProps>().props;
+
+  return (
+    <section>
+      <div className="mb-4 flex items-center gap-2">
+        <Shield className="text-text-secondary h-5 w-5" />
+        <h2 className="text-text text-lg font-semibold">About</h2>
+      </div>
+      <p className="text-text-secondary text-sm">
+        Version <span className="text-text font-medium">v{app_version}</span>
+      </p>
+    </section>
+  );
+}
+
 export default function SettingsIndex({
   auth: { user },
   calendarStatus,
@@ -683,6 +699,10 @@ export default function SettingsIndex({
           <Separator.Root className="bg-border h-px" />
 
           <DangerZone />
+
+          <Separator.Root className="bg-border h-px" />
+
+          <AboutSection />
         </div>
       </div>
     </AuthenticatedLayout>

@@ -736,6 +736,13 @@ function SidebarContent({
         </div>
       </ScrollArea>
 
+      {/* Version */}
+      <div className="px-5 pb-1">
+        <span className="text-text-tertiary text-[10px]">
+          v{usePage<PageProps>().props.app_version}
+        </span>
+      </div>
+
       {/* User menu */}
       <div className="border-border border-t p-3">
         <DropdownMenu>

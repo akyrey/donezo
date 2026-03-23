@@ -125,4 +125,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'version' => env('APP_VERSION', '0.0.1-dev'),
+
+    'version_hash' => env('APP_VERSION_HASH', ''),
+
 ];
