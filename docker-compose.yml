@@ -55,7 +55,7 @@ services:
     networks:
       - donezo.dev
     healthcheck:
-      test: "valkey-cli ping"
+      test: 'valkey-cli ping'
       start_period: 2s
       interval: 1s
       timeout: 5s
