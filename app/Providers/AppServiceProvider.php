@@ -32,7 +32,7 @@ final class AppServiceProvider extends ServiceProvider
         Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
 
         if ($this->app->isLocal() && config('app.version') === '0.0.1-dev') {
-            $version = trim((string) shell_exec('git describe --tags --always 2>/dev/null'));
+            $version = mb_trim((string) shell_exec('git describe --tags --always 2>/dev/null'));
             if ($version !== '') {
                 config(['app.version' => $version]);
             }
