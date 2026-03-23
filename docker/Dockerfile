@@ -25,8 +25,10 @@ FROM caddy:${CADDY_VERSION}-builder AS builder
 FROM node:${NODE_VERSION} AS assets
 
 ARG WORKDIR
+ARG VITE_REVERB_APP_KEY=""
 
 ENV WORKDIR="$WORKDIR"
+ENV VITE_REVERB_APP_KEY="${VITE_REVERB_APP_KEY}"
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && corepack prepare pnpm@latest --activate

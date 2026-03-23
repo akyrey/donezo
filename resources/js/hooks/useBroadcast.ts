@@ -41,7 +41,9 @@ export function useBroadcast(): void {
   const userId = auth.user?.id;
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !echo) return;
+
+    const echoInstance = echo;
 
     const refresh = debounce(() => {
       queryClient.invalidateQueries();
@@ -51,7 +53,7 @@ export function useBroadcast(): void {
     // ---------------------------------------------------------------
     // Private user channel — personal data sync across tabs
     // ---------------------------------------------------------------
-    const userChannel = echo.private(`App.Models.User.${userId}`);
+    const userChannel = echoInstance.private(`App.Models.User.${userId}`);
 
     userChannel
       // Tasks
@@ -87,7 +89,7 @@ export function useBroadcast(): void {
     // ---------------------------------------------------------------
     const currentGroups = groupsRef.current;
     const groupChannels = currentGroups.map((group) => {
-      const ch = echo.private(`groups.${group.id}`);
+      const ch = echoInstance.private(`groups.${group.id}`);
 
       ch.listen('.TaskCreated', refresh)
         .listen('.TaskUpdated', refresh)
@@ -104,8 +106,8 @@ export function useBroadcast(): void {
     });
 
     return () => {
-      echo.leave(`App.Models.User.${userId}`);
-      groupChannels.forEach(({ id }) => echo.leave(`groups.${id}`));
+      echoInstance.leave(`App.Models.User.${userId}`);
+      groupChannels.forEach(({ id }) => echoInstance.leave(`groups.${id}`));
     };
     // Re-subscribe only when the user or their group membership changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
