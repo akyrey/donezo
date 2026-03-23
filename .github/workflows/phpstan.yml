@@ -50,4 +50,4 @@ jobs:
           restore-keys: phpstan-
 
       - name: Run PHPStan
-        run: composer stan -- --error-format=github --tmp-dir=/tmp/phpstan
+        run: composer stan -- --error-format=github
