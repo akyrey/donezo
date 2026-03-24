@@ -81,7 +81,7 @@ it('auto-accepts a pending invitation when registering with a matching token', f
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('groups.show', $group->id));
+    $response->assertRedirect(route('verification.notice'));
 
     $newUser = User::where('email', 'newbie@example.com')->first();
     expect($group->members()->where('user_id', $newUser->id)->exists())->toBeTrue();
@@ -113,7 +113,7 @@ it('assigns the correct role when auto-accepting on registration', function () {
     expect($pivot->pivot->role)->toBe('admin');
 });
 
-it('redirects to dashboard when registering without an invitation token', function () {
+it('redirects to verification notice when registering without an invitation token', function () {
     $response = $this->post('/register', [
         'name' => 'Plain User',
         'email' => 'plain@example.com',
@@ -122,10 +122,10 @@ it('redirects to dashboard when registering without an invitation token', functi
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard'));
+    $response->assertRedirect(route('verification.notice'));
 });
 
-it('redirects to dashboard when registering with a bogus invitation token', function () {
+it('redirects to verification notice when registering with a bogus invitation token', function () {
     $response = $this->post('/register', [
         'name' => 'Tricky User',
         'email' => 'tricky@example.com',
@@ -135,7 +135,7 @@ it('redirects to dashboard when registering with a bogus invitation token', func
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard'));
+    $response->assertRedirect(route('verification.notice'));
 });
 
 it('does not auto-accept when email does not match invitation', function () {
@@ -159,7 +159,7 @@ it('does not auto-accept when email does not match invitation', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard'));
+    $response->assertRedirect(route('verification.notice'));
 
     $wrongUser = User::where('email', 'different@example.com')->first();
     expect($group->members()->where('user_id', $wrongUser->id)->exists())->toBeFalse();
@@ -187,7 +187,7 @@ it('does not auto-accept an expired invitation on registration', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard'));
+    $response->assertRedirect(route('verification.notice'));
 
     $lateUser = User::where('email', 'late@example.com')->first();
     expect($group->members()->where('user_id', $lateUser->id)->exists())->toBeFalse();

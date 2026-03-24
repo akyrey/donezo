@@ -20,7 +20,7 @@ it('can register a new user', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard'));
+    $response->assertRedirect(route('verification.notice'));
     $this->assertDatabaseHas('users', [
         'email' => 'test@example.com',
         'name' => 'Test User',

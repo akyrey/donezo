@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Web\AnytimeController;
@@ -43,37 +44,53 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/inbox', [InboxController::class, 'index'])->name('inbox');
-    Route::get('/today', [TodayController::class, 'index'])->name('today');
-    Route::get('/upcoming', [UpcomingController::class, 'index'])->name('upcoming');
-    Route::get('/anytime', [AnytimeController::class, 'index'])->name('anytime');
-    Route::get('/someday', [SomedayController::class, 'index'])->name('someday');
-    Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook');
-
-    Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
-    Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
-    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
-    Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
-    Route::post('/projects/{project}/headings', [HeadingController::class, 'store'])->name('projects.headings.store');
-    Route::delete('/headings/{heading}', [HeadingController::class, 'destroy'])->name('headings.destroy');
-    Route::get('/sections/{section}', [SectionController::class, 'show'])->name('sections.show');
-
-    Route::resource('groups', GroupController::class)->only(['index', 'show']);
-
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
-    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
-
-    Route::get('/invitations/{token}', [GroupInvitationController::class, 'show'])->name('invitations.accept');
-
-    Route::patch('/profile', [SettingsController::class, 'updateProfile'])->name('profile.update');
-    Route::patch('/profile/preferences', [SettingsController::class, 'updatePreferences'])->name('profile.preferences');
-    Route::put('/profile/password', [SettingsController::class, 'updatePassword'])->name('password.update');
-    Route::delete('/profile', [SettingsController::class, 'destroy'])->name('profile.destroy');
+    // ──────────────────────────────────────────────
+    // Email verification (accessible to unverified users)
+    // ──────────────────────────────────────────────
+    Route::get('email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+    Route::post('email/verification-notification', [EmailVerificationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
 
     // ──────────────────────────────────────────────
-    // Google Calendar OAuth (requires auth — connects calendar post-login)
+    // All routes below require a verified email
     // ──────────────────────────────────────────────
-    Route::get('/auth/google/calendar/redirect', [CalendarController::class, 'connect'])->name('calendar.connect');
-    Route::get('/auth/google/calendar/callback', [CalendarController::class, 'callback'])->name('calendar.callback');
+    Route::middleware('verified')->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/inbox', [InboxController::class, 'index'])->name('inbox');
+        Route::get('/today', [TodayController::class, 'index'])->name('today');
+        Route::get('/upcoming', [UpcomingController::class, 'index'])->name('upcoming');
+        Route::get('/anytime', [AnytimeController::class, 'index'])->name('anytime');
+        Route::get('/someday', [SomedayController::class, 'index'])->name('someday');
+        Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook');
+
+        Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+        Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+        Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+        Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+        Route::post('/projects/{project}/headings', [HeadingController::class, 'store'])->name('projects.headings.store');
+        Route::delete('/headings/{heading}', [HeadingController::class, 'destroy'])->name('headings.destroy');
+        Route::get('/sections/{section}', [SectionController::class, 'show'])->name('sections.show');
+
+        Route::resource('groups', GroupController::class)->only(['index', 'show']);
+
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+        Route::get('/invitations/{token}', [GroupInvitationController::class, 'show'])->name('invitations.accept');
+
+        Route::patch('/profile', [SettingsController::class, 'updateProfile'])->name('profile.update');
+        Route::patch('/profile/preferences', [SettingsController::class, 'updatePreferences'])->name('profile.preferences');
+        Route::put('/profile/password', [SettingsController::class, 'updatePassword'])->name('password.update');
+        Route::delete('/profile', [SettingsController::class, 'destroy'])->name('profile.destroy');
+
+        // ──────────────────────────────────────────────
+        // Google Calendar OAuth (requires auth — connects calendar post-login)
+        // ──────────────────────────────────────────────
+        Route::get('/auth/google/calendar/redirect', [CalendarController::class, 'connect'])->name('calendar.connect');
+        Route::get('/auth/google/calendar/callback', [CalendarController::class, 'callback'])->name('calendar.callback');
+    });
 });

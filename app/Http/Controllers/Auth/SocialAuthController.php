@@ -70,8 +70,12 @@ final class SocialAuthController extends Controller
                 'email' => $socialUser->getEmail(),
                 'password' => Hash::make(Str::random(24)),
                 'avatar' => $socialUser->getAvatar(),
+                'email_verified_at' => now(),
                 'timezone' => 'UTC',
             ]);
+        } elseif (!$user->hasVerifiedEmail()) {
+            // OAuth provider has verified ownership of this email address
+            $user->markEmailAsVerified();
         }
 
         $user->socialAccounts()->create(array_merge([
@@ -89,7 +93,7 @@ final class SocialAuthController extends Controller
      */
     private function validateProvider(string $provider): void
     {
-        $allowed = ['google', 'github', 'apple'];
+        $allowed = ['google', 'github'];
 
         if (!in_array($provider, $allowed, true)) {
             abort(404, "Social provider [{$provider}] is not supported.");

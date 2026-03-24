@@ -83,11 +83,10 @@ final class RegisteredUserController extends Controller
                 }
                 $invitation->update(['accepted_at' => now()]);
 
-                return redirect()->route('groups.show', $group->id)
-                    ->with('success', 'Welcome! You have joined the group ' . $group->name . '.');
+                return redirect()->route('verification.notice');
             }
         }
 
-        return redirect()->route('dashboard');
+        return redirect()->route('verification.notice');
     }
 }

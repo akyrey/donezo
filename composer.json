@@ -23,6 +23,8 @@
     "minishlink/web-push": "^10.0.3",
     "sentry/sentry-laravel": "^4.23",
     "spatie/laravel-data": "^4.20.1",
+    "symfony/http-client": "^8.0",
+    "symfony/mailgun-mailer": "^8.0",
     "tightenco/ziggy": "^2.6.2"
   },
   "require-dev": {
