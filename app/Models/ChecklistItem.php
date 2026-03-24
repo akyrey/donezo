@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 final class ChecklistItem extends Model
 {
+    /** @use HasFactory<\Database\Factories\ChecklistItemFactory> */
     use HasFactory;
 
     /**

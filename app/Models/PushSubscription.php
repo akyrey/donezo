@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 final class PushSubscription extends Model
 {
+    /** @use HasFactory<\Database\Factories\PushSubscriptionFactory> */
     use HasFactory;
 
     /**

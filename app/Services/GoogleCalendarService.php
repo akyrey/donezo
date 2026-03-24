@@ -35,8 +35,8 @@ final class GoogleCalendarService
         $this->client->setAccessToken([
             'access_token' => $account->provider_token,
             'refresh_token' => $account->provider_refresh_token,
-            'expires_in' => $account->token_expires_at?->diffInSeconds(now()) ?? 0,
-            'created' => $account->updated_at?->timestamp ?? time(),
+            'expires_in' => $account->token_expires_at !== null ? $account->token_expires_at->diffInSeconds(now()) : 0,
+            'created' => $account->updated_at->timestamp ?? time(),
         ]);
 
         if ($this->client->isAccessTokenExpired() && $account->provider_refresh_token) {
@@ -148,11 +148,13 @@ final class GoogleCalendarService
         $end = new EventDateTime();
 
         // If we have a specific time, use dateTime; otherwise use date (all-day event)
-        if ($task->deadline_at && ($task->deadline_at->hour !== 0 || $task->deadline_at->minute !== 0)) {
+        /** @var \Illuminate\Support\Carbon $deadlineAt */
+        $deadlineAt = $task->deadline_at;
+        if ($task->deadline_at && ($deadlineAt->hour !== 0 || $deadlineAt->minute !== 0)) {
             $start->setDateTime($dateTime->toRfc3339String());
-            $start->setTimeZone($task->user?->timezone ?? 'UTC');
+            $start->setTimeZone($task->user->timezone ?? 'UTC');
             $end->setDateTime($dateTime->copy()->addHour()->toRfc3339String());
-            $end->setTimeZone($task->user?->timezone ?? 'UTC');
+            $end->setTimeZone($task->user->timezone ?? 'UTC');
         } else {
             $start->setDate($dateTime->toDateString());
             $end->setDate($dateTime->copy()->addDay()->toDateString());

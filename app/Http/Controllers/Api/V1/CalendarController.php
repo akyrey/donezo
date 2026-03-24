@@ -48,7 +48,10 @@ final class CalendarController extends Controller
      */
     public function connect(Request $request): RedirectResponse
     {
-        return Socialite::driver('google')
+        /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+        $driver = Socialite::driver('google');
+
+        return $driver
             ->scopes([GoogleCalendarService::CALENDAR_SCOPE])
             ->with(['access_type' => 'offline', 'prompt' => 'consent'])
             ->redirect();
@@ -60,6 +63,7 @@ final class CalendarController extends Controller
     public function callback(Request $request): RedirectResponse
     {
         try {
+            /** @var \Laravel\Socialite\Two\User $socialUser */
             $socialUser = Socialite::driver('google')->user();
 
             $user = $request->user();
@@ -67,13 +71,13 @@ final class CalendarController extends Controller
                 ->where('provider', 'google')
                 ->first();
 
-            $scopes = explode(' ', $socialUser->approvedScopes ?? '');
+            $scopes = $socialUser->approvedScopes;
 
             if ($googleAccount) {
                 $googleAccount->update([
                     'provider_token' => $socialUser->token,
-                    'provider_refresh_token' => $socialUser->refreshToken ?? $googleAccount->provider_refresh_token,
-                    'token_expires_at' => now()->addSeconds($socialUser->expiresIn ?? 3600),
+                    'provider_refresh_token' => $socialUser->refreshToken ?: $googleAccount->provider_refresh_token,
+                    'token_expires_at' => now()->addSeconds($socialUser->expiresIn ?: 3600),
                     'scopes' => $scopes,
                 ]);
             } else {
@@ -82,7 +86,7 @@ final class CalendarController extends Controller
                     'provider_id' => $socialUser->getId(),
                     'provider_token' => $socialUser->token,
                     'provider_refresh_token' => $socialUser->refreshToken,
-                    'token_expires_at' => now()->addSeconds($socialUser->expiresIn ?? 3600),
+                    'token_expires_at' => now()->addSeconds($socialUser->expiresIn ?: 3600),
                     'scopes' => $scopes,
                 ]);
             }
@@ -110,6 +114,7 @@ final class CalendarController extends Controller
 
         if ($googleAccount) {
             // Remove calendar scope but keep the social account for login
+            /** @var array<int, string> $scopes */
             $scopes = $googleAccount->scopes ?? [];
             $scopes = array_values(array_filter(
                 $scopes,

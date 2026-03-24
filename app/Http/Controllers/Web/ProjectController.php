@@ -21,6 +21,7 @@ final class ProjectController extends Controller
     /**
      * Build the base project query with counts and relations.
      */
+    /** @return HasMany<Project, \App\Models\User> */
     private function projectsQuery(Request $request): HasMany
     {
         return $request->user()

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Section extends Model
 {
+    /** @use HasFactory<\Database\Factories\SectionFactory> */
     use HasFactory, SoftDeletes;
 
     /**

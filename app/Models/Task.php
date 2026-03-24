@@ -16,8 +16,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 #[ObservedBy(TaskObserver::class)]
+/**
+ * @property Carbon|null $scheduled_at
+ * @property Carbon|null $deadline_at
+ * @property Carbon|null $completed_at
+ * @property Carbon|null $cancelled_at
+ */
 final class Task extends Model
 {
+    /** @use HasFactory<\Database\Factories\TaskFactory> */
     use HasFactory, SoftDeletes;
 
     /**
@@ -131,43 +138,71 @@ final class Task extends Model
     // Scopes — Status
     // ──────────────────────────────────────────────
 
-    /** @param Builder<self> $query */
+    /**
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeInbox(Builder $query): Builder
     {
         return $query->where('status', 'inbox');
     }
 
-    /** @param Builder<self> $query */
+    /**
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeToday(Builder $query): Builder
     {
         return $query->where('status', 'today');
     }
 
-    /** @param Builder<self> $query */
+    /**
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeUpcoming(Builder $query): Builder
     {
         return $query->where('status', 'upcoming');
     }
 
-    /** @param Builder<self> $query */
+    /**
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeAnytime(Builder $query): Builder
     {
         return $query->where('status', 'anytime');
     }
 
-    /** @param Builder<self> $query */
+    /**
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeSomeday(Builder $query): Builder
     {
         return $query->where('status', 'someday');
     }
 
-    /** @param Builder<self> $query */
+    /**
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeCompleted(Builder $query): Builder
     {
         return $query->where('status', 'completed');
     }
 
-    /** @param Builder<self> $query */
+    /**
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeCancelled(Builder $query): Builder
     {
         return $query->where('status', 'cancelled');
@@ -177,13 +212,21 @@ final class Task extends Model
     // Scopes — Date / Time
     // ──────────────────────────────────────────────
 
-    /** @param Builder<self> $query */
+    /**
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeEvening(Builder $query): Builder
     {
         return $query->where('is_evening', true);
     }
 
-    /** @param Builder<self> $query */
+    /**
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeOverdue(Builder $query): Builder
     {
         return $query->whereNotNull('deadline_at')
@@ -192,7 +235,11 @@ final class Task extends Model
             ->whereNull('cancelled_at');
     }
 
-    /** @param Builder<self> $query */
+    /**
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeDueToday(Builder $query): Builder
     {
         return $query->whereNotNull('deadline_at')

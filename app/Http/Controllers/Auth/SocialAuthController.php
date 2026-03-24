@@ -12,13 +12,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse;
 
 final class SocialAuthController extends Controller
 {
     /**
      * Redirect the user to the provider's authentication page.
      */
-    public function redirect(string $provider): RedirectResponse
+    public function redirect(string $provider): SymfonyRedirectResponse
     {
         $this->validateProvider($provider);
 
@@ -32,16 +33,17 @@ final class SocialAuthController extends Controller
     {
         $this->validateProvider($provider);
 
+        /** @var \Laravel\Socialite\Two\User $socialUser */
         $socialUser = Socialite::driver($provider)->user();
 
         // Extract token metadata
         $tokenData = [
             'provider_token' => $socialUser->token,
             'provider_refresh_token' => $socialUser->refreshToken,
-            'token_expires_at' => isset($socialUser->expiresIn)
+            'token_expires_at' => $socialUser->expiresIn
                 ? now()->addSeconds($socialUser->expiresIn)
                 : null,
-            'scopes' => $socialUser->approvedScopes ?? [],
+            'scopes' => $socialUser->approvedScopes,
         ];
 
         $socialAccount = SocialAccount::where('provider', $provider)

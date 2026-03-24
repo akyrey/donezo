@@ -43,6 +43,7 @@ final class UpdateTaskData extends Data
         public readonly array|Optional $reminders = new Optional(),
     ) {}
 
+    /** @return array<string, array<int, string>> */
     public static function rules(): array
     {
         return [

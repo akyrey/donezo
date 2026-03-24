@@ -28,6 +28,7 @@ final class SocialAccountController extends Controller
 
         $socialAccountCount = $user->socialAccounts()->count();
 
+        // @phpstan-ignore-next-line (password can be null for OAuth-only users despite hashed cast)
         if ($user->password === null && $socialAccountCount <= 1) {
             return response()->json([
                 'message' => 'Set a password before disconnecting your only login method.',

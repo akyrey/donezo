@@ -35,6 +35,7 @@ final class SettingsController extends Controller
             'hasGoogleAccount' => $googleAccount !== null,
             'hasPushSubscriptions' => $user->pushSubscriptions()->exists(),
             'socialAccounts' => SocialAccountData::collect($user->socialAccounts()->get()),
+            // @phpstan-ignore-next-line (password can be null for OAuth-only users despite hashed cast)
             'hasPassword' => $user->password !== null,
         ]);
     }

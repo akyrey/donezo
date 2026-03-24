@@ -43,6 +43,7 @@ final class CreateTaskData extends Data
         public readonly ?array $reminders = null,
     ) {}
 
+    /** @return array<string, array<int, string>> */
     public static function rules(): array
     {
         return [

@@ -51,12 +51,18 @@ final class UpcomingController extends Controller
                 return true; // unscheduled upcoming tasks always show
             }
 
-            return $task->scheduled_at->between($startDate, $endDate);
+            /** @var Carbon $scheduledAt */
+            $scheduledAt = $task->scheduled_at;
+
+            return $scheduledAt->between($startDate, $endDate);
         });
 
         $grouped = $filtered->groupBy(function ($task) {
-            return $task->scheduled_at
-                ? $task->scheduled_at->toDateString()
+            /** @var Carbon|null $scheduledAt */
+            $scheduledAt = $task->scheduled_at;
+
+            return $scheduledAt
+                ? $scheduledAt->toDateString()
                 : 'unscheduled';
         })->map(fn ($group) => TaskData::collect($group->values()));
 

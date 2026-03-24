@@ -75,11 +75,14 @@ final class ExportTasksJob implements ShouldQueue
                 $task->title,
                 $task->description ?? '',
                 $task->status,
-                $task->project?->name ?? '',
+                $task->project->name ?? '',
                 $task->tags->pluck('name')->join(', '),
-                $task->scheduled_at?->toIso8601String() ?? '',
-                $task->deadline_at?->toIso8601String() ?? '',
-                $task->completed_at?->toIso8601String() ?? '',
+                // @phpstan-ignore-next-line (scheduled_at is cast to datetime in Task model)
+                $task->scheduled_at !== null ? $task->scheduled_at->toIso8601String() : '',
+                // @phpstan-ignore-next-line (deadline_at is cast to datetime in Task model)
+                $task->deadline_at !== null ? $task->deadline_at->toIso8601String() : '',
+                // @phpstan-ignore-next-line (completed_at is cast to datetime in Task model)
+                $task->completed_at !== null ? $task->completed_at->toIso8601String() : '',
                 $task->is_evening ? 'true' : 'false',
                 $task->created_at->toIso8601String(),
             ]);

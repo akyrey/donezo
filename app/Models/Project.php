@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Project extends Model
 {
+    /** @use HasFactory<\Database\Factories\ProjectFactory> */
     use HasFactory, SoftDeletes;
 
     /**

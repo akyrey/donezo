@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class Heading extends Model
 {
+    /** @use HasFactory<\Database\Factories\HeadingFactory> */
     use HasFactory;
 
     /**
