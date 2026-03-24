@@ -74,7 +74,7 @@ export function useNotifications(): UseNotificationsReturn {
       const registration = await navigator.serviceWorker.ready;
 
       // Get VAPID public key
-      const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      const vapidKey = window.__CONFIG__?.vapidPublicKey;
       if (!vapidKey) {
         console.error('VAPID public key not configured');
         setIsLoading(false);

@@ -48,6 +48,16 @@
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
+    <script>
+        window.__CONFIG__ = @json([
+            'appName'        => config('app.name', 'Donezo'),
+            'reverbAppKey'   => config('broadcasting.connections.reverb.key'),
+            'reverbHost'     => config('broadcasting.connections.reverb.options.host'),
+            'reverbPort'     => (int) config('broadcasting.connections.reverb.options.port', 443),
+            'reverbScheme'   => config('broadcasting.connections.reverb.options.scheme', 'https'),
+            'vapidPublicKey' => config('services.vapid.public_key'),
+        ]);
+    </script>
     @routes
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.tsx'])

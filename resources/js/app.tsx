@@ -19,7 +19,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-const appName = import.meta.env.VITE_APP_NAME || 'Donezo';
+const appName = window.__CONFIG__?.appName || 'Donezo';
 
 /**
  * Extract a human-readable message from any thrown value.

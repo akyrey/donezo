@@ -3,16 +3,17 @@ import Pusher from 'pusher-js';
 
 window.Pusher = Pusher;
 
-const key = import.meta.env.VITE_REVERB_APP_KEY as string | undefined;
+const cfg = typeof window !== 'undefined' ? window.__CONFIG__ : null;
+const key = cfg?.reverbAppKey ?? null;
 
 const echo = key
   ? new Echo({
       broadcaster: 'reverb',
       key,
-      wsHost: import.meta.env.VITE_REVERB_HOST as string,
-      wsPort: Number(import.meta.env.VITE_REVERB_PORT ?? 80),
-      wssPort: Number(import.meta.env.VITE_REVERB_PORT ?? 443),
-      forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+      wsHost: cfg?.reverbHost ?? '',
+      wsPort: cfg?.reverbPort ?? 80,
+      wssPort: cfg?.reverbPort ?? 443,
+      forceTLS: (cfg?.reverbScheme ?? 'https') === 'https',
       enabledTransports: ['ws', 'wss'],
     })
   : null;

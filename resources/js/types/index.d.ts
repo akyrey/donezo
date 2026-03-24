@@ -6,6 +6,14 @@ declare global {
   interface Window {
     Pusher: typeof Pusher;
     Echo: Echo;
+    __CONFIG__: {
+      appName: string;
+      reverbAppKey: string | null;
+      reverbHost: string | null;
+      reverbPort: number;
+      reverbScheme: string;
+      vapidPublicKey: string | null;
+    };
   }
 }
 

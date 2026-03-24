@@ -7,7 +7,7 @@ import { useState } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { type RouteName, route } from 'ziggy-js';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Donezo';
+const appName = process.env.APP_NAME || 'Donezo';
 
 createServer(
   (page) =>
