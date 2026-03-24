@@ -35,7 +35,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         // Mobile: full-screen sheet sliding up from bottom
-        'border-border bg-bg fixed inset-0 z-50 grid w-full gap-4 shadow-lg',
+        'border-border bg-bg fixed inset-0 z-50 grid w-full gap-4 p-6 shadow-lg',
         'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-full',
         'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-full',
         // sm+: centered modal
