@@ -1,9 +1,9 @@
 # Multi-stage Dockerfile for a Laravel application using FrankenPHP and Octane
 ARG PLATFORM="linux/amd64"
 
-ARG APPNAME="akyrey/donezo"
-ARG APPVERSION="0.0.1"
-ARG APPVERSIONHASH="__git_hash__"
+ARG APP_NAME="akyrey/donezo"
+ARG APP_VERSION="0.0.1"
+ARG APP_VERSION_HASH="__git_hash__"
 
 # FrankenPHP and Caddy versions are highly codependent,
 # check FrankenPHP releases to find out the compatible Caddy versions
@@ -25,10 +25,8 @@ FROM caddy:${CADDY_VERSION}-builder AS builder
 FROM node:${NODE_VERSION} AS assets
 
 ARG WORKDIR
-ARG VITE_REVERB_APP_KEY=""
 
 ENV WORKDIR="$WORKDIR"
-ENV VITE_REVERB_APP_KEY="${VITE_REVERB_APP_KEY}"
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -81,8 +79,8 @@ ENV TERM=xterm-color \
     LOG_CHANNEL=json \
     COMPOSER_FUND=0 \
     COMPOSER_MAX_PARALLEL_HTTP=24 \
-    XDG_CONFIG_HOME=~/.config \
-    XDG_DATA_HOME=~/.data \
+    XDG_CONFIG_HOME="${HOME}/.config" \
+    XDG_DATA_HOME="${HOME}/.data" \
     WITH_HORIZON=false \
     WITH_SCHEDULER=false \
     WITH_REVERB=true \
@@ -176,21 +174,21 @@ COPY --link --chown=${WWWUSER}:${WWWUSER} ./docker/deployment/php.ini ${PHP_INI_
 ## Final image build (runner) ##################################################
 FROM franken AS runner
 
-ARG APPNAME
-ARG APPVERSION
-ARG APPVERSIONHASH
+ARG APP_NAME
+ARG APP_VERSION
+ARG APP_VERSION_HASH
 
-LABEL org.opencontainers.image.title="${APPNAME}" \
-      org.opencontainers.image.version="${APPVERSION}" \
-      org.opencontainers.image.versionhash="${APPVERSIONHASH}" \
-      org.opencontainers.image.description="${APPNAME} service" \
+LABEL org.opencontainers.image.title="${APP_NAME}" \
+      org.opencontainers.image.version="${APP_VERSION}" \
+      org.opencontainers.image.versionhash="${APP_VERSION_HASH}" \
+      org.opencontainers.image.description="${APP_NAME} service" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.authors="Akyrey <stein.dario@gmail.com>" \
       org.opencontainers.image.maintainer="Akyrey <stein.dario@gmail.com>"
 
-ENV APPNAME="${APPNAME}" \
-    APP_VERSION="${APPVERSION}" \
-    APP_VERSION_HASH="${APPVERSIONHASH}"
+ENV APP_NAME="${APP_NAME}" \
+    APP_VERSION="${APP_VERSION}" \
+    APP_VERSION_HASH="${APP_VERSION_HASH}"
 
 # Vendor files installation
 COPY --link --chown=${WWWUSER}:${WWWUSER} composer.json composer.lock ./
