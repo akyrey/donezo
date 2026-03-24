@@ -14,7 +14,8 @@ export default function VerifyEmail({ status }: { status?: string }) {
         <div className="mb-8 text-center">
           <h1 className="text-text text-2xl font-semibold">Verify your email</h1>
           <p className="text-text-secondary mt-2 text-sm">
-            Thanks for signing up! Please check your inbox for a verification link before continuing.
+            Thanks for signing up! Please check your inbox for a verification link before
+            continuing.
           </p>
         </div>
 

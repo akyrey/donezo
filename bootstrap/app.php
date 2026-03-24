@@ -22,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+            'verified' => Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         ]);
 
         $middleware->statefulApi();
