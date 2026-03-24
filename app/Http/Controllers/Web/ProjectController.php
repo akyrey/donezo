@@ -10,6 +10,7 @@ use App\Data\ProjectData;
 use App\Data\TaskData;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,7 +21,7 @@ final class ProjectController extends Controller
     /**
      * Build the base project query with counts and relations.
      */
-    private function projectsQuery(Request $request): \Illuminate\Database\Eloquent\Builder
+    private function projectsQuery(Request $request): HasMany
     {
         return $request->user()
             ->projects()
