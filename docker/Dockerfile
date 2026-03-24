@@ -83,8 +83,8 @@ ENV TERM=xterm-color \
     XDG_DATA_HOME="/home/${USERNAME}/.data" \
     WITH_HORIZON=false \
     WITH_SCHEDULER=false \
-    WITH_REVERB=true \
-    WITH_INERTIA_SSR=true \
+    WITH_REVERB=false \
+    WITH_INERTIA_SSR=false \
     PYTHONWARNINGS="ignore:pkg_resources is deprecated"
 
 WORKDIR ${WORKDIR}
