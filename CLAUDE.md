@@ -4,13 +4,13 @@
 
 ## Run Environment
 
-All commands (composer, artisan, npm, npx, php) must be run through **Laravel Sail**:
+All commands (composer, artisan, npm, npx, php) must be run through **Docker Compose**:
 
 ```bash
-./vendor/bin/sail npm ...
-./vendor/bin/sail npx tsc --noEmit
-./vendor/bin/sail artisan ...
-./vendor/bin/sail composer ...
+docker compose exec donezo.ws npm ...
+docker compose exec donezo.ws npx tsc --noEmit
+docker compose exec donezo.ws php artisan ...
+docker compose exec donezo.ws composer ...
 ```
 
 ---
@@ -43,7 +43,8 @@ Donezo is a Things-inspired (https://culturedcode.com/things/) task management a
 ### Build
 
 - `composer dev` runs concurrently: `php artisan serve`, `php artisan queue:listen`, `php artisan pail`, `npm run dev`
-- TypeScript check: `./vendor/bin/sail npx tsc --noEmit`
+- TypeScript check: `docker compose exec donezo.ws npx tsc --noEmit`
+- Docker image build accepts `--build-arg VITE_REVERB_APP_KEY=<key>` to bake the Reverb key into the JS bundle at build time; omitting it disables real-time broadcasting gracefully
 
 ---
 
