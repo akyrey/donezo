@@ -39,6 +39,7 @@ export interface TaskCreateData {
   tags?: number[];
   checklist_items?: { title: string; position?: number }[];
   reminders?: { remind_at: string }[];
+  group_ids?: number[];
 }
 
 export interface TaskUpdateData extends Partial<TaskCreateData> {

@@ -107,6 +107,22 @@ final class TaskController extends Controller
             $task->tags()->sync($data->tags);
         }
 
+        if ($data->group_ids) {
+            $authorizedGroupIds = $request->user()
+                ->groups()
+                ->whereIn('groups.id', $data->group_ids)
+                ->pluck('groups.id')
+                ->merge(
+                    $request->user()
+                        ->ownedGroups()
+                        ->whereIn('id', $data->group_ids)
+                        ->pluck('id')
+                )
+                ->unique()
+                ->values();
+            $task->groups()->sync($authorizedGroupIds);
+        }
+
         if ($data->checklist_items) {
             foreach ($data->checklist_items as $index => $item) {
                 $task->checklistItems()->create([

@@ -67,6 +67,8 @@ interface AuthenticatedLayoutProps {
   taskContext?: string;
   /** Pre-select a project when creating a new task */
   defaultProjectId?: number;
+  /** Associate new tasks with a group when creating via the + button */
+  defaultGroupId?: number;
 }
 
 interface NavItem {
@@ -791,6 +793,7 @@ export default function AuthenticatedLayout({
   title,
   taskContext,
   defaultProjectId,
+  defaultGroupId,
 }: AuthenticatedLayoutProps) {
   const {
     auth,
@@ -880,6 +883,7 @@ export default function AuthenticatedLayout({
   // Context resolved from drag-drop target
   const [resolvedContext, setResolvedContext] = useState<string | undefined>(taskContext);
   const [resolvedProjectId, setResolvedProjectId] = useState<number | undefined>(defaultProjectId);
+  const [resolvedGroupId, setResolvedGroupId] = useState<number | undefined>(defaultGroupId);
 
   // Require 8 px of movement before a drag starts so a tap still fires onClick
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
@@ -939,6 +943,7 @@ export default function AuthenticatedLayout({
     // Reset to page-level defaults on a plain tap
     setResolvedContext(taskContext);
     setResolvedProjectId(defaultProjectId);
+    setResolvedGroupId(defaultGroupId);
     setAddTaskOpen(true);
   }
 
@@ -1047,6 +1052,7 @@ export default function AuthenticatedLayout({
           onOpenChange={setAddTaskOpen}
           context={resolvedContext}
           defaultProjectId={resolvedProjectId}
+          defaultGroupId={resolvedGroupId}
         />
 
         {/* Add Section Dialog */}

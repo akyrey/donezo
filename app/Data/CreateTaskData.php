@@ -41,6 +41,8 @@ final class CreateTaskData extends Data
         public readonly ?array $checklist_items = null,
         /** @var array<int, array{remind_at: string}>|null */
         public readonly ?array $reminders = null,
+        /** @var int[]|null */
+        public readonly ?array $group_ids = null,
     ) {}
 
     /** @return array<string, array<int, string>> */
@@ -53,6 +55,8 @@ final class CreateTaskData extends Data
             'checklist_items.*.title' => ['required', 'string', 'max:500'],
             'reminders' => ['sometimes', 'nullable', 'array'],
             'reminders.*.remind_at' => ['required', 'date'],
+            'group_ids' => ['sometimes', 'nullable', 'array'],
+            'group_ids.*' => ['integer', 'exists:groups,id'],
         ];
     }
 }

@@ -81,6 +81,7 @@ export type Task = {
   checklist_items?: ChecklistItem[];
   reminders?: Reminder[];
   tags?: Tag[];
+  groups?: Group[];
   created_at: string;
   updated_at: string;
 };

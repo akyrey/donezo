@@ -345,7 +345,7 @@ export default function GroupsShow({ group, members, tasks }: Props) {
   }
 
   return (
-    <AuthenticatedLayout>
+    <AuthenticatedLayout defaultGroupId={group.id}>
       <Head title={group.name} />
 
       {/* Header */}

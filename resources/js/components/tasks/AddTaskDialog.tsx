@@ -21,6 +21,8 @@ interface AddTaskDialogProps {
   context?: string;
   /** Pre-select a project */
   defaultProjectId?: number;
+  /** Associate the new task with a group */
+  defaultGroupId?: number;
 }
 
 export function AddTaskDialog({
@@ -28,6 +30,7 @@ export function AddTaskDialog({
   onOpenChange,
   context,
   defaultProjectId,
+  defaultGroupId,
 }: AddTaskDialogProps) {
   const { projects } = usePage<PageProps>().props;
   const { data: tagsResponse } = useTagsQuery();
@@ -52,6 +55,7 @@ export function AddTaskDialog({
             tags={tags}
             context={context}
             defaultProjectId={defaultProjectId}
+            defaultGroupId={defaultGroupId}
             onClose={() => onOpenChange(false)}
             renderActions={({ submit, isSubmitting, isEditing, isValid }) => (
               <DialogFooter className="bg-bg border-border sticky bottom-0 mt-4 flex-row justify-end gap-2 border-t px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">

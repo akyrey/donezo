@@ -39,6 +39,8 @@ interface TaskFormProps {
   projectId?: number;
   /** Force inline (compact) UI regardless of context */
   inline?: boolean;
+  /** Group to associate the task with on creation */
+  defaultGroupId?: number;
   /**
    * When provided, the built-in Cancel/Submit button row is suppressed and
    * this render-prop is called instead. The parent (e.g. a dialog sticky
@@ -77,6 +79,7 @@ export function TaskForm({
   context,
   projectId: projectIdProp,
   inline,
+  defaultGroupId,
   renderActions,
 }: TaskFormProps) {
   const isEditing = !!task;
@@ -157,6 +160,7 @@ export function TaskForm({
       heading_id: headingId,
       section_id: sectionId,
       tags: selectedTagIds.length > 0 ? selectedTagIds : undefined,
+      group_ids: defaultGroupId ? [defaultGroupId] : undefined,
       checklist_items: checklistItems.map((item, idx) => ({
         title: item.title,
         position: idx,
