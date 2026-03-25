@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\GroupInvitation;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -19,9 +21,13 @@ final class SocialAuthController extends Controller
     /**
      * Redirect the user to the provider's authentication page.
      */
-    public function redirect(string $provider): SymfonyRedirectResponse
+    public function redirect(string $provider, Request $request): SymfonyRedirectResponse
     {
         $this->validateProvider($provider);
+
+        if ($request->filled('invitation')) {
+            session()->put('invitation_token', $request->string('invitation')->toString());
+        }
 
         return Socialite::driver($provider)->redirect();
     }
@@ -86,6 +92,24 @@ final class SocialAuthController extends Controller
         ], $tokenData));
 
         Auth::login($user);
+
+        // Auto-accept a pending group invitation stored before the OAuth redirect
+        $invitationToken = session()->pull('invitation_token');
+        if ($invitationToken) {
+            $invitation = GroupInvitation::where('token', $invitationToken)
+                ->whereNull('accepted_at')
+                ->where('expires_at', '>', now())
+                ->where('email', mb_strtolower($user->email))
+                ->first();
+
+            if ($invitation) {
+                $group = $invitation->group;
+                if (!$group->members()->where('user_id', $user->id)->exists()) {
+                    $group->members()->attach($user->id, ['role' => $invitation->role]);
+                }
+                $invitation->update(['accepted_at' => now()]);
+            }
+        }
 
         return redirect()->route('dashboard');
     }
