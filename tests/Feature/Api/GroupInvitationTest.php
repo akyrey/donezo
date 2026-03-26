@@ -38,7 +38,7 @@ it('owner can invite a new user by email', function () {
 
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($owner)
         ->postJson("/api/v1/groups/{$group->id}/invitations", [
@@ -64,7 +64,7 @@ it('owner can invite an existing user by email', function () {
     $owner = User::factory()->create();
     $existingUser = User::factory()->create(['email' => 'existing@example.com']);
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($owner)
         ->postJson("/api/v1/groups/{$group->id}/invitations", [
@@ -81,7 +81,7 @@ it('invitation email is stored lowercase', function () {
 
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($owner)
         ->postJson("/api/v1/groups/{$group->id}/invitations", [
@@ -96,7 +96,7 @@ it('owner can invite with admin role', function () {
 
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($owner)
         ->postJson("/api/v1/groups/{$group->id}/invitations", [
@@ -118,7 +118,7 @@ it('resending an invitation to the same email replaces the previous pending one'
 
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     // First invite
     $this->actingAs($owner)
@@ -140,8 +140,8 @@ it('prevents inviting a user who is already a member', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create(['email' => 'member@example.com']);
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($member->id, ['role' => 'member']);
+    $group->addMember($owner, 'admin');
+    $group->addMember($member, 'member');
 
     $this->actingAs($owner)
         ->postJson("/api/v1/groups/{$group->id}/invitations", [
@@ -159,8 +159,8 @@ it('prevents non-owners from sending invitations', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($member->id, ['role' => 'member']);
+    $group->addMember($owner, 'admin');
+    $group->addMember($member, 'member');
 
     $this->actingAs($member)
         ->postJson("/api/v1/groups/{$group->id}/invitations", [
@@ -174,6 +174,7 @@ it('prevents non-owners from sending invitations', function () {
 it('validates email is required when sending invitation', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($owner)
         ->postJson("/api/v1/groups/{$group->id}/invitations", [])
@@ -184,6 +185,7 @@ it('validates email is required when sending invitation', function () {
 it('validates email format when sending invitation', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($owner)
         ->postJson("/api/v1/groups/{$group->id}/invitations", [
@@ -198,6 +200,7 @@ it('validates role value when sending invitation', function () {
 
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($owner)
         ->postJson("/api/v1/groups/{$group->id}/invitations", [
@@ -213,7 +216,7 @@ it('validates role value when sending invitation', function () {
 it('owner can list pending invitations for a group', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     GroupInvitation::factory()->forGroup($group)->invitedBy($owner)->pending()->count(2)->create();
     // Accepted invitation should not appear
@@ -231,8 +234,8 @@ it('prevents non-owners from listing invitations', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($member->id, ['role' => 'member']);
+    $group->addMember($owner, 'admin');
+    $group->addMember($member, 'member');
 
     $this->actingAs($member)
         ->getJson("/api/v1/groups/{$group->id}/invitations")
@@ -244,7 +247,7 @@ it('prevents non-owners from listing invitations', function () {
 it('owner can cancel a pending invitation', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
     $invitation = GroupInvitation::factory()->forGroup($group)->invitedBy($owner)->pending()->create();
 
     $this->actingAs($owner)
@@ -258,8 +261,8 @@ it('prevents non-owners from cancelling an invitation', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($member->id, ['role' => 'member']);
+    $group->addMember($owner, 'admin');
+    $group->addMember($member, 'member');
     $invitation = GroupInvitation::factory()->forGroup($group)->invitedBy($owner)->pending()->create();
 
     $this->actingAs($member)
@@ -271,8 +274,8 @@ it('returns 404 when cancelling an invitation belonging to a different group', f
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
     $otherGroup = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $otherGroup->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
+    $otherGroup->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()->forGroup($otherGroup)->invitedBy($owner)->pending()->create();
 
@@ -287,7 +290,7 @@ it('authenticated user can accept a pending invitation matching their email', fu
     $owner = User::factory()->create();
     $invitee = User::factory()->create(['email' => 'invitee@example.com']);
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -315,7 +318,7 @@ it('accepted invitation marks accepted_at timestamp', function () {
     $owner = User::factory()->create();
     $invitee = User::factory()->create(['email' => 'invitee@example.com']);
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -335,7 +338,7 @@ it('invitation assigns correct role when accepted', function () {
     $owner = User::factory()->create();
     $invitee = User::factory()->create(['email' => 'admin@example.com']);
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -356,7 +359,7 @@ it('returns 410 when accepting an expired invitation', function () {
     $owner = User::factory()->create();
     $invitee = User::factory()->create(['email' => 'invitee@example.com']);
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -377,7 +380,7 @@ it('returns 403 when accepting an invitation sent to a different email', functio
     $owner = User::factory()->create();
     $wrongUser = User::factory()->create(['email' => 'wrong@example.com']);
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -404,7 +407,7 @@ it('returns 404 when invitation is already accepted', function () {
     $owner = User::factory()->create();
     $invitee = User::factory()->create(['email' => 'invitee@example.com']);
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -423,8 +426,8 @@ it('returns 422 when user tries to accept but is already a group member', functi
     $owner = User::factory()->create();
     $invitee = User::factory()->create(['email' => 'invitee@example.com']);
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($invitee->id, ['role' => 'member']);
+    $group->addMember($owner, 'admin');
+    $group->addMember($invitee, 'member');
 
     // A pending invitation for this email still exists (e.g. edge-case race)
     $invitation = GroupInvitation::factory()
@@ -444,7 +447,7 @@ it('email comparison is case-insensitive when accepting', function () {
     $owner = User::factory()->create();
     $invitee = User::factory()->create(['email' => 'User@Example.com']);
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)

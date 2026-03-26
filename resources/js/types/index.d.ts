@@ -111,17 +111,20 @@ export type Section = {
   updated_at: string;
 };
 
+export type GroupRole = 'admin' | 'member' | 'viewer';
+
 export type Group = {
   id: number;
   name: string;
   description?: string | null;
   owner: User;
   member_count: number;
+  current_user_role?: GroupRole;
 };
 
 export type GroupMember = User & {
   pivot?: {
-    role: 'admin' | 'member';
+    role: GroupRole;
   };
 };
 
@@ -130,7 +133,7 @@ export type GroupInvitation = {
   group_id: number;
   email: string;
   token: string;
-  role: 'admin' | 'member';
+  role: GroupRole;
   accepted_at: string | null;
   expires_at: string;
   created_at: string;

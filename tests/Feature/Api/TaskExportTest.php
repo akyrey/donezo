@@ -115,7 +115,7 @@ it('queues an export job for a group as owner', function () {
 
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($owner)
         ->postJson("/api/v1/groups/{$group->id}/export")
@@ -135,8 +135,8 @@ it('queues an export job for a group as member', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($member->id, ['role' => 'member']);
+    $group->addMember($owner, 'admin');
+    $group->addMember($member, 'member');
 
     $this->actingAs($member)
         ->postJson("/api/v1/groups/{$group->id}/export")
@@ -151,7 +151,7 @@ it('forbids exporting a group the user does not belong to', function () {
     $owner = User::factory()->create();
     $other = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($other)
         ->postJson("/api/v1/groups/{$group->id}/export")
@@ -271,7 +271,7 @@ it('job exports only the specified group tasks', function () {
 
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $task = Task::factory()->for($owner)->create(['title' => 'Group task']);
     $group->tasks()->attach($task->id);

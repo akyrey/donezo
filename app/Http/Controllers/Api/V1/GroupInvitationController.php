@@ -24,11 +24,11 @@ final class GroupInvitationController extends Controller
      */
     public function store(Request $request, Group $group): JsonResponse
     {
-        abort_unless($group->owner_id === $request->user()->id, 403);
+        $this->authorizeManageMembers($request, $group);
 
         $validated = $request->validate([
             'email' => ['required', 'string', 'email', 'max:255'],
-            'role' => ['sometimes', 'string', 'in:admin,member'],
+            'role' => ['sometimes', 'string', 'in:admin,member,viewer'],
         ]);
 
         $email = mb_strtolower(mb_trim($validated['email']));
@@ -73,7 +73,7 @@ final class GroupInvitationController extends Controller
      */
     public function index(Request $request, Group $group): JsonResponse
     {
-        abort_unless($group->owner_id === $request->user()->id, 403);
+        $this->authorizeManageMembers($request, $group);
 
         $invitations = $group->invitations()
             ->whereNull('accepted_at')
@@ -91,12 +91,29 @@ final class GroupInvitationController extends Controller
      */
     public function destroy(Request $request, Group $group, GroupInvitation $invitation): JsonResponse
     {
-        abort_unless($group->owner_id === $request->user()->id, 403);
+        $this->authorizeManageMembers($request, $group);
         abort_unless($invitation->group_id === $group->id, 404);
 
         $invitation->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Check the requester has group.manage-members permission in this group.
+     */
+    private function authorizeManageMembers(Request $request, Group $group): void
+    {
+        $userId = $request->user()->id;
+        $isMember = $group->members()->where('user_id', $userId)->exists();
+        $isOwner = $group->owner_id === $userId;
+        abort_unless($isMember || $isOwner, 403);
+
+        setPermissionsTeamId($group->id);
+        $hasPermission = $request->user()->hasPermissionTo('group.manage-members');
+        setPermissionsTeamId(null);
+
+        abort_unless($hasPermission, 403);
     }
 
     /**
@@ -128,7 +145,8 @@ final class GroupInvitationController extends Controller
             return response()->json(['message' => 'You are already a member of this group.'], 422);
         }
 
-        $group->members()->attach($user->id, ['role' => $invitation->role]);
+        $group->addMember($user, $invitation->role);
+
         $invitation->update(['accepted_at' => now()]);
 
         broadcast(new GroupMemberJoined($group->id, $user->id))->toOthers();

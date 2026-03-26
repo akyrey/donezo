@@ -190,7 +190,7 @@ it('requires authentication for groups index page', function () {
 it('renders groups index page', function () {
     $user = User::factory()->create();
     $group = Group::factory()->forUser($user)->create();
-    $group->members()->attach($user->id, ['role' => 'admin']);
+    $group->addMember($user, 'admin');
 
     $this->actingAs($user)
         ->get('/groups')
@@ -204,7 +204,7 @@ it('renders groups index page', function () {
 it('renders groups show page', function () {
     $user = User::factory()->create();
     $group = Group::factory()->forUser($user)->create();
-    $group->members()->attach($user->id, ['role' => 'admin']);
+    $group->addMember($user, 'admin');
 
     $this->actingAs($user)
         ->get("/groups/{$group->id}")
@@ -221,7 +221,7 @@ it('prevents non-members from viewing group show page', function () {
     $owner = User::factory()->create();
     $outsider = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($outsider)
         ->get("/groups/{$group->id}")

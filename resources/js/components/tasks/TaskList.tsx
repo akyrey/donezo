@@ -12,6 +12,7 @@ interface TaskListProps {
   onSelectTask?: (task: Task) => void;
   showProject?: boolean;
   className?: string;
+  readOnly?: boolean;
 }
 
 function TaskListSkeleton() {
@@ -44,6 +45,7 @@ export function TaskList({
   onSelectTask,
   showProject = false,
   className,
+  readOnly = false,
 }: TaskListProps) {
   if (isLoading) {
     return (
@@ -65,7 +67,13 @@ export function TaskList({
         </div>
       ) : (
         tasks.map((task) => (
-          <TaskItem key={task.id} task={task} onSelect={onSelectTask} showProject={showProject} />
+          <TaskItem
+            key={task.id}
+            task={task}
+            onSelect={onSelectTask}
+            showProject={showProject}
+            readOnly={readOnly}
+          />
         ))
       )}
     </div>

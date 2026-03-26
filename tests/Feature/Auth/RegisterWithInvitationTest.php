@@ -11,7 +11,7 @@ use App\Models\User;
 it('renders register page with invitation data when token is valid', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -42,7 +42,7 @@ it('renders register page without invitation data when token is invalid', functi
 it('renders register page without invitation data when token is expired', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -63,7 +63,7 @@ it('renders register page without invitation data when token is expired', functi
 it('auto-accepts a pending invitation when registering with a matching token', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -91,7 +91,7 @@ it('auto-accepts a pending invitation when registering with a matching token', f
 it('assigns the correct role when auto-accepting on registration', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -141,7 +141,7 @@ it('redirects to verification notice when registering with a bogus invitation to
 it('does not auto-accept when email does not match invitation', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -169,7 +169,7 @@ it('does not auto-accept when email does not match invitation', function () {
 it('does not auto-accept an expired invitation on registration', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)

@@ -14,10 +14,10 @@ it('requires authentication to list groups', function () {
 it('can list own groups', function () {
     $user = User::factory()->create();
     $ownedGroup = Group::factory()->forUser($user)->create();
-    $ownedGroup->members()->attach($user->id, ['role' => 'admin']);
+    $ownedGroup->addMember($user, 'admin');
 
     $memberGroup = Group::factory()->create();
-    $memberGroup->members()->attach($user->id, ['role' => 'member']);
+    $memberGroup->addMember($user, 'member');
 
     // Another user's group (should not appear)
     Group::factory()->create();
@@ -53,7 +53,7 @@ it('can create a group', function () {
 it('can show a group with members', function () {
     $user = User::factory()->create();
     $group = Group::factory()->forUser($user)->create();
-    $group->members()->attach($user->id, ['role' => 'admin']);
+    $group->addMember($user, 'admin');
 
     $this->actingAs($user)
         ->getJson("/api/v1/groups/{$group->id}")
@@ -65,6 +65,7 @@ it('can show a group with members', function () {
 it('can update a group as owner', function () {
     $user = User::factory()->create();
     $group = Group::factory()->forUser($user)->create();
+    $group->addMember($user, 'admin');
 
     $this->actingAs($user)
         ->putJson("/api/v1/groups/{$group->id}", [
@@ -82,7 +83,7 @@ it('can update a group as owner', function () {
 it('can delete a group as owner', function () {
     $user = User::factory()->create();
     $group = Group::factory()->forUser($user)->create();
-    $group->members()->attach($user->id, ['role' => 'admin']);
+    $group->addMember($user, 'admin');
 
     $this->actingAs($user)
         ->deleteJson("/api/v1/groups/{$group->id}")
@@ -95,8 +96,8 @@ it('can remove a member from a group', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($member->id, ['role' => 'member']);
+    $group->addMember($owner, 'admin');
+    $group->addMember($member, 'member');
 
     $this->actingAs($owner)
         ->deleteJson("/api/v1/groups/{$group->id}/members/{$member->id}")
@@ -108,7 +109,7 @@ it('can remove a member from a group', function () {
 it('prevents removing the group owner', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($owner)
         ->deleteJson("/api/v1/groups/{$group->id}/members/{$owner->id}")
@@ -118,7 +119,7 @@ it('prevents removing the group owner', function () {
 it('can share tasks with a group', function () {
     $owner = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $task1 = Task::factory()->for($owner)->create();
     $task2 = Task::factory()->for($owner)->create();
@@ -137,7 +138,7 @@ it('only shares tasks owned by the user', function () {
     $owner = User::factory()->create();
     $otherUser = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $ownTask = Task::factory()->for($owner)->create();
     $otherTask = Task::factory()->for($otherUser)->create();
@@ -157,8 +158,8 @@ it('prevents non-owners from updating or deleting a group', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($member->id, ['role' => 'member']);
+    $group->addMember($owner, 'admin');
+    $group->addMember($member, 'member');
 
     $this->actingAs($member)
         ->putJson("/api/v1/groups/{$group->id}", ['name' => 'Hacked'])
@@ -173,7 +174,7 @@ it('prevents non-members from viewing a group', function () {
     $owner = User::factory()->create();
     $outsider = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $this->actingAs($outsider)
         ->getJson("/api/v1/groups/{$group->id}")
@@ -184,8 +185,8 @@ it('prevents non-owners from managing members', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($member->id, ['role' => 'member']);
+    $group->addMember($owner, 'admin');
+    $group->addMember($member, 'member');
 
     $this->actingAs($member)
         ->deleteJson("/api/v1/groups/{$group->id}/members/{$owner->id}")

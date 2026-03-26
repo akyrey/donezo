@@ -19,7 +19,7 @@ final class ReminderController extends Controller
      */
     public function index(Request $request, Task $task): JsonResponse
     {
-        abort_unless($task->user_id === $request->user()->id, 403);
+        abort_unless($task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $reminders = $task->reminders()->orderBy('remind_at')->get();
 
@@ -33,7 +33,7 @@ final class ReminderController extends Controller
      */
     public function store(Request $request, Task $task): JsonResponse
     {
-        abort_unless($task->user_id === $request->user()->id, 403);
+        abort_unless($task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $validated = $request->validate([
             'remind_at' => ['required', 'date', 'after:now'],
@@ -53,7 +53,7 @@ final class ReminderController extends Controller
      */
     public function show(Request $request, Reminder $reminder): JsonResponse
     {
-        abort_unless($reminder->task->user_id === $request->user()->id, 403);
+        abort_unless($reminder->task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         return response()->json([
             'data' => ReminderData::from($reminder),
@@ -65,7 +65,7 @@ final class ReminderController extends Controller
      */
     public function update(Request $request, Reminder $reminder): JsonResponse
     {
-        abort_unless($reminder->task->user_id === $request->user()->id, 403);
+        abort_unless($reminder->task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $validated = $request->validate([
             'remind_at' => ['required', 'date', 'after:now'],
@@ -86,7 +86,7 @@ final class ReminderController extends Controller
      */
     public function destroy(Request $request, Reminder $reminder): JsonResponse
     {
-        abort_unless($reminder->task->user_id === $request->user()->id, 403);
+        abort_unless($reminder->task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $task = $reminder->task;
 

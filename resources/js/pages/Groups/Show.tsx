@@ -11,9 +11,11 @@ import {
   Mail,
   X,
   Clock,
+  Shield,
+  Eye,
 } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
-import type { Group, GroupInvitation, GroupMember, Task, PageProps, User } from '@/types';
+import type { Group, GroupInvitation, GroupMember, GroupRole, Task, PageProps, User } from '@/types';
 import { Button } from '@/components/ui/Button';
 import {
   Dialog,
@@ -34,6 +36,7 @@ import {
   useRemoveMemberMutation,
   useUpdateGroupMutation,
   useDeleteGroupMutation,
+  useUpdateMemberRoleMutation,
 } from '@/hooks/useGroups';
 import { useGroupExport } from '@/hooks/useExport';
 import { cn } from '@/lib/utils';
@@ -43,6 +46,12 @@ interface Props extends PageProps {
   members: GroupMember[];
   tasks: Task[];
 }
+
+const ROLE_LABELS: Record<GroupRole, string> = {
+  admin: 'Admin',
+  member: 'Member',
+  viewer: 'Viewer',
+};
 
 function InviteMemberDialog({
   open,
@@ -54,6 +63,7 @@ function InviteMemberDialog({
   groupId: number;
 }) {
   const [email, setEmail] = useState('');
+  const [role, setRole] = useState<GroupRole>('member');
   const [successMessage, setSuccessMessage] = useState('');
   const inviteMutation = useInviteMemberMutation();
 
@@ -62,11 +72,12 @@ function InviteMemberDialog({
     if (!email.trim()) return;
 
     inviteMutation.mutate(
-      { groupId, email: email.trim() },
+      { groupId, email: email.trim(), role },
       {
         onSuccess: (data) => {
           setSuccessMessage(data.message);
           setEmail('');
+          setRole('member');
         },
       },
     );
@@ -74,6 +85,7 @@ function InviteMemberDialog({
 
   function handleClose() {
     setEmail('');
+    setRole('member');
     setSuccessMessage('');
     inviteMutation.reset();
     onOpenChange(false);
@@ -122,6 +134,26 @@ function InviteMemberDialog({
               placeholder="colleague@example.com"
               autoFocus
             />
+            <div className="space-y-1.5">
+              <label className="text-text text-sm font-medium">Role</label>
+              <div className="flex gap-2">
+                {(['admin', 'member', 'viewer'] as GroupRole[]).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRole(r)}
+                    className={cn(
+                      'flex-1 rounded-lg border px-3 py-2 text-sm capitalize transition-colors',
+                      role === r
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border text-text-secondary hover:border-primary/50',
+                    )}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </div>
             {inviteMutation.isError && (
               <p className="text-danger text-sm">
                 {(
@@ -163,7 +195,8 @@ function PendingInvitationItem({
       <div className="min-w-0 flex-1">
         <p className="text-text truncate text-sm font-medium">{invitation.email}</p>
         <p className="text-text-tertiary text-xs">
-          Invite pending &middot; expires {new Date(invitation.expires_at).toLocaleDateString()}
+          {ROLE_LABELS[invitation.role]} invite &middot; expires{' '}
+          {new Date(invitation.expires_at).toLocaleDateString()}
         </p>
       </div>
       <Button
@@ -250,6 +283,34 @@ function EditGroupDialog({
   );
 }
 
+function RoleBadge({ role, isOwner }: { role?: GroupRole; isOwner: boolean }) {
+  if (isOwner) {
+    return (
+      <span className="bg-warning/10 text-warning flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium">
+        <Crown className="h-2.5 w-2.5" />
+        Owner
+      </span>
+    );
+  }
+  if (role === 'admin') {
+    return (
+      <span className="bg-primary/10 text-primary flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium">
+        <Shield className="h-2.5 w-2.5" />
+        Admin
+      </span>
+    );
+  }
+  if (role === 'viewer') {
+    return (
+      <span className="bg-bg-tertiary text-text-tertiary flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium">
+        <Eye className="h-2.5 w-2.5" />
+        Viewer
+      </span>
+    );
+  }
+  return null;
+}
+
 function MemberItem({
   member,
   groupId,
@@ -262,11 +323,23 @@ function MemberItem({
   canManage: boolean;
 }) {
   const removeMemberMutation = useRemoveMemberMutation();
+  const updateRoleMutation = useUpdateMemberRoleMutation();
 
   function handleRemove() {
     if (!confirm(`Remove ${member.name} from this group?`)) return;
     removeMemberMutation.mutate(
       { groupId, userId: member.id },
+      {
+        onSuccess: () => {
+          window.location.reload();
+        },
+      },
+    );
+  }
+
+  function handleRoleChange(newRole: GroupRole) {
+    updateRoleMutation.mutate(
+      { groupId, userId: member.id, role: newRole },
       {
         onSuccess: () => {
           window.location.reload();
@@ -291,32 +364,35 @@ function MemberItem({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <p className="text-text truncate text-sm font-medium">{member.name}</p>
-          {isOwner && (
-            <span className="bg-warning/10 text-warning flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium">
-              <Crown className="h-2.5 w-2.5" />
-              Owner
-            </span>
-          )}
-          {member.pivot?.role === 'admin' && !isOwner && (
-            <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-[10px] font-medium">
-              Admin
-            </span>
-          )}
+          <RoleBadge role={member.pivot?.role} isOwner={isOwner} />
         </div>
         <p className="text-text-tertiary truncate text-xs">{member.email}</p>
       </div>
 
       {/* Actions */}
       {canManage && !isOwner && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-text-tertiary hover:text-danger h-7 w-7"
-          onClick={handleRemove}
-          disabled={removeMemberMutation.isPending}
-        >
-          <UserMinus className="h-3.5 w-3.5" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <select
+            value={member.pivot?.role ?? 'member'}
+            onChange={(e) => handleRoleChange(e.target.value as GroupRole)}
+            disabled={updateRoleMutation.isPending}
+            className="border-border bg-bg text-text-secondary rounded px-1.5 py-0.5 text-xs"
+            title="Change role"
+          >
+            <option value="admin">Admin</option>
+            <option value="member">Member</option>
+            <option value="viewer">Viewer</option>
+          </select>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-text-tertiary hover:text-danger h-7 w-7"
+            onClick={handleRemove}
+            disabled={removeMemberMutation.isPending}
+          >
+            <UserMinus className="h-3.5 w-3.5" />
+          </Button>
+        </div>
       )}
     </div>
   );
@@ -329,9 +405,13 @@ export default function GroupsShow({ group, members, tasks }: Props) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const isCurrentUserOwner = auth.user.id === group.owner.id;
+  const currentUserRole = group.current_user_role ?? 'viewer';
+  const canManageGroup = currentUserRole === 'admin';
+  const canManageTasks = currentUserRole === 'admin' || currentUserRole === 'member';
+
   const deleteGroupMutation = useDeleteGroupMutation();
   const { isPending: isExporting, mutate: requestExport } = useGroupExport(group.id);
-  const { data: invitationsData } = useGroupInvitationsQuery(isCurrentUserOwner ? group.id : 0);
+  const { data: invitationsData } = useGroupInvitationsQuery(canManageGroup ? group.id : 0);
   const pendingInvitations = invitationsData?.data ?? [];
 
   function handleDeleteGroup() {
@@ -375,26 +455,26 @@ export default function GroupsShow({ group, members, tasks }: Props) {
               <Download className="h-4 w-4" />
               {isExporting ? 'Requesting…' : 'Export CSV'}
             </Button>
+            {canManageGroup && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setEditGroupOpen(true)}
+                className="text-text-tertiary"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            )}
             {isCurrentUserOwner && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setEditGroupOpen(true)}
-                  className="text-text-tertiary"
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleDeleteGroup}
-                  className="text-text-tertiary hover:text-danger"
-                  disabled={deleteGroupMutation.isPending}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleDeleteGroup}
+                className="text-text-tertiary hover:text-danger"
+                disabled={deleteGroupMutation.isPending}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             )}
           </div>
         </div>
@@ -404,7 +484,7 @@ export default function GroupsShow({ group, members, tasks }: Props) {
       <div className="mb-8">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-text-secondary text-sm font-semibold">Members ({members.length})</h2>
-          {isCurrentUserOwner && (
+          {canManageGroup && (
             <Button
               variant="ghost"
               className="text-text-secondary gap-1.5 text-xs"
@@ -422,7 +502,7 @@ export default function GroupsShow({ group, members, tasks }: Props) {
               member={member}
               groupId={group.id}
               isOwner={member.id === group.owner.id}
-              canManage={isCurrentUserOwner}
+              canManage={canManageGroup}
             />
           ))}
           {pendingInvitations.map((invitation) => (
@@ -441,6 +521,7 @@ export default function GroupsShow({ group, members, tasks }: Props) {
           emptyMessage="No tasks shared with this group yet."
           showProject
           onSelectTask={setSelectedTask}
+          readOnly={!canManageTasks}
         />
       </div>
 
@@ -457,6 +538,7 @@ export default function GroupsShow({ group, members, tasks }: Props) {
         onOpenChange={(open) => {
           if (!open) setSelectedTask(null);
         }}
+        readOnly={!canManageTasks}
       />
     </AuthenticatedLayout>
   );

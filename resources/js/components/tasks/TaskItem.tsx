@@ -13,9 +13,10 @@ interface TaskItemProps {
   task: Task;
   onSelect?: (task: Task) => void;
   showProject?: boolean;
+  readOnly?: boolean;
 }
 
-export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps) {
+export function TaskItem({ task, onSelect, showProject = false, readOnly = false }: TaskItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
 
@@ -75,8 +76,8 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
       }}
     >
       {/* Checkbox */}
-      <div className="mt-0.5" onClick={handleComplete}>
-        <Checkbox checked={isCompleted} />
+      <div className="mt-0.5" onClick={readOnly ? undefined : handleComplete}>
+        <Checkbox checked={isCompleted} disabled={readOnly} />
       </div>
 
       {/* Content */}
@@ -196,19 +197,21 @@ export function TaskItem({ task, onSelect, showProject = false }: TaskItemProps)
               <TooltipContent>Open</TooltipContent>
             </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-text-tertiary hover:text-danger h-7 w-7"
-                  onClick={handleDelete}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Delete</TooltipContent>
-            </Tooltip>
+            {!readOnly && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-text-tertiary hover:text-danger h-7 w-7"
+                    onClick={handleDelete}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete</TooltipContent>
+              </Tooltip>
+            )}
           </div>
         </TooltipProvider>
       )}

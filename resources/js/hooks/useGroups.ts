@@ -1,6 +1,6 @@
 import axios from '@/lib/axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Group, GroupInvitation, User } from '@/types';
+import type { Group, GroupInvitation, GroupRole, User } from '@/types';
 
 // ──────────────────────────────────────────────
 // Types
@@ -142,7 +142,7 @@ export function useInviteMemberMutation() {
     }: {
       groupId: number;
       email: string;
-      role?: 'admin' | 'member';
+      role?: GroupRole;
     }) => {
       const response = await axios.post<{ data: GroupInvitation; message: string }>(
         `/api/v1/groups/${groupId}/invitations`,
@@ -199,6 +199,31 @@ export function useAcceptInvitationMutation() {
         `/api/v1/invitations/${token}/accept`,
       );
       return response.data;
+    },
+  });
+}
+
+export function useUpdateMemberRoleMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      groupId,
+      userId,
+      role,
+    }: {
+      groupId: number;
+      userId: number;
+      role: GroupRole;
+    }) => {
+      const response = await axios.put<{ message: string }>(
+        `/api/v1/groups/${groupId}/members/${userId}`,
+        { role },
+      );
+      return response.data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: groupDetailKey(variables.groupId) });
     },
   });
 }

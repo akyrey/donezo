@@ -135,6 +135,39 @@ final class Task extends Model
     }
 
     // ──────────────────────────────────────────────
+    // Authorization
+    // ──────────────────────────────────────────────
+
+    /**
+     * Check if the given user can perform an action on this task.
+     *
+     * Owners always have full access. For tasks shared with groups,
+     * the user must have the required spatie permission in at least
+     * one of those groups.
+     */
+    public function isAccessibleBy(User $user, string $permission): bool
+    {
+        if ($this->user_id === $user->id) {
+            return true;
+        }
+
+        $groupIds = $this->groups()->pluck('groups.id');
+
+        foreach ($groupIds as $groupId) {
+            setPermissionsTeamId($groupId);
+            if ($user->hasPermissionTo($permission)) {
+                setPermissionsTeamId(null);
+
+                return true;
+            }
+        }
+
+        setPermissionsTeamId(null);
+
+        return false;
+    }
+
+    // ──────────────────────────────────────────────
     // Scopes — Status
     // ──────────────────────────────────────────────
 

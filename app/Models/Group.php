@@ -50,4 +50,17 @@ final class Group extends Model
     {
         return $this->hasMany(GroupInvitation::class);
     }
+
+    /**
+     * Add a user to the group with the given role.
+     * Updates both the group_user pivot and the spatie role assignment.
+     */
+    public function addMember(User $user, string $role): void
+    {
+        $this->members()->attach($user->id, ['role' => $role]);
+
+        setPermissionsTeamId($this->id);
+        $user->assignRole($role);
+        setPermissionsTeamId(null);
+    }
 }

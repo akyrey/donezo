@@ -19,7 +19,7 @@ final class ChecklistItemController extends Controller
      */
     public function index(Request $request, Task $task): JsonResponse
     {
-        abort_unless($task->user_id === $request->user()->id, 403);
+        abort_unless($task->isAccessibleBy($request->user(), 'group.view-tasks'), 403);
 
         $items = $task->checklistItems()->orderBy('position')->get();
 
@@ -33,7 +33,7 @@ final class ChecklistItemController extends Controller
      */
     public function store(Request $request, Task $task): JsonResponse
     {
-        abort_unless($task->user_id === $request->user()->id, 403);
+        abort_unless($task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:500'],
@@ -60,7 +60,7 @@ final class ChecklistItemController extends Controller
      */
     public function show(Request $request, ChecklistItem $checklistItem): JsonResponse
     {
-        abort_unless($checklistItem->task->user_id === $request->user()->id, 403);
+        abort_unless($checklistItem->task->isAccessibleBy($request->user(), 'group.view-tasks'), 403);
 
         return response()->json([
             'data' => ChecklistItemData::from($checklistItem),
@@ -72,7 +72,7 @@ final class ChecklistItemController extends Controller
      */
     public function update(Request $request, ChecklistItem $checklistItem): JsonResponse
     {
-        abort_unless($checklistItem->task->user_id === $request->user()->id, 403);
+        abort_unless($checklistItem->task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $validated = $request->validate([
             'title' => ['sometimes', 'string', 'max:500'],
@@ -96,7 +96,7 @@ final class ChecklistItemController extends Controller
      */
     public function destroy(Request $request, ChecklistItem $checklistItem): JsonResponse
     {
-        abort_unless($checklistItem->task->user_id === $request->user()->id, 403);
+        abort_unless($checklistItem->task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $task = $checklistItem->task;
         $groupIds = $task->groups()->pluck('groups.id')->toArray();
@@ -113,7 +113,7 @@ final class ChecklistItemController extends Controller
      */
     public function toggle(Request $request, ChecklistItem $checklistItem): JsonResponse
     {
-        abort_unless($checklistItem->task->user_id === $request->user()->id, 403);
+        abort_unless($checklistItem->task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $checklistItem->update([
             'is_completed' => !$checklistItem->is_completed,

@@ -29,8 +29,8 @@ it('has many members via pivot', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
-    $group->members()->attach($member->id, ['role' => 'member']);
+    $group->addMember($owner, 'admin');
+    $group->addMember($member, 'member');
 
     expect($group->members)->toHaveCount(2);
     expect($group->members->first()->pivot->role)->toBe('admin');

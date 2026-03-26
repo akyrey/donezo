@@ -48,6 +48,8 @@ final class GroupController extends Controller
     {
         $this->authorizeGroupAccess($request, $group);
 
+        $user = $request->user();
+
         $group->load(['owner', 'members']);
         $group->loadCount('members as member_count');
 
@@ -58,8 +60,15 @@ final class GroupController extends Controller
             ->with(['tags', 'checklistItems', 'reminders', 'assignee', 'creator'])
             ->get();
 
+        // Resolve the current user's role in this group via spatie
+        setPermissionsTeamId($group->id);
+        $currentUserRole = $user->getRoleNames()->first() ?? 'viewer';
+        setPermissionsTeamId(null);
+
         return Inertia::render('Groups/Show', [
-            'group' => GroupData::from($group),
+            'group' => array_merge(GroupData::from($group)->toArray(), [
+                'current_user_role' => $currentUserRole,
+            ]),
             'members' => UserData::collect($group->members),
             'tasks' => TaskData::collect($tasks),
         ]);

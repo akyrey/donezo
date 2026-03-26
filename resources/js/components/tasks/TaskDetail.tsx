@@ -12,9 +12,10 @@ interface TaskDetailProps {
   task: Task;
   className?: string;
   onToggleChecklistItem?: (taskId: number, itemId: number, completed: boolean) => void;
+  readOnly?: boolean;
 }
 
-export function TaskDetail({ task, className, onToggleChecklistItem }: TaskDetailProps) {
+export function TaskDetail({ task, className, onToggleChecklistItem, readOnly = false }: TaskDetailProps) {
   const completeMutation = useCompleteTaskMutation();
 
   const isCompleted = task.status === 'completed';
@@ -33,12 +34,16 @@ export function TaskDetail({ task, className, onToggleChecklistItem }: TaskDetai
         <span className="mt-1 shrink-0">
           <Checkbox
             checked={isCompleted}
-            onCheckedChange={() =>
-              completeMutation.mutate({
-                id: task.id,
-                completed: !isCompleted,
-              })
+            onCheckedChange={
+              readOnly
+                ? undefined
+                : () =>
+                    completeMutation.mutate({
+                      id: task.id,
+                      completed: !isCompleted,
+                    })
             }
+            disabled={readOnly}
             className="h-6 w-6 cursor-pointer"
             aria-label={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
           />

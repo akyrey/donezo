@@ -21,9 +21,10 @@ interface TaskDetailDialogProps {
   task: Task | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  readOnly?: boolean;
 }
 
-export function TaskDetailDialog({ task, open, onOpenChange }: TaskDetailDialogProps) {
+export function TaskDetailDialog({ task, open, onOpenChange, readOnly = false }: TaskDetailDialogProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [localTask, setLocalTask] = useState<Task | null>(task);
   const { projects } = usePage<PageProps>().props;
@@ -107,7 +108,11 @@ export function TaskDetailDialog({ task, open, onOpenChange }: TaskDetailDialogP
             />
           ) : (
             <>
-              <TaskDetail task={localTask!} onToggleChecklistItem={handleToggleChecklistItem} />
+              <TaskDetail
+                task={localTask!}
+                onToggleChecklistItem={readOnly ? undefined : handleToggleChecklistItem}
+                readOnly={readOnly}
+              />
               {/* Footer — shown on all screen sizes */}
               <DialogFooter className="bg-bg border-border sticky bottom-0 flex-row items-center justify-between gap-2 border-t px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
                 <span className="text-text-tertiary text-xs">
@@ -116,15 +121,17 @@ export function TaskDetailDialog({ task, open, onOpenChange }: TaskDetailDialogP
                     : 'Completed'}
                 </span>
                 <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    Edit
-                  </Button>
+                  {!readOnly && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditing(true)}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Edit
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     variant="ghost"

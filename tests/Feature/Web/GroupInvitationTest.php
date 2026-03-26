@@ -19,7 +19,7 @@ it('renders the accept invitation page for a valid pending invitation', function
     $owner = User::factory()->create();
     $invitee = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -46,7 +46,7 @@ it('renders the accept invitation page with expired flag for an expired invitati
     $owner = User::factory()->create();
     $invitee = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)
@@ -75,7 +75,7 @@ it('returns 404 for an already accepted invitation', function () {
     $owner = User::factory()->create();
     $invitee = User::factory()->create();
     $group = Group::factory()->forUser($owner)->create();
-    $group->members()->attach($owner->id, ['role' => 'admin']);
+    $group->addMember($owner, 'admin');
 
     $invitation = GroupInvitation::factory()
         ->forGroup($group)

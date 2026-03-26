@@ -159,7 +159,7 @@ final class TaskController extends Controller
      */
     public function show(Request $request, Task $task): JsonResponse
     {
-        abort_unless($task->user_id === $request->user()->id, 403);
+        abort_unless($task->isAccessibleBy($request->user(), 'group.view-tasks'), 403);
 
         $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee', 'project']);
 
@@ -173,7 +173,7 @@ final class TaskController extends Controller
      */
     public function update(UpdateTaskData $data, Request $request, Task $task): JsonResponse
     {
-        abort_unless($task->user_id === $request->user()->id, 403);
+        abort_unless($task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $attributes = [];
 
@@ -239,7 +239,7 @@ final class TaskController extends Controller
      */
     public function destroy(Request $request, Task $task): JsonResponse
     {
-        abort_unless($task->user_id === $request->user()->id, 403);
+        abort_unless($task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         // Capture group IDs before deletion
         $groupIds = $task->groups()->pluck('groups.id')->toArray();
@@ -270,7 +270,7 @@ final class TaskController extends Controller
      */
     public function complete(Request $request, Task $task): JsonResponse
     {
-        abort_unless($task->user_id === $request->user()->id, 403);
+        abort_unless($task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $task->update([
             'previous_status' => $task->status,
@@ -308,7 +308,7 @@ final class TaskController extends Controller
      */
     public function uncomplete(Request $request, Task $task): JsonResponse
     {
-        abort_unless($task->user_id === $request->user()->id, 403);
+        abort_unless($task->isAccessibleBy($request->user(), 'group.manage-tasks'), 403);
 
         $task->update([
             'status' => $task->previous_status ?? 'inbox',

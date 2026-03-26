@@ -78,6 +78,7 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('v1')->name('api.v1.')->
     // ──────────────────────────────────────────────
     Route::apiResource('groups', GroupController::class);
     Route::delete('groups/{group}/members/{user}', [GroupController::class, 'removeMember'])->name('groups.remove-member');
+    Route::put('groups/{group}/members/{user}', [GroupController::class, 'updateMemberRole'])->name('groups.update-member-role');
     Route::post('groups/{group}/tasks', [GroupController::class, 'shareTasks'])->name('groups.share-tasks');
     Route::post('groups/{group}/export', [TaskExportController::class, 'exportGroup'])->name('groups.export');
 

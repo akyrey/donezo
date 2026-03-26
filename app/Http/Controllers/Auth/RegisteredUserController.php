@@ -79,7 +79,7 @@ final class RegisteredUserController extends Controller
             if ($invitation) {
                 $group = $invitation->group;
                 if (!$group->members()->where('user_id', $user->id)->exists()) {
-                    $group->members()->attach($user->id, ['role' => $invitation->role]);
+                    $group->addMember($user, $invitation->role);
                 }
                 $invitation->update(['accepted_at' => now()]);
 
