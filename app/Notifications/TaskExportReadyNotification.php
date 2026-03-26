@@ -55,8 +55,8 @@ final class TaskExportReadyNotification extends Notification
         return [
             'title' => 'Your export is ready',
             'body' => $this->filename . ' is ready to download.',
-            'icon' => '/images/icon-192.png',
-            'badge' => '/images/badge-72.png',
+            'icon' => '/icons/icon-192x192.png',
+            'badge' => '/icons/icon-72x72.png',
             'data' => [
                 'type' => 'export_ready',
                 'storage_path' => $this->storagePath,

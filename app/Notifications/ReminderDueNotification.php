@@ -54,8 +54,8 @@ final class ReminderDueNotification extends Notification
             'body' => $this->reminder->task->description
                 ? mb_substr(strip_tags($this->reminder->task->description), 0, 100)
                 : 'You have a task reminder.',
-            'icon' => '/images/icon-192.png',
-            'badge' => '/images/badge-72.png',
+            'icon' => '/icons/icon-192x192.png',
+            'badge' => '/icons/icon-72x72.png',
             'data' => [
                 'task_id' => $this->reminder->task_id,
                 'url' => '/inbox',

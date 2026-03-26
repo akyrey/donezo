@@ -57,32 +57,32 @@ export function useBroadcast(): void {
 
     userChannel
       // Tasks
-      .listen('.TaskCreated', refresh)
-      .listen('.TaskUpdated', refresh)
-      .listen('.TaskDeleted', refresh)
-      .listen('.TaskCompleted', refresh)
-      .listen('.TaskUncompleted', refresh)
-      .listen('.TasksReordered', refresh)
+      .listen('TaskCreated', refresh)
+      .listen('TaskUpdated', refresh)
+      .listen('TaskDeleted', refresh)
+      .listen('TaskCompleted', refresh)
+      .listen('TaskUncompleted', refresh)
+      .listen('TasksReordered', refresh)
       // Projects
-      .listen('.ProjectCreated', refresh)
-      .listen('.ProjectUpdated', refresh)
-      .listen('.ProjectDeleted', refresh)
+      .listen('ProjectCreated', refresh)
+      .listen('ProjectUpdated', refresh)
+      .listen('ProjectDeleted', refresh)
       // Sections
-      .listen('.SectionCreated', refresh)
-      .listen('.SectionUpdated', refresh)
-      .listen('.SectionDeleted', refresh)
+      .listen('SectionCreated', refresh)
+      .listen('SectionUpdated', refresh)
+      .listen('SectionDeleted', refresh)
       // Headings
-      .listen('.HeadingCreated', refresh)
-      .listen('.HeadingUpdated', refresh)
-      .listen('.HeadingDeleted', refresh)
-      .listen('.HeadingsReordered', refresh)
+      .listen('HeadingCreated', refresh)
+      .listen('HeadingUpdated', refresh)
+      .listen('HeadingDeleted', refresh)
+      .listen('HeadingsReordered', refresh)
       // Sub-resources
-      .listen('.ChecklistItemChanged', refresh)
-      .listen('.ReminderChanged', refresh)
+      .listen('ChecklistItemChanged', refresh)
+      .listen('ReminderChanged', refresh)
       // Group membership — notified when removed from a group
-      .listen('.GroupMemberRemoved', refresh)
+      .listen('GroupMemberRemoved', refresh)
       // Group deleted — notified via private channel since group channel is gone
-      .listen('.GroupDeleted', refresh);
+      .listen('GroupDeleted', refresh);
 
     // ---------------------------------------------------------------
     // Group channels — cross-user collaboration
@@ -91,16 +91,16 @@ export function useBroadcast(): void {
     const groupChannels = currentGroups.map((group) => {
       const ch = echoInstance.private(`groups.${group.id}`);
 
-      ch.listen('.TaskCreated', refresh)
-        .listen('.TaskUpdated', refresh)
-        .listen('.TaskDeleted', refresh)
-        .listen('.TaskCompleted', refresh)
-        .listen('.TaskUncompleted', refresh)
-        .listen('.GroupUpdated', refresh)
-        .listen('.GroupMemberRemoved', refresh)
-        .listen('.GroupMemberJoined', refresh)
-        .listen('.GroupTasksShared', refresh)
-        .listen('.ChecklistItemChanged', refresh);
+      ch.listen('TaskCreated', refresh)
+        .listen('TaskUpdated', refresh)
+        .listen('TaskDeleted', refresh)
+        .listen('TaskCompleted', refresh)
+        .listen('TaskUncompleted', refresh)
+        .listen('GroupUpdated', refresh)
+        .listen('GroupMemberRemoved', refresh)
+        .listen('GroupMemberJoined', refresh)
+        .listen('GroupTasksShared', refresh)
+        .listen('ChecklistItemChanged', refresh);
 
       return { id: group.id, channel: ch };
     });

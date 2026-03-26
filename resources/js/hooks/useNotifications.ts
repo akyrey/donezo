@@ -70,8 +70,13 @@ export function useNotifications(): UseNotificationsReturn {
         return;
       }
 
-      // Wait for SW to be ready (registered globally in app.tsx)
-      const registration = await navigator.serviceWorker.ready;
+      // Wait for SW to be ready (registered globally in app.tsx), with a 10s timeout
+      const registration = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Service worker timed out')), 10_000),
+        ),
+      ]);
 
       // Get VAPID public key
       const vapidKey = window.__CONFIG__?.vapidPublicKey;

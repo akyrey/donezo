@@ -8,14 +8,24 @@ const OFFLINE_URL = '/';
 const PRECACHE_ASSETS = [
   '/',
   '/manifest.webmanifest',
-  '/images/icon-192.png',
-  '/images/icon-512.png',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
 ];
 
 // ─── Install ──────────────────────────────────────────────────────────────────
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS)));
+  event.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((cache) =>
+        Promise.all(
+          PRECACHE_ASSETS.map((url) =>
+            cache.add(url).catch(() => console.warn('[SW] Precache skipped (not found):', url)),
+          ),
+        ),
+      ),
+  );
   self.skipWaiting();
 });
 
@@ -54,7 +64,7 @@ self.addEventListener('fetch', (event) => {
           const url = new URL(event.request.url);
           const isStaticAsset =
             url.pathname.startsWith('/build/') ||
-            url.pathname.startsWith('/images/') ||
+            url.pathname.startsWith('/icons/') ||
             url.pathname === '/manifest.webmanifest';
 
           if (isStaticAsset) {
@@ -88,8 +98,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: payload.body || 'You have a notification.',
-    icon: payload.icon || '/images/icon-192.png',
-    badge: payload.badge || '/images/badge-72.png',
+    icon: payload.icon || '/icons/icon-192x192.png',
+    badge: payload.badge || '/icons/icon-72x72.png',
     data: payload.data || {},
     vibrate: [100, 50, 100],
     actions: [
