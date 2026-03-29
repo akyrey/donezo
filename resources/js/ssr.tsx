@@ -1,31 +1,27 @@
 import { createInertiaApp } from '@inertiajs/react';
-import createServer from '@inertiajs/react/server';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { useState } from 'react';
-import ReactDOMServer from 'react-dom/server';
+import React, { useState } from 'react';
 
 const appName = process.env.APP_NAME || 'Donezo';
 
-createServer(
-  (page) =>
-    createInertiaApp({
-      page,
-      render: ReactDOMServer.renderToString,
-      title: (title) => `${title} - ${appName}`,
-      resolve: (name) =>
-        resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
-      setup: ({ App, props }) => {
-        const [queryClient] = useState(() => new QueryClient());
+export default createInertiaApp({
+  title: (title) => `${title} - ${appName}`,
+  resolve: (name) => {
+    const pages = import.meta.glob('./pages/**/*.tsx', { eager: true }) as Record<
+      string,
+      { default: React.ComponentType }
+    >;
+    return pages[`./pages/${name}.tsx`];
+  },
+  setup: ({ App, props }) => {
+    const [queryClient] = useState(() => new QueryClient());
 
-        return (
-          <QueryClientProvider client={queryClient}>
-            <App {...props} />
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
-        );
-      },
-    }),
-  { cluster: true },
-);
+    return (
+      <QueryClientProvider client={queryClient}>
+        <App {...props} />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    );
+  },
+});

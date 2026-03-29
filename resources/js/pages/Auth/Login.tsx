@@ -134,10 +134,7 @@ export default function Login({
 
         <p className="text-text-secondary mt-6 text-center text-sm">
           Don't have an account?{' '}
-          <Link
-            href={register.url()}
-            className="text-primary hover:text-primary-dark font-medium"
-          >
+          <Link href={register.url()} className="text-primary hover:text-primary-dark font-medium">
             Create one
           </Link>
         </p>

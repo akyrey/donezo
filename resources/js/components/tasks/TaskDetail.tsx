@@ -15,7 +15,12 @@ interface TaskDetailProps {
   readOnly?: boolean;
 }
 
-export function TaskDetail({ task, className, onToggleChecklistItem, readOnly = false }: TaskDetailProps) {
+export function TaskDetail({
+  task,
+  className,
+  onToggleChecklistItem,
+  readOnly = false,
+}: TaskDetailProps) {
   const completeMutation = useCompleteTaskMutation();
 
   const isCompleted = task.status === 'completed';

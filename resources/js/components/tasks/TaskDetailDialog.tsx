@@ -24,7 +24,12 @@ interface TaskDetailDialogProps {
   readOnly?: boolean;
 }
 
-export function TaskDetailDialog({ task, open, onOpenChange, readOnly = false }: TaskDetailDialogProps) {
+export function TaskDetailDialog({
+  task,
+  open,
+  onOpenChange,
+  readOnly = false,
+}: TaskDetailDialogProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [localTask, setLocalTask] = useState<Task | null>(task);
   const { projects } = usePage<PageProps>().props;

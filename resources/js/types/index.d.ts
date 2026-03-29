@@ -1,4 +1,4 @@
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import { PageProps as InertiaPageProps } from '@inertiajs/react';
 import type Echo from 'laravel-echo';
 import type Pusher from 'pusher-js';
 

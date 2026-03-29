@@ -14,8 +14,8 @@ return new class extends Migration
 
     public function down(): void
     {
-        \Spatie\Permission\Models\Role::whereIn('name', ['admin', 'member', 'viewer'])->delete();
-        \Spatie\Permission\Models\Permission::whereIn('name', [
+        Spatie\Permission\Models\Role::whereIn('name', ['admin', 'member', 'viewer'])->delete();
+        Spatie\Permission\Models\Permission::whereIn('name', [
             'group.update',
             'group.manage-members',
             'group.view-tasks',

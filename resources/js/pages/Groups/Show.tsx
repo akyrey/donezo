@@ -15,7 +15,15 @@ import {
   Eye,
 } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
-import type { Group, GroupInvitation, GroupMember, GroupRole, Task, PageProps, User } from '@/types';
+import type {
+  Group,
+  GroupInvitation,
+  GroupMember,
+  GroupRole,
+  Task,
+  PageProps,
+  User,
+} from '@/types';
 import { Button } from '@/components/ui/Button';
 import {
   Dialog,

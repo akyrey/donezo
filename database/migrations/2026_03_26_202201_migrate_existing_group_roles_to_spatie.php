@@ -15,8 +15,8 @@ return new class extends Migration
         $groupUsers = DB::table('group_user')->get();
 
         foreach ($groupUsers as $pivot) {
-            $user = \App\Models\User::find($pivot->user_id);
-            if (! $user) {
+            $user = App\Models\User::find($pivot->user_id);
+            if (!$user) {
                 continue;
             }
 

@@ -3,15 +3,16 @@ import laravel from 'laravel-vite-plugin';
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import inertia from '@inertiajs/vite';
 import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [
     wayfinder(),
+    inertia(),
     laravel({
       input: ['resources/css/app.css', 'resources/js/app.tsx'],
       refresh: true,
-      ssr: 'resources/js/ssr.tsx',
     }),
     tailwindcss(),
     react(),
