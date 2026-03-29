@@ -20,7 +20,7 @@
     "laravel/reverb": "^1.9.0",
     "laravel/sanctum": "^4.3.1",
     "laravel/socialite": "^5.26.0",
-    "laravel/tinker": "^2.11.1",
+    "laravel/tinker": "^3.0.0",
     "laravel/wayfinder": "^0.1.15",
     "minishlink/web-push": "^10.0.3",
     "sentry/sentry-laravel": "^4.24",
