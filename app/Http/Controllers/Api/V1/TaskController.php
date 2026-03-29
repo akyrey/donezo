@@ -217,6 +217,29 @@ final class TaskController extends Controller
             $task->tags()->sync($data->tags);
         }
 
+        if (!$data->checklist_items instanceof Optional) {
+            $task->checklistItems()->delete();
+            if ($data->checklist_items) {
+                foreach ($data->checklist_items as $index => $item) {
+                    $task->checklistItems()->create([
+                        'title' => $item['title'],
+                        'position' => $item['position'] ?? $index,
+                    ]);
+                }
+            }
+        }
+
+        if (!$data->reminders instanceof Optional) {
+            $task->reminders()->delete();
+            if ($data->reminders) {
+                foreach ($data->reminders as $reminder) {
+                    $task->reminders()->create([
+                        'remind_at' => $reminder['remind_at'],
+                    ]);
+                }
+            }
+        }
+
         $task->load(['tags', 'checklistItems', 'reminders', 'creator', 'assignee', 'project', 'groups']);
 
         // Dispatch calendar sync if task has calendar-relevant changes

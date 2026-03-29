@@ -51,6 +51,7 @@ final class UpdateTaskData extends Data
             'tags.*' => ['integer', 'exists:tags,id'],
             'checklist_items' => ['sometimes', 'nullable', 'array'],
             'checklist_items.*.title' => ['required', 'string', 'max:500'],
+            'checklist_items.*.position' => ['sometimes', 'integer', 'min:0'],
             'reminders' => ['sometimes', 'nullable', 'array'],
             'reminders.*.remind_at' => ['required', 'date'],
         ];
