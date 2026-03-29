@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { show as showProject } from '@/routes/projects';
 import { LayoutGrid, FolderKanban } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { TaskList } from '@/components/tasks/TaskList';
@@ -18,7 +19,7 @@ function ProjectCard({ project }: { project: Project }) {
 
   return (
     <Link
-      href={route('projects.show', project.id)}
+      href={showProject.url(project.id)}
       className="group border-border bg-bg hover:border-primary/30 flex flex-col rounded-xl border p-5 transition-all hover:shadow-sm"
     >
       <div className="mb-3 flex items-center gap-3">

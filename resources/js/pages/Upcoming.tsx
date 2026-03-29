@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
+import { upcoming } from '@/routes';
 import { format, parse, addDays, subDays, isToday, isTomorrow, startOfDay } from 'date-fns';
 import { Calendar, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
@@ -97,7 +98,7 @@ export default function Upcoming({ grouped_tasks, start_date }: UpcomingProps) {
     const targetDate = date < today ? today : date;
 
     router.get(
-      route('upcoming'),
+      upcoming.url(),
       { start_date: format(targetDate, 'yyyy-MM-dd') },
       { preserveState: true, preserveScroll: true },
     );

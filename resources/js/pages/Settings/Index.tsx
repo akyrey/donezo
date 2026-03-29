@@ -1,6 +1,8 @@
 import React from 'react';
 import { type SubmitEventHandler } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
+import { update as updateProfile, preferences, destroy as destroyProfile } from '@/routes/profile';
+import { update as updatePassword } from '@/routes/password';
 import {
   Settings as SettingsIcon,
   Trash2,
@@ -48,7 +50,7 @@ function ProfileSection({ user }: { user: User }) {
 
   const submit: SubmitEventHandler = (e) => {
     e.preventDefault();
-    patch(route('profile.update'));
+    patch(updateProfile.url());
   };
 
   return (
@@ -111,7 +113,7 @@ function PreferencesSection({ user }: { user: User }) {
 
   const submit: SubmitEventHandler = (e) => {
     e.preventDefault();
-    patch(route('profile.preferences'));
+    patch(preferences.url());
   };
 
   const commonTimezones = [
@@ -175,7 +177,7 @@ function PasswordSection() {
 
   const submit: SubmitEventHandler = (e) => {
     e.preventDefault();
-    put(route('password.update'), {
+    put(updatePassword.url(), {
       onSuccess: () => reset(),
     });
   };
@@ -581,7 +583,7 @@ function DangerZone() {
   const { delete: destroy, processing } = useForm({});
 
   const handleDelete = () => {
-    destroy(route('profile.destroy'));
+    destroy(destroyProfile.url());
   };
 
   return (

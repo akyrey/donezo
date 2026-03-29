@@ -1,0 +1,205 @@
+{
+  "node_modules/.pnpm/laravel-vite-plugin@3.0.0_vite@8.0.3_@emnapi+core@1.9.1_@emnapi+runtime@1.9.1_@types+no_1d9408ec77d44249bef17a1ca6486ddd/node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
+  "resources/js/components/CommandPalette.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/components/projects/SortableHeading.tsx": [
+    "/build/assets/Show-BKU1Hw6Z.js"
+  ],
+  "resources/js/components/tasks/AddTaskDialog.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/components/tasks/MarkdownContent.tsx": [
+    "/build/assets/TaskDetailDialog-i5waCmjV.js"
+  ],
+  "resources/js/components/tasks/SortableTaskItem.tsx": [
+    "/build/assets/Show-BKU1Hw6Z.js"
+  ],
+  "resources/js/components/tasks/TaskDetail.tsx": [
+    "/build/assets/TaskDetailDialog-i5waCmjV.js"
+  ],
+  "resources/js/components/tasks/TaskDetailDialog.tsx": [
+    "/build/assets/TaskDetailDialog-i5waCmjV.js"
+  ],
+  "resources/js/components/tasks/TaskForm.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/components/tasks/TaskItem.tsx": [
+    "/build/assets/TaskDetailDialog-i5waCmjV.js"
+  ],
+  "resources/js/components/tasks/TaskList.tsx": [
+    "/build/assets/TaskList-CuBdRVOZ.js"
+  ],
+  "resources/js/components/ui/Badge.tsx": [
+    "/build/assets/Badge-C_622rLo.js"
+  ],
+  "resources/js/components/ui/Button.tsx": [
+    "/build/assets/wayfinder-C_mx6M06.js"
+  ],
+  "resources/js/components/ui/Checkbox.tsx": [
+    "/build/assets/Checkbox-Bar4Ffhq.js"
+  ],
+  "resources/js/components/ui/Dialog.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/components/ui/DropdownMenu.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/components/ui/Input.tsx": [
+    "/build/assets/Input-BktEiBB2.js"
+  ],
+  "resources/js/components/ui/Popover.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/components/ui/ScrollArea.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/components/ui/Separator.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/components/ui/Toast.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/components/ui/Tooltip.tsx": [
+    "/build/assets/TaskDetailDialog-i5waCmjV.js"
+  ],
+  "resources/js/components/ui/UndoToast.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/echo.ts": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/hooks/useBroadcast.ts": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/hooks/useCalendar.ts": [
+    "/build/assets/Index-HKjuQ1tK.js"
+  ],
+  "resources/js/hooks/useExport.ts": [
+    "/build/assets/useExport-Bf91jMFP.js"
+  ],
+  "resources/js/hooks/useGroups.ts": [
+    "/build/assets/useGroups-v2WOXtpc.js"
+  ],
+  "resources/js/hooks/useHeadings.ts": [
+    "/build/assets/Show-BKU1Hw6Z.js"
+  ],
+  "resources/js/hooks/useNotifications.ts": [
+    "/build/assets/Index-HKjuQ1tK.js"
+  ],
+  "resources/js/hooks/useProjects.ts": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/hooks/useSearch.ts": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/hooks/useSections.ts": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/hooks/useSocialAccounts.ts": [
+    "/build/assets/Index-HKjuQ1tK.js"
+  ],
+  "resources/js/hooks/useTags.ts": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/hooks/useTasks.ts": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/hooks/useTheme.ts": [
+    "/build/assets/Index-HKjuQ1tK.js"
+  ],
+  "resources/js/layouts/AuthenticatedLayout.tsx": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/layouts/GuestLayout.tsx": [
+    "/build/assets/GuestLayout-X1XUkqvF.js"
+  ],
+  "resources/js/lib/axios.ts": [
+    "/build/assets/axios-BY0CCud-.js"
+  ],
+  "resources/js/lib/toast.ts": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/lib/utils.ts": [
+    "/build/assets/wayfinder-C_mx6M06.js"
+  ],
+  "resources/js/pages/Anytime.tsx": [
+    "/build/assets/Anytime-DlwtFprC.js"
+  ],
+  "resources/js/pages/Auth/Login.tsx": [
+    "/build/assets/Login-LsOd1dA0.js"
+  ],
+  "resources/js/pages/Auth/Register.tsx": [
+    "/build/assets/Register-jiD2w_IH.js"
+  ],
+  "resources/js/pages/Auth/VerifyEmail.tsx": [
+    "/build/assets/VerifyEmail-Dxdd8Ccb.js"
+  ],
+  "resources/js/pages/Groups/AcceptInvitation.tsx": [
+    "/build/assets/AcceptInvitation-DYtglhyX.js"
+  ],
+  "resources/js/pages/Groups/Index.tsx": [
+    "/build/assets/Index-CkX_TqmR.js"
+  ],
+  "resources/js/pages/Groups/Show.tsx": [
+    "/build/assets/Show-BCkkPBZp.js"
+  ],
+  "resources/js/pages/Inbox.tsx": [
+    "/build/assets/Inbox-DH4i94xw.js"
+  ],
+  "resources/js/pages/Logbook.tsx": [
+    "/build/assets/Logbook-ftR_r-G4.js"
+  ],
+  "resources/js/pages/Projects/Index.tsx": [
+    "/build/assets/Index-BQYmSkX6.js"
+  ],
+  "resources/js/pages/Projects/Show.tsx": [
+    "/build/assets/Show-BKU1Hw6Z.js"
+  ],
+  "resources/js/pages/Sections/Show.tsx": [
+    "/build/assets/Show-rSUycV17.js"
+  ],
+  "resources/js/pages/Settings/Index.tsx": [
+    "/build/assets/Index-HKjuQ1tK.js"
+  ],
+  "resources/js/pages/Someday.tsx": [
+    "/build/assets/Someday-DWddXNNj.js"
+  ],
+  "resources/js/pages/Today.tsx": [
+    "/build/assets/Today-DUB6Vt9k.js"
+  ],
+  "resources/js/pages/Upcoming.tsx": [
+    "/build/assets/Upcoming-BOA7vcFV.js"
+  ],
+  "resources/js/routes/api/v1/headings/index.ts": [
+    "/build/assets/Show-BKU1Hw6Z.js"
+  ],
+  "resources/js/routes/groups/index.ts": [
+    "/build/assets/AcceptInvitation-DYtglhyX.js"
+  ],
+  "resources/js/routes/headings/index.ts": [
+    "/build/assets/Show-BKU1Hw6Z.js"
+  ],
+  "resources/js/routes/index.ts": [
+    "/build/assets/routes-BacphFsi.js"
+  ],
+  "resources/js/routes/password/index.ts": [
+    "/build/assets/Index-HKjuQ1tK.js"
+  ],
+  "resources/js/routes/profile/index.ts": [
+    "/build/assets/Index-HKjuQ1tK.js"
+  ],
+  "resources/js/routes/projects/headings/index.ts": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/routes/projects/index.ts": [
+    "/build/assets/AuthenticatedLayout-BBEUssZw.js"
+  ],
+  "resources/js/routes/verification/index.ts": [
+    "/build/assets/VerifyEmail-Dxdd8Ccb.js"
+  ],
+  "resources/js/ssr.tsx": [],
+  "resources/js/wayfinder/index.ts": [
+    "/build/assets/wayfinder-C_mx6M06.js"
+  ]
+}
