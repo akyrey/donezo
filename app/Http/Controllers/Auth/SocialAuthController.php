@@ -64,7 +64,7 @@ final class SocialAuthController extends Controller
 
             $socialAccount->update($tokenData);
 
-            Auth::login($socialAccount->user);
+            Auth::login($socialAccount->user, true);
 
             return redirect()->route('dashboard');
         }
@@ -91,7 +91,7 @@ final class SocialAuthController extends Controller
             'provider_id' => $socialUser->getId(),
         ], $tokenData));
 
-        Auth::login($user);
+        Auth::login($user, true);
 
         // Auto-accept a pending group invitation stored before the OAuth redirect
         $invitationToken = session()->pull('invitation_token');
