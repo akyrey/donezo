@@ -1,5 +1,6 @@
 import { useState, type SubmitEventHandler } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { show as showProject, store as storeProject } from '@/routes/projects';
 import { CheckCircle2, ChevronDown, ChevronRight, FolderKanban, Plus } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
@@ -25,7 +26,7 @@ function ProjectCard({ project, completed = false }: { project: Project; complet
 
   return (
     <Link
-      href={route('projects.show', project.id)}
+      href={showProject.url(project.id)}
       className={`group border-border bg-bg hover:border-primary/30 flex flex-col rounded-xl border p-5 transition-all hover:shadow-sm ${completed ? 'opacity-60' : ''}`}
     >
       <div className="mb-3 flex items-start justify-between">
@@ -95,7 +96,7 @@ function CreateProjectDialog({
 
   const submit: SubmitEventHandler = (e) => {
     e.preventDefault();
-    post(route('projects.store'), {
+    post(storeProject.url(), {
       onSuccess: () => {
         reset();
         onOpenChange(false);

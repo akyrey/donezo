@@ -29,3 +29,6 @@ Thumbs.db
 
 frankenphp-worker.php
 frankenphp
+/bootstrap/ssr
+/resources/js/actions
+/resources/js/routes

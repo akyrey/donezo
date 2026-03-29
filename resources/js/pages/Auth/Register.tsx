@@ -1,6 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import type { SubmitEventHandler } from 'react';
 import GuestLayout from '@/layouts/GuestLayout';
+import { register, login } from '@/routes';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
@@ -20,7 +21,7 @@ export default function Register({ invitationToken, invitationEmail }: Props) {
 
   const submit: SubmitEventHandler = (e) => {
     e.preventDefault();
-    post(route('register'), {
+    post(register.url(), {
       onFinish: () => reset('password', 'password_confirmation'),
     });
   };
@@ -145,7 +146,7 @@ export default function Register({ invitationToken, invitationEmail }: Props) {
 
         <p className="text-text-secondary mt-6 text-center text-sm">
           Already have an account?{' '}
-          <Link href={route('login')} className="text-primary hover:text-primary-dark font-medium">
+          <Link href={login.url()} className="text-primary hover:text-primary-dark font-medium">
             Sign in
           </Link>
         </p>

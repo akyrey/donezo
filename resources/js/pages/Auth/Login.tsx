@@ -1,6 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import type { SubmitEventHandler } from 'react';
 import GuestLayout from '@/layouts/GuestLayout';
+import { login, register } from '@/routes';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Checkbox } from '@/components/ui/Checkbox';
@@ -20,7 +21,7 @@ export default function Login({
 
   const submit: SubmitEventHandler = (e) => {
     e.preventDefault();
-    post(route('login'), {
+    post(login.url(), {
       onFinish: () => reset('password'),
     });
   };
@@ -118,7 +119,7 @@ export default function Login({
 
             {canResetPassword && (
               <Link
-                href={route('password.request')}
+                href="/password/request"
                 className="text-text-secondary hover:text-primary text-sm"
               >
                 Forgot password?
@@ -134,7 +135,7 @@ export default function Login({
         <p className="text-text-secondary mt-6 text-center text-sm">
           Don't have an account?{' '}
           <Link
-            href={route('register')}
+            href={register.url()}
             className="text-primary hover:text-primary-dark font-medium"
           >
             Create one

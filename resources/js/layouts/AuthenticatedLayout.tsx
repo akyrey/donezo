@@ -59,6 +59,7 @@ import {
 } from '@/hooks/useSections';
 import { useUpdateProjectMutation, useDeleteProjectMutation } from '@/hooks/useProjects';
 import { useBroadcast } from '@/hooks/useBroadcast';
+import { index as projectsIndex } from '@/routes/projects';
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -627,7 +628,7 @@ function SidebarContent({
         <div className="py-2">
           <div className="flex items-center justify-between px-3 py-1.5">
             <Link
-              href={route('projects.index')}
+              href={projectsIndex.url()}
               onClick={onNavigate}
               className="text-text-tertiary hover:text-text text-xs font-semibold tracking-wider uppercase transition-colors"
             >

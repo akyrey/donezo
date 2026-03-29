@@ -1,5 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import GuestLayout from '@/layouts/GuestLayout';
+import { send as sendVerification } from '@/routes/verification';
+import { logout } from '@/routes';
 import { Button } from '@/components/ui/Button';
 
 export default function VerifyEmail({ status }: { status?: string }) {
@@ -29,7 +31,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
           <Button
             className="w-full"
             disabled={resendProcessing}
-            onClick={() => postResend(route('verification.send'))}
+            onClick={() => postResend(sendVerification.url())}
           >
             {resendProcessing ? 'Sending...' : 'Resend verification email'}
           </Button>
@@ -38,7 +40,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
             variant="outline"
             className="w-full"
             disabled={logoutProcessing}
-            onClick={() => postLogout(route('logout'))}
+            onClick={() => postLogout(logout.url())}
           >
             Log out
           </Button>

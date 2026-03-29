@@ -44,6 +44,8 @@ import {
 import { useReorderTasksMutation, useReorderHeadingsMutation } from '@/hooks/useTasks';
 import { useRenameHeadingMutation } from '@/hooks/useHeadings';
 import { useProjectExport } from '@/hooks/useExport';
+import { store as storeHeading } from '@/routes/projects/headings';
+import { destroy as destroyHeading } from '@/routes/headings';
 import type { Project, Task, Heading } from '@/types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -81,7 +83,7 @@ function AddHeadingDialog({
 
   const submit: SubmitEventHandler = (e) => {
     e.preventDefault();
-    post(route('projects.headings.store', projectId), {
+    post(storeHeading.url(projectId), {
       onSuccess: () => {
         reset();
         onOpenChange(false);
@@ -203,7 +205,7 @@ function HeadingRow({ heading, taskCount }: { heading: Heading; taskCount: numbe
   const [renameOpen, setRenameOpen] = useState(false);
 
   function handleDelete() {
-    destroy(route('headings.destroy', heading.id));
+    destroy(destroyHeading.url(heading.id));
   }
 
   return (

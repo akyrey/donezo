@@ -1,6 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
 import { Users, CheckCircle, XCircle, Clock } from 'lucide-react';
 import GuestLayout from '@/layouts/GuestLayout';
+import { login } from '@/routes';
+import { show as showGroup } from '@/routes/groups';
 import { Button } from '@/components/ui/Button';
 import { useAcceptInvitationMutation } from '@/hooks/useGroups';
 import axios from '@/lib/axios';
@@ -58,7 +60,7 @@ export default function AcceptInvitation({ invitation }: Props) {
               send you a new invitation.
             </p>
             <Button className="mt-6" asChild>
-              <Link href={route('login')}>Go to login</Link>
+              <Link href={login.url()}>Go to login</Link>
             </Button>
           </div>
         ) : mutation.isSuccess ? (
@@ -71,7 +73,7 @@ export default function AcceptInvitation({ invitation }: Props) {
             </h1>
             <p className="text-text-secondary text-sm">You are now a member of the group.</p>
             <Button className="mt-6" asChild>
-              <Link href={route('groups.show', mutation.data!.group_id)}>Go to group</Link>
+              <Link href={showGroup.url(mutation.data!.group_id)}>Go to group</Link>
             </Button>
           </div>
         ) : mutation.isError ? (
