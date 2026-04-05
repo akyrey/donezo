@@ -21,8 +21,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(axios@1.14.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@inertiajs/vite':
-        specifier: ^3.0.0
-        version: 3.0.0(axios@1.14.0)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1))
+        specifier: ^3.0.2
+        version: 3.0.2(axios@1.14.0)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1))
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -369,14 +369,22 @@ packages:
       axios:
         optional: true
 
+  '@inertiajs/core@3.0.2':
+    resolution: {integrity: sha512-ZBfV4HK5zjPC76VQ42WcgFdPmtO8zi+fzdkFBF0uM7EVwC5MSS8UITg8Yon4lb/i0X9bE3Ym16uHzgcPP1lL3Q==}
+    peerDependencies:
+      axios: ^1.13.2
+    peerDependenciesMeta:
+      axios:
+        optional: true
+
   '@inertiajs/react@3.0.0':
     resolution: {integrity: sha512-3rpBSz/oKXAFj4sy5HhiwwfqTHWrz+iqa/iYdwaSLe9+zZlabyQnXLls1wYsHgqQntR06+E0yASCnYyNQP7+Tw==}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
 
-  '@inertiajs/vite@3.0.0':
-    resolution: {integrity: sha512-kF+7wkjVr+itJw4s8eNnJjeW6kMKyO3U2qunOP/s0WXyeP6naXJxhv9NQNOf5qHuXW2SgVDKTXuzC5qcfQXf6g==}
+  '@inertiajs/vite@3.0.2':
+    resolution: {integrity: sha512-i/Pg9dprdLRae59Ek2Sf8GtCCmzQSR+bBz1nhbz23UcDC17ZqMzPSlWa37qvzESMbEqTjz+8wuxUz5+sfPlijQ==}
     peerDependencies:
       vite: ^7.0.0 || ^8.0.0
 
@@ -2251,6 +2259,14 @@ snapshots:
     optionalDependencies:
       axios: 1.14.0
 
+  '@inertiajs/core@3.0.2(axios@1.14.0)':
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      es-toolkit: 1.45.1
+      laravel-precognition: 2.0.0(axios@1.14.0)
+    optionalDependencies:
+      axios: 1.14.0
+
   '@inertiajs/react@3.0.0(axios@1.14.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       '@inertiajs/core': 3.0.0(axios@1.14.0)
@@ -2261,9 +2277,10 @@ snapshots:
     transitivePeerDependencies:
       - axios
 
-  '@inertiajs/vite@3.0.0(axios@1.14.0)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1))':
+  '@inertiajs/vite@3.0.2(axios@1.14.0)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1))':
     dependencies:
-      '@inertiajs/core': 3.0.0(axios@1.14.0)
+      '@inertiajs/core': 3.0.2(axios@1.14.0)
+      tinyglobby: 0.2.15
       vite: 8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)
     transitivePeerDependencies:
       - axios
