@@ -18,8 +18,8 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@19.2.4)
       '@inertiajs/react':
-        specifier: ^3.0.0
-        version: 3.0.0(axios@1.14.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^3.0.2
+        version: 3.0.2(axios@1.14.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@inertiajs/vite':
         specifier: ^3.0.0
         version: 3.0.0(axios@1.14.0)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1))
@@ -369,8 +369,16 @@ packages:
       axios:
         optional: true
 
-  '@inertiajs/react@3.0.0':
-    resolution: {integrity: sha512-3rpBSz/oKXAFj4sy5HhiwwfqTHWrz+iqa/iYdwaSLe9+zZlabyQnXLls1wYsHgqQntR06+E0yASCnYyNQP7+Tw==}
+  '@inertiajs/core@3.0.2':
+    resolution: {integrity: sha512-ZBfV4HK5zjPC76VQ42WcgFdPmtO8zi+fzdkFBF0uM7EVwC5MSS8UITg8Yon4lb/i0X9bE3Ym16uHzgcPP1lL3Q==}
+    peerDependencies:
+      axios: ^1.13.2
+    peerDependenciesMeta:
+      axios:
+        optional: true
+
+  '@inertiajs/react@3.0.2':
+    resolution: {integrity: sha512-gEJ8vpXpxxZ3ZMiYISn0RggggX54My7VpOU4kR7dEPdPBlIJSieZKHAgyt4klFSzxdNSK2QWpE4kqsWVMh7YNg==}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
@@ -2251,9 +2259,17 @@ snapshots:
     optionalDependencies:
       axios: 1.14.0
 
-  '@inertiajs/react@3.0.0(axios@1.14.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@inertiajs/core@3.0.2(axios@1.14.0)':
     dependencies:
-      '@inertiajs/core': 3.0.0(axios@1.14.0)
+      '@jridgewell/trace-mapping': 0.3.31
+      es-toolkit: 1.45.1
+      laravel-precognition: 2.0.0(axios@1.14.0)
+    optionalDependencies:
+      axios: 1.14.0
+
+  '@inertiajs/react@3.0.2(axios@1.14.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+    dependencies:
+      '@inertiajs/core': 3.0.2(axios@1.14.0)
       es-toolkit: 1.45.1
       laravel-precognition: 2.0.0(axios@1.14.0)
       react: 19.2.4
