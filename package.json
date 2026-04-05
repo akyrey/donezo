@@ -14,7 +14,7 @@
     "@laravel/vite-plugin-wayfinder": "^0.1.7",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query-devtools": "^5.95.2",
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
     "concurrently": "^9.2.1",
     "laravel-vite-plugin": "^3.0.0",
     "prettier": "3.8.1",
