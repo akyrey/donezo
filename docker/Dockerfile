@@ -21,22 +21,6 @@ ARG WORKDIR="/app"
 FROM composer:${COMPOSER_VERSION} AS vendor
 FROM caddy:${CADDY_VERSION}-builder AS builder
 
-## Node stage for assets building stage ########################################
-FROM node:${NODE_VERSION} AS assets
-
-ARG WORKDIR
-
-ENV WORKDIR="$WORKDIR"
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-WORKDIR ${WORKDIR}
-COPY --link package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-COPY --link . .
-RUN pnpm run build:ssr
-
 ## Caddy builder stage #########################################################
 FROM dunglas/frankenphp:${FRANKEN_VERSION}-builder-php${PHP_VERSION}-alpine AS caddy
 
@@ -171,6 +155,64 @@ COPY --link --chown=${WWWUSER}:${WWWUSER} ./docker/deployment/supervisord.conf /
 COPY --link --chown=${WWWUSER}:${WWWUSER} ./docker/deployment/supervisord.*.conf /etc/supervisor/conf.d/
 COPY --link --chown=${WWWUSER}:${WWWUSER} ./docker/deployment/php.ini ${PHP_INI_DIR}/conf.d/99-octane.ini
 
+## Installer stage and wayfinder route files generation ########################
+FROM franken AS installer
+
+# Vendor files installation
+COPY --link --chown=${WWWUSER}:${WWWUSER} composer.json composer.lock ./
+# Cannot use --classmap-authoritative since some classes are loaded dynamically by Laravel
+# See https://laravel.com/docs/10.x/deployment#optimization for more details
+RUN --mount=type=cache,id=composer,target=/tmp/composer-cache \
+     composer install \
+        --no-ansi \
+        --no-cache \
+        --no-dev \
+        --no-interaction \
+        --no-progress \
+        --no-scripts \
+        --prefer-dist \
+        --optimize-autoloader \
+        --apcu-autoloader
+
+## Wayfinder route files generation requires the application to be fully built, so we need to copy all the application files before running it
+FROM installer AS wayfinder
+
+COPY --link --chown=${WWWUSER}:${WWWUSER} . .
+
+RUN mkdir -p \
+        bootstrap/cache \
+        storage/framework/cache \
+        storage/framework/sessions \
+        storage/framework/testing \
+        storage/framework/views \
+        storage/logs \
+    && chmod -R a+rw storage bootstrap/cache
+
+RUN php artisan wayfinder:generate --no-ansi --no-interaction
+
+## Node stage for assets building stage ########################################
+FROM node:${NODE_VERSION} AS assets
+
+ARG WORKDIR
+
+ENV WORKDIR="$WORKDIR"
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV WAYFINDER_SKIP_GENERATE=1
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR ${WORKDIR}
+
+COPY --link package.json pnpm-lock.yaml ./
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+COPY --link . .
+COPY --from=wayfinder ${WORKDIR}/resources/js/actions ./resources/js/actions
+COPY --from=wayfinder ${WORKDIR}/resources/js/routes ./resources/js/routes
+
+RUN pnpm run build:ssr
+
 ## Final image build (runner) ##################################################
 FROM franken AS runner
 
@@ -190,25 +232,12 @@ ENV APP_NAME="${APP_NAME}" \
     APP_VERSION="${APP_VERSION}" \
     APP_VERSION_HASH="${APP_VERSION_HASH}"
 
-# Vendor files installation
-COPY --link --chown=${WWWUSER}:${WWWUSER} composer.json composer.lock ./
-# Cannot use --classmap-authoritative since some classes are loaded dynamically by Laravel
-# See https://laravel.com/docs/10.x/deployment#optimization for more details
-RUN --mount=type=cache,id=composer,target=/tmp/composer-cache \
-     composer install \
-        --no-ansi \
-        --no-cache \
-        --no-dev \
-        --no-interaction \
-        --no-progress \
-        --no-scripts \
-        --prefer-dist \
-        --optimize-autoloader \
-        --apcu-autoloader
-
 # Application files
 COPY --link --chown=${WWWUSER}:${WWWUSER} ./artisan artisan
 COPY --link --chown=${WWWUSER}:${WWWUSER} ./.env.production .env
+COPY --link --chown=${WWWUSER}:${WWWUSER} --from=installer ${WORKDIR}/composer.json composer.json
+COPY --link --chown=${WWWUSER}:${WWWUSER} --from=installer ${WORKDIR}/composer.lock composer.lock
+COPY --link --chown=${WWWUSER}:${WWWUSER} --from=installer ${WORKDIR}/vendor vendor
 COPY --link --chown=${WWWUSER}:${WWWUSER} --from=assets ${WORKDIR}/public public
 # Copy Inertia SSR requirements (Node binary and node_modules)
 COPY --link --chown=${WWWUSER}:${WWWUSER} --from=assets /usr/local/bin/node /usr/local/bin/node
