@@ -8,7 +8,9 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [
-    wayfinder(),
+    wayfinder({
+      command: process.env.WAYFINDER_SKIP_GENERATE === '1' ? 'true' : 'php artisan wayfinder:generate',
+    }),
     inertia(),
     laravel({
       input: ['resources/css/app.css', 'resources/js/app.tsx'],
